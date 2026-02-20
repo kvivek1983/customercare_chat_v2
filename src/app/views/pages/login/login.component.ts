@@ -51,6 +51,7 @@ export class LoginComponent implements OnInit {
     this.requestData = {
       username: this.loginForm.get("username")!.value,
       password: this.loginForm.get("password")!.value,
+      login_from: "customercare"
     };
 
     this.loading = true;
@@ -60,14 +61,14 @@ export class LoginComponent implements OnInit {
         this.responseData = data;
         console.log(this.responseData);
 
-        if (this.responseData.token) {
+        if (this.responseData.accessToken) {
           const loginDetails = {
             isLoggedIn: true,
             date_time: new Date(),
-            accessToken: this.responseData.token,
-            agentNumber: this.responseData.agent_number,
-            adminUserId: this.responseData.executive_id,
-            executive_id: this.responseData.executive_id,
+            accessToken: this.responseData.accessToken,
+            agentNumber: this.responseData.agentNumber,
+            adminUserId: this.responseData.adminid,
+            executive_id: this.responseData.adminid,
             executive_name: this.responseData.name
           };
 
@@ -78,7 +79,7 @@ export class LoginComponent implements OnInit {
           }
 
           // Connect WebSocket with JWT
-          this.chatService.connect(this.responseData.token);
+          this.chatService.connect(this.responseData.accessToken);
 
           this.loading = false;
           this.router.navigate([this.returnUrl]);
