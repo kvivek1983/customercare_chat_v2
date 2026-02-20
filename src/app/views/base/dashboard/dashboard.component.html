@@ -1,0 +1,81 @@
+<div class="dashboard-container">
+    <div class="dashboard-grid">
+  
+      <!-- <mat-card class="dashboard-card">
+        <mat-card-title>Messages Overview</mat-card-title>
+        <mat-card-content>
+          <h2 class="total-count">5,320</h2>
+          <p class="subtitle">Total Messages This Week</p>
+        </mat-card-content>
+      </mat-card> -->
+  
+      <mat-card class="dashboard-card borrower-widget">
+        <div class="card-header">
+          <span class="title">Driver Chat</span>
+          <!-- <div class="actions">
+            <button mat-icon-button color="primary" aria-label="Calendar">
+                <mat-icon>calendar_today</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" aria-label="More options">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+          </div> -->
+        </div>
+      
+        <div class="content-row">
+          <!-- Left: Circular progress -->
+          <div class="chart-circle">
+            <ngx-charts-pie-chart
+              [view]="[200, 200]"
+              [results]="chartData"
+              [scheme]="donutColorScheme"
+              [doughnut]="true"
+              [arcWidth]="0.3"
+              [labels]="false"
+              [legend]="false">
+            </ngx-charts-pie-chart>
+            <div class="centered-value">
+              <h2>{{ totalValue }}</h2>
+              <p>Total Chat</p>
+            </div>
+          </div>
+      
+          <!-- Right: Legend breakdown -->
+          <div class="legend-list">
+            <div *ngFor="let s of chartData" class="legend-item">
+              <span class="color-dot" [style.backgroundColor]="getLegendColor(s.name)"></span>
+              <span class="label">{{ s.name }}</span>
+              <span class="value">{{ s.value }}</span>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="dashboard-card unattended-card">
+        <mat-card-title class="chart-title">Unattended Chats Timeline</mat-card-title>
+        <mat-card-content style="flex: 1; display: flex; flex-direction: column;">
+          <ngx-charts-area-chart *ngIf="unattendedChartData.length"
+            [results]="unattendedChartData"
+            [xAxis]="true"
+            [yAxis]="true"
+            [yScaleMax]="getYMaxValue()"
+            [xAxisTickFormatting]="formatTimeTicks"
+            [yAxisTickFormatting]="formatYAxisTick"
+            [gradient]="false"
+            [showXAxisLabel]="true"
+            [showYAxisLabel]="true"
+            [xAxisLabel]="'Time'"
+            [yAxisLabel]="'Unattended Chats'"
+            [autoScale]="false"
+            [timeline]="true"
+            [view]="[700, 300]"
+            [scheme]="lineChartColorScheme"
+            [curve]="curveBasis"
+            [animations]="true"
+          ></ngx-charts-area-chart>
+        </mat-card-content>
+      </mat-card>
+  
+    </div>
+  </div>
+  

@@ -1,0 +1,672 @@
+<div class="row">
+
+  <div *ngIf="showBookingDetailsByIdHead" class="col-md-7 col-12 mt-1 mb-2">
+    <div class="row">
+      <div class="col-md-6 col-6">
+        <a class="btn" style="background: #ffd502;padding: 5px 15px 5px 5px;color: #088dce;"
+          role="button" (click)="back()">
+          <img src="assets/images/back-arrow.png" style="height: 25px;width: 25px;"> Back
+        </a>
+      </div>
+
+      <div class="col-md-6 col-6 text-right">
+        <h4>{{responseData.list[0].display_booking}}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="showBookingDetailsByIdBlk" class="col-md-7 col-12" id="accordion">
+
+    <div class="card mb-2">
+      <div class="card-header d-flex justify-content-between align-items-center" style="padding: 10px 15px;" data-toggle="collapse" href="#collapseOne">
+        <span>Trip Details</span>
+        <button class="btn btn-sm btn-primary" (click)="copyCardContent('card1')">Copy</button>
+      </div>
+      <div id="collapseOne" class="collapse show" data-parent="#accordion">
+        <div class="card-body" id="card1">
+
+          <div class="row">
+            <div class="col-md-12 col-12">
+              <p>Booking ID : {{responseData.list[0].display_booking}}</p>
+            </div>
+            <div class="col-md-12 col-12">
+              <p>Trip : {{responseData.list[0].trip_type}}</p>
+            </div>
+            <div class="col-md-12 col-12">
+              <p>Route : {{responseData.list[0].route_details | removeBr | replaceArrow}}</p>
+            </div>
+            <div class="col-md-12 col-12">
+              <p>Cab Type : {{responseData.list[0].booking_car_type}}</p>
+            </div>
+            <div class="col-md-12 col-12" *ngIf="responseData.list[0].tripTypeId == 4 && responseData.list[0].is_premium_outstation == 1">
+              <p>Booking Cab Model : {{responseData.list[0].carManufactureType}} -> {{responseData.list[0].carFuelType}} ->
+                {{responseData.list[0].carModelType}}</p>
+            </div>
+            <div class="col-md-12 col-12" *ngIf="responseData.list[0].tripTypeId == 4">
+              <p>Number of Day : {{responseData.list[0].totalDays}}</p>
+            </div>
+            <div class="col-md-12 col-12">
+              <p>Pickup Date-Time : {{responseData.list[0].pick_update_time}}</p>
+            </div>
+            <div class="col-md-12 col-12">
+              <p>Pick Up Address : {{responseData.list[0].pickup_address}}</p>
+            </div>
+            <div class="col-md-12 col-12" *ngIf="responseData.list[0].tripTypeId != '2'">
+              <p>Drop Address : {{responseData.list[0].drop_address}}</p>
+            </div>
+            <div class="col-md-12 col-12" *ngIf="responseData.list[0].journe_start_date_time">
+              <p>Journe Start Date-Time : {{responseData.list[0].journe_start_date_time}}</p>
+            </div>
+            <div class="col-md-12 col-12" *ngIf="responseData.list[0].journe_end_date_time">
+              <p>Journe End Date-Time : {{responseData.list[0].journe_end_date_time}}</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>Fare Car Type : {{responseData.list[0].fareCarTypeText}}</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-2">
+      <div class="card-header d-flex justify-content-between align-items-center" style="padding: 10px 15px;" data-toggle="collapse" href="#collapseTwo">
+          <span>Trip Details More</span>
+          <button class="btn btn-sm btn-primary" (click)="copyCardContent('card2')">Copy</button>
+      </div>
+      <div id="collapseTwo" class="collapse" data-parent="#accordion">
+        <div class="card-body" id="card2">
+
+          <div class="row">
+            <div class="col-md-12 col-12" *ngIf="responseData.list[0].tripTypeId == 1">
+              <p>Booking Type : {{responseData.list[0].bookingType}}</p>
+            </div>
+            
+            <div class="col-md-12 col-12" *ngIf="responseData.list[0].companyId != null">
+              <p>Corporate : {{responseData.list[0].companyName}}</p>
+            </div>
+
+            <div class="col-md-12 col-12">
+              <p>Status : {{ abundant ? 'Abundant Booking' : responseData.list[0].bookStatus }}</p>
+            </div>
+
+            <div class="col-md-12 col-12">
+              <p>Booking From : {{responseData.list[0].booking_from}}</p>
+            </div>
+
+            <div class="col-md-12 col-12" *ngIf="responseData.list[0].isCorporateBooking == 'Yes'">
+              <p>Corporate Booking : {{responseData.list[0].isCorporateBooking}}</p>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-2" *ngIf="responseData.list[0].cancelReason">
+      <div class="card-header" style="padding: 10px 15px;" data-toggle="collapse" href="#collapseThree">
+          Cancel Details
+      </div>
+      <div id="collapseThree" class="collapse" data-parent="#accordion">
+        <div class="card-body">
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Reason </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].cancelReason}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Cancel By</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].cancelBy}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Booking Cancelled By </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].bookingCancelledBy}}</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-2" *ngIf="responseData.list[0].bookStatus !== 'Pending assignment'">
+      <div class="card-header" style="padding: 10px 15px;" data-toggle="collapse" href="#collapseFour">
+          Driver Details
+      </div>
+
+      <div id="collapseFour" class="collapse" data-parent="#accordion">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Cab Reg No. </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{driverDetailsOfBookingRes.details?.cabRegistrationNumber | uppercase}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Cab Manufacturer </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{driverDetailsOfBookingRes.details?.cabManufacturer}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Cab Model </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{driverDetailsOfBookingRes.details?.cabModel}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Cab Fule Type </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{driverDetailsOfBookingRes.details?.fuelType}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Arrived At Customer Location Distance</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{driverDetailsOfBookingRes.details?.arrivedLocationDistance}} km</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12 col-12">
+              <p style="background-color:#c3e6f7;padding:5px;margin:10px 0px;">
+                Arrived At Customer Location Driver Photo
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-1 col-1">
+              <img src="{{driverDetailsOfBookingRes.details?.arrivedAtCustomerLocationDriverPicUrl}}"
+                class="rounded-circle" alt="" style="width: 100px;">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12 col-12">
+              <p style="background-color:#c3e6f7;padding:5px;margin:10px 0px;">
+                Driver Cab Photos
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-3 col-6">
+              <img src="{{this.driverAndCabImagesRes.driverProfileImage}}" class="rounded-circle" alt=""
+                style="width: 100px;">
+            </div>
+
+            <div class="col-md-3 col-6 mb-2">
+              <img src="{{this.driverAndCabImagesRes.frontImage}}" class="rounded roundedCus" alt="">
+            </div>
+
+            <div class="col-md-3 col-6">
+              <img src="{{this.driverAndCabImagesRes.backImage}}" class="rounded roundedCus" alt="">
+            </div>
+
+            <div class="col-md-3 col-6 mb-2">
+              <img src="{{this.driverAndCabImagesRes.sideLeftImage}}" class="rounded roundedCus" alt="">
+            </div>
+
+            <div class="col-md-3 col-6">
+              <img src="{{this.driverAndCabImagesRes.interiorFrontImage}}" class="rounded roundedCus" alt="">
+            </div>
+
+            <div class="col-md-3 col-6 mb-2">
+              <img src="{{this.driverAndCabImagesRes.interiorBackImage}}" class="rounded roundedCus" alt="">
+            </div>
+
+            <div class="col-md-3 col-6">
+              <img src="{{this.driverAndCabImagesRes.daickieBootUrl}}" class="rounded roundedCus" alt="">
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-2">
+      <div class="card-header" style="padding: 10px 15px;" data-toggle="collapse" href="#collapseFive">
+          Fare & Payment Detail
+      </div>
+      <div id="collapseFive" class="collapse" data-parent="#accordion">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-12 col-12">
+              <p style="background-color:#c3e6f7;padding:5px;margin:10px 0px;">
+                Fare Details
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Fare </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].base_fare}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Toll-Tax </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].toll_tax}}
+
+                <span>
+                  (
+                  {{ responseData.list[0].aiportEntryCharge > 0 ? (responseData.list[0].aiportEntryCharge + ' Rs.
+                  Airport Entry charge ,') : '' }}
+                  {{ responseData.list[0].interStateCharge > 0 ? (responseData.list[0].interStateCharge + ' Rs. Inter
+                  State charge ,') : '' }}
+                  {{ (responseData.list[0].tolltaxCharge > 0 && responseData.list[0].tolltaxCharge !=
+                  responseData.list[0].toll_tax) ? (responseData.list[0].tolltaxCharge + ' Rs. Toll Tax') : '' }}
+                  )
+                </span>
+
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Discount </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].discount_amount}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>GST (5%) </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].gst}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Extra Charges </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].extra_charges}}</p>
+            </div>
+          </div>
+
+          <div *ngIf="responseData.list[0].tripTypeId == 4" class="row">
+            <div class="col-md-6 col-6">
+              <p>Extra KM </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].extraKM}}</p>
+            </div>
+          </div>
+
+          <div *ngIf="responseData.list[0].tripTypeId == 4" class="row">
+            <div class="col-md-6 col-6">
+              <p>Chargeable KM </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].total_chargable_kilometer}}</p>
+            </div>
+          </div>
+
+          <div *ngIf="responseData.list[0].tripTypeId == 4" class="row">
+            <div class="col-md-6 col-6">
+              <p>Rate Per KM </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].outstation_rate_per_km}}</p>
+            </div>
+          </div>
+
+          <div *ngIf="responseData.list[0].tripTypeId == 4" class="row">
+            <div class="col-md-6 col-6">
+              <p>Total Driver Allowance </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].total_driver_allowance}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Total Fare </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].total_amount}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12 col-12">
+              <p style="background-color:#c3e6f7;padding:5px;margin:10px 0px;">
+                Payment Details
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Payment Type </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].paymentType}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Pre-paid Online </p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].onlineAmount}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>OneWay Cash</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].walletAmount}} </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>To be paid to Driver</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: Rs {{responseData.list[0].cashAmount | number:'1.0-0'}}</p>
+            </div>
+          </div>
+
+          <!-- <div class="row">
+                <div class="col-md-6 col-6">
+                  <button *ngIf="advancePaymentBtn" type="button" class="btn btn-warning"
+                    (click)="advancePaymentShow(responseData.list[0].book_id, responseData.list[0].display_booking)">
+                    collect Advance
+                  </button>
+                </div>
+    
+                <div class="col-md-6 col-6">
+                  <p></p>
+                </div>
+    
+              </div> -->
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-2" *ngIf="viewCon">
+      <div class="card-header" style="padding: 10px 15px;" data-toggle="collapse" href="#paymentTrials">
+        Guest Information
+      </div>
+      <div id="paymentTrials" class="collapse" data-parent="#accordion">
+        <div class="card-body">
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Guest Name</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].passenger_name}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Country Code</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].countryCode}}</p>
+            </div>
+          </div>
+          <div class="row" *ngIf="responseData.list[0].countryCode != +91 && responseData.list[0].countryCode != 91">
+            <div class="col-md-6 col-6">
+              <p>Customer Type</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: International </p>
+            </div>
+          </div>
+
+          <!-- <p *ngIf="viewData.passengerContactNumber=='' && viewData.userContactNumber=='' " style="color: red;">NOTE :
+                {{viewData.passengerName}}</p>
+              <div class="row">
+                <div class="col-md-6 col-6">
+                  <p>Passenger Number</p>
+                </div>
+                <div class="col-md-6 col-6">
+                  <p>: {{viewData.passengerContactNumber}}</p>
+                </div>
+              </div> -->
+
+          <!-- <div class="row">
+                <div class="col-md-6 col-6">
+                  <p>User Number</p>
+                </div>
+                <div class="col-md-6 col-6">
+                  <p>: {{viewData?.userContactNumber}} </p>
+                </div>
+              </div> -->
+
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-2" *ngIf="responseData.list[0].refundList != null && responseData.list[0].refundList.length == 1">
+      <div class="card-header" style="padding: 10px 15px;" data-toggle="collapse" href="#refundDetails">
+          Refund Details
+      </div>
+
+      <div *ngIf="responseData.list[0].paymentType == 'Online - Paytm'" id="refundDetails" class="collapse"
+        data-parent="#accordion">
+        <div class="card-body">
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Payment From</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].paymentFrom}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>paytm Txn Id</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].paytmTxnId}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>paytm Order Id</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].paytmOrderId}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Paytm Refund Amount</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].paytmRefundAmount}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>paytm Refund Id</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].paytmRefundId}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Date & Time</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].userCreditInitiateTimestamp}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>paytm Refund Issue Bank Name</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].paytmRefundIssueBankName}}</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div *ngIf="responseData.list[0].paymentType == 'Online - PayU'" id="refundDetails" class="collapse"
+        data-parent="#accordion">
+        <div class="card-body">
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Payment From</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].paymentFrom}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>PayU Refund Amount</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].payURefundAmount}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>PayU Request Id</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].payURequestId}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>PayU Txn Id</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].payUTxnId}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>PayU Bank RefNum</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].payUBankRefNum}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>Date & Time</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].addedon}}</p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 col-6">
+              <p>PayU Bank Arn</p>
+            </div>
+            <div class="col-md-6 col-6">
+              <p>: {{responseData.list[0].refundList[0].payUBankArn}}</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="card mb-2" *ngIf="responseData.list[0].onlineTransactionDetails != null">
+      <div class="card-header" style="padding: 10px 15px;" data-toggle="collapse" href="#transaction">
+          Transaction Details
+      </div>
+
+      <div id="transaction" class="collapse" data-parent="#accordion">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Unique Id</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let data of responseData.list[0].onlineTransactionDetails; index as i">
+                  <td>{{data.uniqueId}}</td>
+                  <td>{{data.transactionDate}}</td>
+                  <td>{{data.status}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>        
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

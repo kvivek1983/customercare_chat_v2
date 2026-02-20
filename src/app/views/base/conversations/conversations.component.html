@@ -1,0 +1,303 @@
+<!-- Mobile Search (Partner + Vendor only) -->
+<div class="d-flex flex-row-reverse" *ngIf="config.showMobileSearch">
+  <div class="col-md-4 col-12">
+    <form [formGroup]="mobileForm">
+
+      <div class="form-group d-flex align-items-start">
+        <input type="text" id="mobileNumber" formControlName="mobileNumber" class="form-control mr-2"
+          placeholder="Enter 10-digit mobile number" style="max-width: 250px;" />
+        <button type="button" class="btn btn-primary mr-2" (click)="searchMobile()">Search</button>
+        <button type="button" class="btn btn-secondary" (click)="clearMobile()">Clear</button>
+      </div>
+
+      <div *ngIf="mobileNumber?.invalid && (mobileNumber?.touched || mobileNumber?.dirty)" class="text-danger mt-1">
+        <small *ngIf="mobileNumber?.errors?.['required']">Mobile number is required.</small>
+        <small *ngIf="mobileNumber?.errors?.['pattern']">Must be a 10-digit number.</small>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="row">
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Sidebar with Chat List -->
+  <div class="col-md-3 scrollable-list">
+    <app-chat-number-list
+      [customerType]="config.chatListCustomerType"
+      [showFilter]="config.showChatListFilter"
+      [dateFormat]="config.chatListDateFormat"
+      [showCustomerName]="config.showChatListCustomerName"
+      (chatSelected)="navigateToChat($event)"
+      (dropdownSelected)="handleDropdownSelected($event)">
+    </app-chat-number-list>
+  </div>
+
+  <!-- Loading indicator (Partner only) -->
+  <div *ngIf="loadingNewData" class="col-md-7 col-12 loading-spinner text-danger">
+    Loading Data...
+  </div>
+
+  <div class="col-md-4 mb-2 scrollable-list" style="margin-top: -10px;margin-bottom: -100px;">
+
+    <div class="message-input" *ngIf="isResolved">
+      <p>Is this chat Resolved?
+        <button (click)="saveResolved()">Yes</button>
+        <button (click)="closeResolved()">No</button>
+      </p>
+    </div>
+
+    <!-- Chat Thread -->
+    <div class="chat-thread" *ngIf="!isResolved && selectedChat">
+
+      <h4 class="message-input">
+        Chat with {{ getChatTitle() }}
+        <span class="assigned-to-header" *ngIf="assignedExecutiveName">
+          <span class="assigned-to-icon">&#128100;</span> {{ assignedExecutiveName }}
+        </span>
+        <!-- SLA Timer full (Phase 3 Step 2) -->
+        <app-sla-timer *ngIf="selectedChat?.last_incoming_message_time"
+          [startTime]="selectedChat.last_incoming_message_time"
+          [isActive]="selectedChat?.last_interaction_by === 'Customer'"
+          [compact]="false">
+        </app-sla-timer>
+        <button *ngIf="config.showResolvedButton" (click)="initiateResolve()">Resolved</button>
+      </h4>
+
+      <!-- Tag Bar (Phase 3 Step 3) -->
+      <div class="tag-bar" *ngIf="selectedChat">
+        <span class="tag-bar-label">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+            stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
+            <line x1="7" y1="7" x2="7.01" y2="7"/>
+          </svg>
+          Tags:
+        </span>
+        <span class="tag-pill tag-pill--removable" *ngFor="let tag of selectedChat.tags">
+          {{ tag }}
+          <span class="tag-pill-remove" (click)="removeTag(tag)">&times;</span>
+        </span>
+        <div class="tag-selector-wrapper">
+          <button class="tag-add-btn" (click)="toggleTagSelector()">+ Add Tag</button>
+          <div class="tag-selector-dropdown" *ngIf="showTagSelector && availableTags.length > 0">
+            <div class="tag-selector-option" *ngFor="let tag of availableTags" (click)="addTag(tag)">
+              {{ tag }}
+            </div>
+          </div>
+          <div class="tag-selector-dropdown" *ngIf="showTagSelector && availableTags.length === 0">
+            <div class="tag-selector-empty">No more tags available</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="messages" #messageContainer (scroll)="onScroll()">
+
+        <div *ngIf="currentPage < totalPages && !isLoading" class="load-more">
+          <button (click)="loadMoreMessages()">Load More</button>
+        </div>
+
+        <div *ngIf="isLoading" class="loading-spinner">
+          Loading...
+        </div>
+
+        <div *ngFor="let message of chats">
+
+          <!-- Date Separator -->
+          <div *ngIf="message.chat_type === 'date-separator'" class="date-separator">
+            <span>{{ formatDate(message.date) }}</span>
+          </div>
+
+          <!-- Chat Message -->
+          <div *ngIf="message.chat_type === 'message' && (message.message || message.media_type)"
+            [ngClass]="{'user-message': isUserMessage(message), 'agent-message': message.type === 'Agent'}">
+
+            <div class="message-bubble" *ngIf="message.message">
+              <span class="message-text">{{ message.message }}</span>
+              <span class="message-time">{{ formatTime(message.datetime) }}</span>
+            </div>
+
+            <div class="media-container" *ngIf="message.mediaUrl">
+
+              <!-- Audio -->
+              <audio *ngIf="message.media_type === 'audio'" controls>
+                <source [src]="message.mediaUrl" type="audio/mpeg">
+              </audio>
+
+              <!-- Image -->
+              <img *ngIf="message.media_type === 'image'" [src]="message.mediaUrl" alt="Image">
+
+              <!-- Video -->
+              <video *ngIf="message.media_type === 'video'" controls>
+                <source [src]="message.mediaUrl" type="video/mp4">
+              </video>
+
+              <!-- Document -->
+              <a *ngIf="message.media_type === 'document'" [href]="message.mediaUrl" target="_blank"
+                class="document-link">
+                {{ message.media.filename || 'Download Document' }}
+              </a>
+
+              <!-- Common timestamp for all media -->
+              <span class="message-time">{{ formatTime(message.datetime) }}</span>
+
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Template Picker (Phase 4 Step 6) -->
+      <app-template-picker
+        [stakeholderType]="config.chatListCustomerType"
+        [isExpanded]="showTemplatePicker"
+        (templateSelected)="onTemplateSelected($event)"
+        (closed)="closeTemplatePicker()">
+      </app-template-picker>
+
+      <!-- Input Area: textarea (Partner/Vendor), input (SRDP), none (Customer) -->
+      <div style="border-top: 1px solid #bdc3c7;margin-bottom: -20px;">
+
+        <!-- Textarea input (Partner + Vendor) -->
+        <ng-container *ngIf="config.inputType === 'textarea'">
+          <div *ngIf="isWhatsappChatOpen == 1" class="chat-input-wrapper-agent mt-1">
+            <textarea type="text" class="chat-input" rows="1" [(ngModel)]="newMessage" placeholder="Type your message..."
+              (keydown)="handleKeydown($event)" (input)="resizeTextarea($event)"></textarea>
+            <div class="chat-actions">
+              <button class="circle-btn-agent" (click)="sendMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" fill="white" viewBox="0 0 24 24">
+                  <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <br>
+        </ng-container>
+
+        <!-- Simple input (SRDP) -->
+        <ng-container *ngIf="config.inputType === 'input'">
+          <input *ngIf="isWhatsappChatOpen == 1" type="text" [(ngModel)]="newMessage" placeholder="Type your message..."
+            (keydown.enter)="sendMessage()" />
+          <button *ngIf="isWhatsappChatOpen == 1" (click)="sendMessage()">Send</button>
+        </ng-container>
+
+        <!-- Initiate Chat buttons (Partner + Vendor + SRDP — gated by showInitiateChat + showWhatsappTemplate) -->
+        <ng-container *ngIf="config.showInitiateChat">
+          <button *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 0 && !openChat" (click)="openChatWindow()">Initiate
+            Chat</button>
+        </ng-container>
+        <button *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 1">Waiting for User Response</button>
+        <div *ngIf="openChat && config.showWhatsappTemplate">
+          <p>Do you want to initiate chat?
+            <button (click)="sendWhatsappTemplate()">Yes</button>
+            <button (click)="closeChatWindow()">No</button>
+          </p>
+        </div>
+      </div>
+
+      <!-- ChatGPT Response Area (Partner only, currently hidden with *ngIf="false") -->
+      <div class="chat-input-wrapper" *ngIf="false && config.showChatGptIntegration">
+        <textarea type="text" class="chat-input response-text" #chatInput [(ngModel)]="chatgptMessage" rows="1"
+          placeholder="Generating Response..." (input)="resizeTextarea($event)"></textarea>
+      </div>
+
+      <!-- Rating Panel (Phase 3 Step 4) -->
+      <div class="rating-panel" *ngIf="showRatingModal">
+        <span class="rating-label">Rate this conversation:</span>
+        <div class="star-rating">
+          <span *ngFor="let star of stars"
+                (click)="setRating(star)"
+                [class.filled]="star <= pendingRating"
+                class="star">&#9733;</span>
+        </div>
+        <div class="rating-actions">
+          <button class="btn btn-sm btn-success"
+                  [disabled]="pendingRating === 0"
+                  (click)="submitRatingAndResolve()">Submit &amp; Resolve</button>
+          <button class="btn btn-sm btn-secondary" (click)="cancelRating()">Cancel</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Right Panel: Tabbed Layout (Phase 4) -->
+  <div class="col-md-5 scrollable-list right-panel-container" *ngIf="selectedChat">
+    <app-right-panel-tabs
+      [activeTab]="activeRightPanel"
+      (tabChange)="switchRightPanel($event)">
+    </app-right-panel-tabs>
+
+    <!-- Profile Tab Content -->
+    <div class="right-panel-content" *ngIf="activeRightPanel === 'profile'">
+      <ng-container *ngIf="config.showDcoPanels">
+        <app-dco-info *ngIf="dcoInfo" [chatNumber]="chatNumber" [selectedView]="selectedView"
+          (dcoSelected)="getDcoName($event)"></app-dco-info>
+        <app-dco-suspend-view *ngIf="dcoSuspendView" [chatNumber]="chatNumber" [selectedView]="selectedView"
+          (dcoSelected)="getDcoName($event)"></app-dco-suspend-view>
+        <app-dco-pending-view *ngIf="dcoPendingView" [chatNumber]="chatNumber" [selectedView]="selectedView"
+          (dcoSelected)="getDcoName($event)"></app-dco-pending-view>
+        <app-dco-active-approved-view *ngIf="dcoActiveApprovedView" [chatNumber]="chatNumber" [selectedView]="selectedView"
+          (dcoSelected)="getDcoName($event)"></app-dco-active-approved-view>
+      </ng-container>
+
+      <!-- Assignment Info Card -->
+      <div class="assignment-card" *ngIf="assignedExecutiveName">
+        <div class="assignment-card-label">Assigned To</div>
+        <div class="assignment-card-body">
+          <div class="assignment-avatar">
+            {{ assignedExecutiveName | slice:0:2 | uppercase }}
+          </div>
+          <div class="assignment-info">
+            <div class="assignment-name">{{ assignedExecutiveName }}</div>
+            <div class="assignment-role">Support Executive</div>
+          </div>
+          <div class="reassign-wrapper">
+            <button class="btn-reassign" (click)="toggleReassignDropdown()">Reassign</button>
+            <div class="reassign-dropdown" *ngIf="showReassignDropdown">
+              <div class="reassign-option" *ngFor="let exec of onlineExecutives"
+                   (click)="reassignToExecutive(exec)">
+                {{ exec.name }}
+              </div>
+              <div class="reassign-empty" *ngIf="onlineExecutives.length === 0">
+                No executives online
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rides Tab (Phase 4 Step 3) -->
+    <div class="right-panel-content" *ngIf="activeRightPanel === 'rides'">
+      <app-rides-panel [customerNumber]="selectedChat?.customer"></app-rides-panel>
+    </div>
+
+    <!-- Context Tab (Phase 4 Step 2) -->
+    <div class="right-panel-content" *ngIf="activeRightPanel === 'context'">
+      <app-context-history-panel
+        [customerNumber]="selectedChat?.customer"
+        (contextClicked)="onContextItemClicked($event)">
+      </app-context-history-panel>
+    </div>
+
+    <!-- Quick Actions Tab (Phase 4 Step 4) -->
+    <div class="right-panel-content" *ngIf="activeRightPanel === 'actions'">
+      <app-quick-actions-panel
+        (actionClicked)="handleQuickAction($event)">
+      </app-quick-actions-panel>
+    </div>
+
+    <!-- Notes Tab (Phase 4 Step 5) -->
+    <div class="right-panel-content" *ngIf="activeRightPanel === 'notes'">
+      <app-notes-panel
+        [chatId]="selectedChat?.chat_id">
+      </app-notes-panel>
+    </div>
+  </div>
+
+</div>

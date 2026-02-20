@@ -1,0 +1,75 @@
+// Dashboard Stats Pills (Step 3)
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.stat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.stat-pill--active {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #2e7d32;
+  border: 1px solid rgba(76, 175, 80, 0.25);
+  .stat-dot { background-color: #4caf50; }
+}
+
+.stat-pill--resolved {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: #1565c0;
+  border: 1px solid rgba(33, 150, 243, 0.25);
+  .stat-dot { background-color: #2196f3; }
+}
+
+.stat-pill--pending {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #f57f17;
+  border: 1px solid rgba(255, 193, 7, 0.25);
+  .stat-dot { background-color: #ffc107; }
+}
+
+// Executive Status Toggle (Step 4)
+.btn-executive-online {
+  background-color: rgba(76, 175, 80, 0.12);
+  color: #2e7d32;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(76, 175, 80, 0.2);
+  }
+}
+
+.btn-executive-offline {
+  background-color: rgba(244, 67, 54, 0.08);
+  color: #c62828;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(244, 67, 54, 0.15);
+  }
+}
+
+.status-indicator-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}

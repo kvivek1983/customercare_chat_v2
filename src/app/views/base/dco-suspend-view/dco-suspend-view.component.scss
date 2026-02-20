@@ -1,0 +1,18 @@
+.scrollable-container {
+    max-height: 80vh;
+    overflow-y: auto;
+    // padding-right: 15px;
+    /* Optional: To prevent horizontal scroll from appearing */
+}
+
+.table-responsive>.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+.small-font-table th {
+    font-size: 14px; /* Adjust this value based on your requirements */
+}
+
+.small-font-table td {
+    font-size: 12px; /* Adjust this value based on your requirements */
+}

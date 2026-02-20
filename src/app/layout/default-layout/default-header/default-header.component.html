@@ -1,0 +1,108 @@
+<!--<c-header class="mb-4 d-print-none" position="sticky">-->
+<ng-container>
+  <c-container [fluid]="true" class="border-bottom px-4">
+    <button
+      [cSidebarToggle]="sidebarId()"
+      cHeaderToggler
+      class="btn"
+      toggle="visible"
+      style="margin-inline-start: -14px;"
+      aria-label="Toggle sidebar navigation"
+    >
+      <svg cIcon name="cilMenu" size="lg"></svg>
+    </button>
+
+    <c-header-nav class="d-none d-md-flex">
+    </c-header-nav>
+
+    <!-- Dashboard Stats (Step 3) -->
+    <c-header-nav class="ms-auto d-none d-md-flex align-items-center gap-2">
+      <span class="stat-pill stat-pill--active">
+        <span class="stat-dot"></span> Active {{ dashboardStats.active }}
+      </span>
+      <span class="stat-pill stat-pill--resolved">
+        <span class="stat-dot"></span> Resolved {{ dashboardStats.resolved }}
+      </span>
+      <span class="stat-pill stat-pill--pending">
+        <span class="stat-dot"></span> Pending {{ dashboardStats.pending }}
+      </span>
+    </c-header-nav>
+
+    <!-- Executive Status Toggle (Step 4) -->
+    <c-header-nav class="d-flex align-items-center mx-2">
+      <button class="btn btn-sm d-flex align-items-center gap-1 rounded-pill px-3 py-1"
+              [ngClass]="executiveStatus === 'ONLINE' ? 'btn-executive-online' : 'btn-executive-offline'"
+              (click)="toggleExecutiveStatus()">
+        <span class="status-indicator-dot"
+              [style.background-color]="executiveStatus === 'ONLINE' ? '#4caf50' : '#f44336'"></span>
+        {{ executiveStatus }}
+      </button>
+    </c-header-nav>
+
+    <!-- User Dropdown -->
+    <c-header-nav class="mx-0">
+      <ng-container *ngTemplateOutlet="userDropdown" />
+    </c-header-nav>
+
+  </c-container>
+
+</ng-container>
+<!--</c-header>-->
+
+<ng-template #userDropdown>
+  <c-dropdown [popperOptions]="{ placement: 'bottom-start' }" variant="nav-item">
+    <button [caret]="false" cDropdownToggle class="py-0 pe-0" aria-label="Open user menu">
+      <c-avatar
+        shape="rounded-1"
+        [size]="'md'"
+        src="./assets/images/avatars/oneway-300.jpg"
+        status="success"
+        textColor="primary"
+        alt="User avatar"
+      />
+    </button>
+    <ul cDropdownMenu class="pt-0 w-auto">
+      <li>
+        <h6 cDropdownHeader class="bg-body-secondary text-body-secondary fw-semibold py-2 rounded-top">
+          Account
+        </h6>
+      </li>
+      <li>
+        <a cDropdownItem routerLink="">
+          <svg cIcon class="me-2" name="cilUser"></svg>
+          Profile
+        </a>
+      </li>
+      <li>
+        <hr cDropdownDivider />
+      </li>
+      <li>
+        <a cDropdownItem routerLink="" (click)="logout()">
+          <svg cIcon class="me-2" name="cilAccountLogout"></svg>
+          Logout
+        </a>
+      </li>
+    </ul>
+  </c-dropdown>
+</ng-template>
+
+<ng-template #themeDropdown>
+  <c-dropdown alignment="end" variant="nav-item">
+    <button [caret]="false" cDropdownToggle aria-label="Open theme picker">
+      <svg cIcon [name]="icons()" size="lg"></svg>
+    </button>
+    <div cDropdownMenu>
+      @for (mode of colorModes; track mode.name) {
+        <button
+          (click)="colorMode.set(mode.name)"
+          [active]="colorMode()===mode.name"
+          cDropdownItem
+          class="d-flex align-items-center"
+        >
+          <svg cIcon class="me-2" [name]="mode.icon" size="lg"></svg>
+          {{ mode.text }}
+        </button>
+      }
+    </div>
+  </c-dropdown>
+</ng-template>

@@ -1,0 +1,35 @@
+<div *ngIf="bookingIdSearchFormBlk" class="row">
+    <div class="col-md-8 col-12">
+
+        <form [formGroup]="searchForm" class="search form-group" style="margin-left: 0px;">
+
+            <div class="row">
+                <div class="col-md-8 col-8">
+                    <!-- <input type="text" formControlName='bookingId' class="form-control mobile " readonly *ngIf="readonlyInput"> -->
+
+                    <!-- <input  type="text" formControlName='bookingId' class="form-control mobile " placeholder="Enter bookingId" 
+                              (keypress)="keyPressForNumber($event)" *ngIf="!readonlyInput"
+                              [ngClass]="{ 'is-invalid': searched && f.bookingId.errors }">  -->
+
+
+                    <input type="text" formControlName='bookingId' class="form-control mobile "
+                        placeholder="Enter Booking ID" (keypress)="keyPressForNumber($event)"
+                        [ngClass]="{ 'is-invalid': submitted && f.bookingId.errors }">
+
+                    <div *ngIf="submitted && f.bookingId.errors" class="invalid-feedback">
+                        <div *ngIf="f.bookingId.errors['required']">Booking Id is required</div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 col-4">
+                    <button class="btn btn-primary mr-2 search" (click)='searchBookingDetails()'>Search</button>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<app-show-booking-details-by-id *ngIf="showBookingDetails" [displayBookingId]="displayBookingId"
+    (bookingInfoByIdHide)="bookingInfoByIdHide()"></app-show-booking-details-by-id>

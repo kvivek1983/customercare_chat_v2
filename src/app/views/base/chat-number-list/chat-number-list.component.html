@@ -1,0 +1,72 @@
+<!-- My Chats / All Chats Tabs (Step 6) -->
+<div class="chat-tabs">
+  <button class="chat-tab" [class.active]="activeTab === 'my'" (click)="switchTab('my')">My Chats</button>
+  <button class="chat-tab" [class.active]="activeTab === 'all'" (click)="switchTab('all')">All Chats</button>
+</div>
+
+<!-- Online Executives Bar (Step 5) -->
+<div class="online-executives-bar" *ngIf="onlineExecutives.length > 0">
+  <span class="online-label">Online:</span>
+  <div class="executive-avatars">
+    <span *ngFor="let exec of onlineExecutives" class="executive-avatar" [title]="exec.name">
+      {{ exec.name | slice:0:2 | uppercase }}
+      <span class="online-dot"></span>
+    </span>
+  </div>
+</div>
+
+<!-- Dropdown Filter (Partner only) -->
+<div class="dropdown-container" *ngIf="showFilter">
+  <select id="chatFilter" class="form-select" [(ngModel)]="selectedFilter" (change)="onFilterChange($event)">
+    <option value="">All</option>
+    <option value="Active_Approved">Active and Approved</option>
+    <option value="Pending">Pending</option>
+    <option value="InJourney">In Journey</option>
+    <option value="Suspend">Suspended</option>
+  </select>
+</div>
+
+<ul *ngIf="chats && chats.length > 0">
+  <li *ngFor="let chat of chats" (click)="onChatClick(chat)">
+    <div class="chat-item" [class.active]="chat.chat_id === selectedChat?.chat_id">
+      <div class="avatar"></div>
+      <div class="chat-info">
+        <!-- Partner: show name + number; Others: show number only -->
+        <p class="chat-name" *ngIf="showCustomerName">{{ chat.customer_name }} {{ chat.customer }}</p>
+        <p class="chat-name" *ngIf="!showCustomerName">{{ chat.customer }}</p>
+        <p class="chat-preview">{{ chat.last_message && chat.last_message.length > 0 ? (chat.last_message.length >
+          10
+          ? (chat.last_message | slice: 0:10) + '...'
+          : chat.last_message) : 'No messages yet...' }}</p>
+        <!-- Tag Pills (Phase 3 Step 3) -->
+        <div class="chat-tags" *ngIf="chat.tags && chat.tags.length > 0">
+          <span class="tag-pill-sm" *ngFor="let tag of chat.tags">{{ tag }}</span>
+        </div>
+        <!-- Assigned Executive (Phase 3 Step 1) -->
+        <span class="assigned-exec" *ngIf="chat.assigned_executive_name">
+          <span class="assigned-exec-avatar">{{ chat.assigned_executive_name | slice:0:2 | uppercase }}</span>
+          {{ chat.assigned_executive_name }}
+        </span>
+      </div>
+      <div class="chat-meta">
+        <div class="chat-datetime">
+          {{ chat.last_message_time | date:dateFormat }}
+        </div>
+        <!-- SLA Timer compact (Phase 3 Step 2) -->
+        <app-sla-timer *ngIf="chat.last_incoming_message_time"
+          [startTime]="chat.last_incoming_message_time"
+          [isActive]="chat.last_interaction_by === 'Customer'"
+          [compact]="true">
+        </app-sla-timer>
+      </div>
+      <div class="unseen-count-badge" *ngIf="chat.unseen_count && chat.unseen_count > 0">
+        {{ chat.unseen_count }}
+      </div>
+    </div>
+  </li>
+</ul>
+
+<button class="btn btn-warning mb-2" *ngIf="currentPage < totalPages && !isLoading" (click)="loadFetchAllChat()">Load
+  More</button>
+<p *ngIf="isLoading">Loading...</p>
+<p *ngIf="currentPage >= totalPages">No more chats to load.</p>
