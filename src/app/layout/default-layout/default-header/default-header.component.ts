@@ -70,6 +70,12 @@ export class DefaultHeaderComponent extends HeaderComponent {
   ) {
     super();
 
+    // Restore executive status from localStorage (persist across page refresh)
+    const savedStatus = localStorage.getItem('executiveStatus') as ExecutiveStatus | null;
+    if (savedStatus === 'ONLINE' || savedStatus === 'OFFLINE') {
+      this.executiveStatus = savedStatus;
+    }
+
     // Subscribe to dashboard stats updates (Step 3)
     this.chatService.onDashboardStats()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -84,6 +90,7 @@ export class DefaultHeaderComponent extends HeaderComponent {
   // Executive Status Toggle (Step 4)
   toggleExecutiveStatus(): void {
     this.executiveStatus = this.executiveStatus === 'ONLINE' ? 'OFFLINE' : 'ONLINE';
+    localStorage.setItem('executiveStatus', this.executiveStatus);
     this.chatService.setExecutiveStatus({ status: this.executiveStatus });
   }
 
@@ -93,6 +100,7 @@ export class DefaultHeaderComponent extends HeaderComponent {
 
     // Set status to OFFLINE before disconnecting (Step 4)
     this.chatService.setExecutiveStatus({ status: 'OFFLINE' });
+    localStorage.removeItem('executiveStatus');
 
     // Disconnect socket (Step 2)
     this.chatService.disconnect();

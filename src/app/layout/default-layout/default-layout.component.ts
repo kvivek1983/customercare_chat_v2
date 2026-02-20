@@ -71,6 +71,11 @@ export class DefaultLayoutComponent {
       const data = JSON.parse(rawData);
       if (data && data.isLoggedIn && data.accessToken) {
         this.chatService.connect(data.accessToken);
+        // Re-emit saved executive status to sync with backend after reconnect
+        const savedStatus = localStorage.getItem('executiveStatus');
+        if (savedStatus === 'ONLINE') {
+          this.chatService.setExecutiveStatus({ status: 'ONLINE' });
+        }
       }
     } catch (e) {
       console.error('Failed to parse login details for socket reconnection:', e);

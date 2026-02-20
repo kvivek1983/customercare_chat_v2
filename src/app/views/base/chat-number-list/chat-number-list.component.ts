@@ -75,6 +75,47 @@ export class ChatNumberListComponent implements OnInit {
       }
     }
 
+    // Subscribe to fetch_all_chats response ONCE (Bug fix: was inside fetchAllChat causing duplicates)
+    this.chatService.onFetchAllChatsResponse()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((response: FetchAllChat) => {
+        console.log('fetchAllChat response:', JSON.stringify(response));
+        if (response.status === 1) {
+          if (this.isFresh) {
+            this.chats = response.chats;
+          } else {
+            this.chats = [...this.chats, ...response.chats];
+          }
+          this.totalPages = response.pagination.total_pages;
+        } else {
+          this.errorMessage = response.message || 'An error occurred';
+          console.log('fetchAllChat error:', JSON.stringify(response));
+        }
+        this.isLoading = false;
+        this.isFresh = false;
+        this.cdr.markForCheck();
+      });
+
+    // Subscribe to search_chat response ONCE (Bug fix: was inside search_chat causing duplicates)
+    this.chatService.search_chat_response()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((response: FetchAllChat) => {
+        console.log('search_chat response:', JSON.stringify(response));
+        if (response.status === 1) {
+          if (this.isFresh) {
+            this.chats = response.chats;
+          } else {
+            this.chats = [...this.chats, ...response.chats];
+          }
+          this.totalPages = response.pagination.total_pages;
+        } else {
+          this.errorMessage = response.message || 'An error occurred';
+        }
+        this.isLoading = false;
+        this.isFresh = false;
+        this.cdr.markForCheck();
+      });
+
     if (this.showFilter) {
       // Partner: subscribe to SharedService for mobile search
       this.sharedService.currentMobileNumber$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(mobile => {
@@ -184,23 +225,7 @@ export class ChatNumberListComponent implements OnInit {
     console.log(req);
 
     this.chatService.search_chat(req);
-
-    this.chatService.search_chat_response().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: FetchAllChat) => {
-      console.log('search_chat_response' + JSON.stringify(response));
-      if (response.status === 1) {
-        if (this.isFresh) {
-          this.chats = response.chats;
-        } else {
-          this.chats = [...this.chats, ...response.chats];
-        }
-        this.totalPages = response.pagination.total_pages;
-      } else {
-        this.errorMessage = response.message || 'An error occurred';
-        console.log('fetchAllChat' + JSON.stringify(response));
-      }
-      this.isLoading = false;
-      this.cdr.markForCheck();
-    });
+    // Subscription is in ngOnInit — no duplicate here
   }
 
   public fetchAllChat() {
@@ -234,26 +259,10 @@ export class ChatNumberListComponent implements OnInit {
       req.assigned_executive_id = this.executiveId;
     }
 
-    console.log(req);
+    console.log('fetchAllChat request:', req);
 
     this.chatService.fetchAllChatUser(req);
-
-    this.chatService.onFetchAllChatsResponse().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: FetchAllChat) => {
-      console.log('fetchAllChat' + JSON.stringify(response));
-      if (response.status === 1) {
-        if (this.isFresh) {
-          this.chats = response.chats;
-        } else {
-          this.chats = [...this.chats, ...response.chats];
-        }
-        this.totalPages = response.pagination.total_pages;
-      } else {
-        this.errorMessage = response.message || 'An error occurred';
-        console.log('fetchAllChat' + JSON.stringify(response));
-      }
-      this.isLoading = false;
-      this.cdr.markForCheck();
-    });
+    // Subscription is in ngOnInit — no duplicate here
   }
 
   onRoomUpdate() {
