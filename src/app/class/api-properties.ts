@@ -107,10 +107,10 @@ export class APiProperties {
             
             this.onewayLocationWebSocketApi = 'wss://staginglocationsocket.oneway.cab/';
 
-            this.pySmartChatUrl = "https://restchatsupport.oneway.cab/";
-            this.pySmartChatUrlForChat = "https://restchatsupport.oneway.cab";
-            this.pySmartChatV2AuthUrl = "https://restchatsupport.oneway.cab/api/auth/login";
-            this.pySmartChatV2RateUrl = "https://restchatsupport.oneway.cab/api/chats";
+            this.pySmartChatUrl = "https://restchatsupport2.oneway.cab/";
+            this.pySmartChatUrlForChat = "https://restchatsupport2.oneway.cab";
+            this.pySmartChatV2AuthUrl = "https://restchatsupport2.oneway.cab/api/auth/login";
+            this.pySmartChatV2RateUrl = "https://restchatsupport2.oneway.cab/api/chats";
         } else {
             this.clientId = 'LiveRH8FeT7Atz';
             this.clientSecret = 'LivejtefdfgvNYb56qAH';
@@ -159,10 +159,10 @@ export class APiProperties {
 
             this.onewayLocationWebSocketApi = 'wss://locationsocket.oneway.cab/';
 
-            this.pySmartChatUrl = "https://restchatsupport.oneway.cab/";
-            this.pySmartChatUrlForChat = "https://restchatsupport.oneway.cab";
-            this.pySmartChatV2AuthUrl = "https://restchatsupport.oneway.cab/api/auth/login";
-            this.pySmartChatV2RateUrl = "https://restchatsupport.oneway.cab/api/chats";
+            this.pySmartChatUrl = "https://restchatsupport2.oneway.cab/";
+            this.pySmartChatUrlForChat = "https://restchatsupport2.oneway.cab";
+            this.pySmartChatV2AuthUrl = "https://restchatsupport2.oneway.cab/api/auth/login";
+            this.pySmartChatV2RateUrl = "https://restchatsupport2.oneway.cab/api/chats";
         }
 
     }
