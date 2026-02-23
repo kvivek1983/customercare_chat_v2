@@ -55,7 +55,7 @@ export const CHAT_TYPE_CONFIGS: Record<string, ChatTypeConfig> = {
     showResolvedButton: false,
     showWhatsappTemplate: false,
     showInitiateChat: false,
-    inputType: 'none',
+    inputType: 'textarea',
     chatTitleField: 'customer',
     mediaCheckField: 'media_type',
     includeCustomerTypeInSendMessage: true,

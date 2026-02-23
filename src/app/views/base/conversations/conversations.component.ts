@@ -401,6 +401,11 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         } else {
           this.isWhatsappChatOpen = response.isWhatsappChatOpen;
         }
+      } else {
+        // V2 backend may not implement fetch_config yet — default to open
+        // so the reply textarea is shown when the chat has active messages
+        this.isWhatsappChatOpen = 1;
+        this.isChatInitiated = 1;
       }
       this.cdr.markForCheck();
     });
