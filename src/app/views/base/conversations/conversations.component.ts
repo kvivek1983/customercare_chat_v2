@@ -188,7 +188,18 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((update: TagUpdate) => {
         if (this.selectedChat && this.selectedChat.chat_id === update.chat_id) {
-          this.selectedChat.tags = update.tags;
+          if (update.tags) {
+            // V1 format: full tags array
+            this.selectedChat.tags = update.tags;
+          } else if (update.tag && update.action) {
+            // V2 format: single tag delta { tag, action: "add"|"remove" }
+            const currentTags: string[] = this.selectedChat.tags || [];
+            if (update.action === 'add' && !currentTags.includes(update.tag)) {
+              this.selectedChat.tags = [...currentTags, update.tag];
+            } else if (update.action === 'remove') {
+              this.selectedChat.tags = currentTags.filter((t: string) => t !== update.tag);
+            }
+          }
           this.cdr.markForCheck();
         }
       });

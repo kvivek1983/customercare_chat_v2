@@ -178,7 +178,18 @@ export class ChatNumberListComponent implements OnInit {
       .subscribe((update: TagUpdate) => {
         const chat = this.chats?.find(c => c.chat_id === update.chat_id);
         if (chat) {
-          chat.tags = update.tags;
+          if (update.tags) {
+            // V1 format: full tags array
+            chat.tags = update.tags;
+          } else if (update.tag && update.action) {
+            // V2 format: single tag delta { tag, action: "add"|"remove" }
+            const currentTags: string[] = chat.tags || [];
+            if (update.action === 'add' && !currentTags.includes(update.tag)) {
+              chat.tags = [...currentTags, update.tag];
+            } else if (update.action === 'remove') {
+              chat.tags = currentTags.filter((t: string) => t !== update.tag);
+            }
+          }
           this.cdr.markForCheck();
         }
       });
@@ -284,8 +295,11 @@ export class ChatNumberListComponent implements OnInit {
         if (this.selectedChat == null || this.selectedChat.chat_id != room.chat_id)
           room.unseen_count++;
 
-        if (chat.last_msg_by) {
-          room.last_msg_by = chat.last_msg_by;
+        // V2 sends last_interaction_by; V1 sends last_msg_by — handle both
+        const lastBy = chat.last_msg_by || chat.last_interaction_by;
+        if (lastBy) {
+          room.last_msg_by = lastBy;
+          room.last_interaction_by = lastBy;
         }
 
         if (this.chats?.length) {

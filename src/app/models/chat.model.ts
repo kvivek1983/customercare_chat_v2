@@ -95,14 +95,18 @@ export type ExecutiveStatus = 'ONLINE' | 'OFFLINE';
 
 export interface ExecutiveStatusUpdate {
   executive_id: string;
-  name: string;
-  status: 'ONLINE' | 'OFFLINE';
+  name?: string;
+  status: string;           // V2 sends lowercase "online"/"offline"
+  customer_type?: string;   // V2 includes customer_type
 }
 
 export interface ChatAssignment {
   chat_id: string;
-  executive_id: string;
-  executive_name: string;
+  executive_id?: string;         // V1 field
+  executive_name?: string;       // V1 field
+  assigned_executive_id?: string; // V2 chat_assigned field
+  from_executive_id?: string;    // V2 chat_reassigned field
+  to_executive_id?: string;      // V2 chat_reassigned field
 }
 
 export interface ReassignRequest {
@@ -112,7 +116,9 @@ export interface ReassignRequest {
 
 export interface TagUpdate {
   chat_id: string;
-  tags: string[];
+  tags?: string[];    // V1: full array
+  tag?: string;       // V2: single tag
+  action?: string;    // V2: "add" | "remove"
 }
 
 export const PREDEFINED_TAGS: Record<string, string[]> = {

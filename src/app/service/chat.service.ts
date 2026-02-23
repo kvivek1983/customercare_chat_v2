@@ -193,11 +193,24 @@ export class ChatService {
     return this.newMessage$;
   }
 
+  /**
+   * Listen to ALL room_update variants.
+   * V2 backend broadcasts to customer-type-specific events:
+   *   room_update          → PartnerApp room
+   *   room_update_customer → CustomerApp room
+   *   room_update_vendor   → VendorApp room
+   *   room_update_srdp     → SRDPApp room
+   * We merge them all into a single observable so chat-number-list works for every type.
+   */
   onRoomUpdate(): Observable<Chats> {
     if (!this.roomUpdate$) {
       if (!this.socket) return EMPTY as Observable<Chats>;
       this.roomUpdate$ = new Observable<Chats>((observer) => {
-        this.socket!.on('room_update', (data: Chats) => observer.next(data));
+        const handler = (data: Chats) => observer.next(data);
+        this.socket!.on('room_update', handler);
+        this.socket!.on('room_update_customer', handler);
+        this.socket!.on('room_update_vendor', handler);
+        this.socket!.on('room_update_srdp', handler);
       }).pipe(shareReplay(1));
     }
     return this.roomUpdate$;
@@ -287,7 +300,13 @@ export class ChatService {
     if (!this.executiveStatus$) {
       if (!this.socket) return EMPTY as Observable<ExecutiveStatusUpdate>;
       this.executiveStatus$ = new Observable<ExecutiveStatusUpdate>((observer) => {
-        this.socket!.on('executive_status', (data: ExecutiveStatusUpdate) => observer.next(data));
+        this.socket!.on('executive_status', (data: ExecutiveStatusUpdate) => {
+          // V2 sends lowercase "online"/"offline"; normalize to uppercase for frontend
+          if (data.status) {
+            data.status = data.status.toUpperCase();
+          }
+          observer.next(data);
+        });
       }).pipe(shareReplay(1));
     }
     return this.executiveStatus$;
@@ -297,7 +316,13 @@ export class ChatService {
     if (!this.chatAssigned$) {
       if (!this.socket) return EMPTY as Observable<ChatAssignment>;
       this.chatAssigned$ = new Observable<ChatAssignment>((observer) => {
-        this.socket!.on('chat_assigned', (data: ChatAssignment) => observer.next(data));
+        this.socket!.on('chat_assigned', (data: ChatAssignment) => {
+          // V2 sends { chat_id, assigned_executive_id }; normalize to executive_id
+          if (!data.executive_id && data.assigned_executive_id) {
+            data.executive_id = data.assigned_executive_id;
+          }
+          observer.next(data);
+        });
       }).pipe(shareReplay(1));
     }
     return this.chatAssigned$;
@@ -307,7 +332,13 @@ export class ChatService {
     if (!this.chatReassigned$) {
       if (!this.socket) return EMPTY as Observable<ChatAssignment>;
       this.chatReassigned$ = new Observable<ChatAssignment>((observer) => {
-        this.socket!.on('chat_reassigned', (data: ChatAssignment) => observer.next(data));
+        this.socket!.on('chat_reassigned', (data: ChatAssignment) => {
+          // V2 sends { chat_id, from_executive_id, to_executive_id }; normalize to executive_id
+          if (!data.executive_id && data.to_executive_id) {
+            data.executive_id = data.to_executive_id;
+          }
+          observer.next(data);
+        });
       }).pipe(shareReplay(1));
     }
     return this.chatReassigned$;
