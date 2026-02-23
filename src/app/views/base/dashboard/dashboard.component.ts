@@ -76,6 +76,20 @@ export class DashboardComponent implements OnInit {
   totalValue: number = 0;
   unattendedChartData : any = [];
 
+  /** Ensure each chart item has valid name (string) and value (number) */
+  private sanitizeChartData(data: any[]): any[] {
+    return data
+      .filter((d: any) => d && d.name != null)
+      .map((d: any) => ({ name: String(d.name), value: Number(d.value) || 0 }));
+  }
+
+  /** Ensure each series item has valid name and numeric value */
+  private sanitizeSeriesData(data: any[]): any[] {
+    return data
+      .filter((d: any) => d && d.name != null)
+      .map((d: any) => ({ name: String(d.name), value: Number(d.value) || 0 }));
+  }
+
   ngOnInit(){
     this.partnerStats();
     this.onDriverChatStats();
@@ -86,9 +100,9 @@ export class DashboardComponent implements OnInit {
       console.log('New onDriverChatStats received:', res);
 
       this.totalValue = res.total ?? 0;
-      this.chartData = Array.isArray(res.data) ? [...res.data] : [];
-      const unattended = Array.isArray(res.unattended) ? res.unattended : [];
-      this.unattendedChartData = [{ name: 'Unattended', series: [...unattended] }];
+      this.chartData = this.sanitizeChartData(Array.isArray(res.data) ? res.data : []);
+      const unattended = this.sanitizeSeriesData(Array.isArray(res.unattended) ? res.unattended : []);
+      this.unattendedChartData = unattended.length ? [{ name: 'Unattended', series: unattended }] : [];
 
     });
   }
@@ -99,9 +113,9 @@ export class DashboardComponent implements OnInit {
 
       if(res.status == 1){
         this.totalValue = res.total ?? 0;
-        this.chartData = Array.isArray(res.data) ? [...res.data] : [];
-        const unattended = Array.isArray(res.unattended) ? res.unattended : [];
-        this.unattendedChartData = [{ name: 'Unattended', series: [...unattended] }];
+        this.chartData = this.sanitizeChartData(Array.isArray(res.data) ? res.data : []);
+        const unattended = this.sanitizeSeriesData(Array.isArray(res.unattended) ? res.unattended : []);
+        this.unattendedChartData = unattended.length ? [{ name: 'Unattended', series: unattended }] : [];
       }
 
     });
