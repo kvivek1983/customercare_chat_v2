@@ -85,10 +85,10 @@ export class DashboardComponent implements OnInit {
     this.chatService.onDriverChatStats().subscribe((res: any) => {
       console.log('New onDriverChatStats received:', res);
 
-      this.totalValue = res.total;
-      this.chartData = res.data;
-      //this.unattendedChartData = [];
-      this.unattendedChartData = [...[{ name: 'Unattended', series: [...(res.unattended ?? [])] }]];
+      this.totalValue = res.total ?? 0;
+      this.chartData = Array.isArray(res.data) ? [...res.data] : [];
+      const unattended = Array.isArray(res.unattended) ? res.unattended : [];
+      this.unattendedChartData = [{ name: 'Unattended', series: [...unattended] }];
 
     });
   }
@@ -98,10 +98,10 @@ export class DashboardComponent implements OnInit {
       console.log('New partnerStats received:', res);
 
       if(res.status == 1){
-        this.totalValue = res.total;
-        this.chartData = res.data;
-        //this.unattendedChartData = [];
-        this.unattendedChartData = [...[{ name: 'Unattended', series: [...(res.unattended ?? [])] }]];
+        this.totalValue = res.total ?? 0;
+        this.chartData = Array.isArray(res.data) ? [...res.data] : [];
+        const unattended = Array.isArray(res.unattended) ? res.unattended : [];
+        this.unattendedChartData = [{ name: 'Unattended', series: [...unattended] }];
       }
 
     });
