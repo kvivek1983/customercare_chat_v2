@@ -489,11 +489,12 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
         this.chatNumberListComponent.updateUnSeenCount(this.selectedChat.chat_id, 0);
 
-        this.totalPages = response.pagination.total_pages;
+        this.totalPages = response.pagination?.total_pages ?? 0;
 
-        response.chats.sort((a: any, b: any) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+        const chatMessages = Array.isArray(response.chats) ? response.chats : [];
+        chatMessages.sort((a: any, b: any) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
 
-        this.chats = this.mergeGroupedMessages(this.chats, this.groupMessagesByDate(response.chats));
+        this.chats = this.mergeGroupedMessages(this.chats, this.groupMessagesByDate(chatMessages));
 
         this.chats.forEach((message: any) => {
           // Use config to determine the media check field
