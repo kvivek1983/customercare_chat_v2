@@ -8,6 +8,7 @@ export interface Chat {
 export interface Message {
   sender: string;
   type: string;
+  sender_type?: string;  // V2 backend uses sender_type instead of type
   message: string;
   datetime: string;
   media_type : string;
@@ -35,6 +36,7 @@ export interface FetchAllChatByUser{
   status : number;
   message : string;
   chats : Message[];
+  messages?: Message[];   // V2 backend returns "messages" instead of "chats"
   pagination : Pagination;
 }
 
