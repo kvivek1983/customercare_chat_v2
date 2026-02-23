@@ -24,7 +24,7 @@ import { TemplatePickerComponent } from '../../../../app/components/template-pic
 import { WhatsAppTemplate } from '../../../../app/models/chat.model';
 import { ToastrService } from 'ngx-toastr';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 import { SharedService } from '../../../service/shared.service';
 
 @Component({
@@ -98,6 +98,9 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
   // Blob URL tracking for revocation
   private blobUrls: string[] = [];
+
+  // Single subscription for fetchChatsByUser response (prevent duplicates from shareReplay)
+  private _fetchChatsSub: Subscription | null = null;
 
   // Loading delay (Partner only)
   loadingNewData = false;
@@ -496,52 +499,71 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
 
+    const requestedChatId = this.selectedChat.chat_id;
     console.log('fetchChatsByUser request:', JSON.stringify(req));
     this.chatService.fetchChatsByUser(req);
 
-    this.chatService.onFetchChatsByUserResponse().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: FetchAllChatByUser) => {
-      console.log('fetchChatsByUser response:', JSON.stringify(response));
-      this.isLoading = false;
-      if (response.status === 1) {
-
-        this.chatNumberListComponent.updateUnSeenCount(this.selectedChat.chat_id, 0);
-
-        this.totalPages = response.pagination?.total_pages ?? 0;
-
-        // V2 backend returns "messages" instead of "chats"
-        const rawMessages = Array.isArray(response.messages) ? response.messages
-                          : Array.isArray(response.chats) ? response.chats : [];
-        // V2 backend uses sender_type instead of type — normalize
-        const chatMessages = rawMessages.map((m: any) => ({
-          ...m,
-          type: m.type || m.sender_type || 'Customer'
-        }));
-        chatMessages.sort((a: any, b: any) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
-
-        this.chats = this.mergeGroupedMessages(this.chats, this.groupMessagesByDate(chatMessages));
-
-        this.chats.forEach((message: any) => {
-          // Use config to determine the media check field
-          const mediaField = this.config.mediaCheckField;
-          if (message[mediaField] && !message.mediaUrl) {
-            this.fetchMediaFile(message.media.id)
-              .then((mediaUrl) => {
-                message.mediaUrl = mediaUrl;
-                this.blobUrls.push(mediaUrl);
-                this.cdr.markForCheck();
-                console.log(message.media.id + '::' + mediaUrl);
-              })
-              .catch((error) => {
-                console.error(`Failed to fetch media URL for message: ${message.id}`, error);
-              });
-          }
+    // Subscribe only if not already subscribed (avoid duplicate subscriptions)
+    if (!this._fetchChatsSub) {
+      this._fetchChatsSub = this.chatService.onFetchChatsByUserResponse()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((response: FetchAllChatByUser) => {
+          this.handleFetchChatsByUserResponse(response);
         });
+    }
+  }
 
-      } else {
-        this.errorMessage = response.message || 'An error occurred';
+  private handleFetchChatsByUserResponse(response: FetchAllChatByUser): void {
+    console.log('fetchChatsByUser response:', JSON.stringify(response));
+
+    // Ignore stale responses from a previously selected chat (shareReplay replay)
+    const rawMessages = Array.isArray(response.messages) ? response.messages
+                      : Array.isArray(response.chats) ? response.chats : [];
+    if (rawMessages.length > 0 && this.selectedChat) {
+      const responseChatId = (rawMessages[0] as any).chat_id;
+      if (responseChatId && responseChatId !== this.selectedChat.chat_id) {
+        console.log('Ignoring stale fetchChatsByUser response for:', responseChatId);
+        return;
       }
-      this.cdr.markForCheck();
-    });
+    }
+
+    this.isLoading = false;
+    if (response.status === 1) {
+
+      this.chatNumberListComponent.updateUnSeenCount(this.selectedChat.chat_id, 0);
+
+      this.totalPages = response.pagination?.total_pages ?? 0;
+
+      // V2 backend uses sender_type instead of type — normalize
+      const chatMessages = rawMessages.map((m: any) => ({
+        ...m,
+        type: m.type || m.sender_type || 'Customer'
+      }));
+      chatMessages.sort((a: any, b: any) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+
+      this.chats = this.mergeGroupedMessages(this.chats, this.groupMessagesByDate(chatMessages));
+
+      this.chats.forEach((message: any) => {
+        // Use config to determine the media check field
+        const mediaField = this.config.mediaCheckField;
+        if (message[mediaField] && !message.mediaUrl) {
+          this.fetchMediaFile(message.media.id)
+            .then((mediaUrl) => {
+              message.mediaUrl = mediaUrl;
+              this.blobUrls.push(mediaUrl);
+              this.cdr.markForCheck();
+              console.log(message.media.id + '::' + mediaUrl);
+            })
+            .catch((error) => {
+              console.error(`Failed to fetch media URL for message: ${message.id}`, error);
+            });
+        }
+      });
+
+    } else {
+      this.errorMessage = response.message || 'An error occurred';
+    }
+    this.cdr.markForCheck();
   }
 
   loadMoreMessages() {
