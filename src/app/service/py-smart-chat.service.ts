@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { retry, catchError, map } from 'rxjs/operators';
 import { APiProperties } from '../../app/class/api-properties';
 import { ContextHistoryResponse, NotesResponse, RidesResponse, TemplatesResponse } from '../../app/models/chat.model';
@@ -11,6 +12,7 @@ import { ContextHistoryResponse, NotesResponse, RidesResponse, TemplatesResponse
 export class PySmartChatService {
 
   apiProperties: APiProperties = new APiProperties();
+  private router = inject(Router);
 
   constructor(private http: HttpClient) { }
 
@@ -20,15 +22,33 @@ export class PySmartChatService {
     })
   };
 
+  /** Build headers with JWT Authorization token from localStorage */
+  private getAuthHeaders(): { headers: HttpHeaders } {
+    const userRole = localStorage.getItem('userRole');
+    let token = '';
+    if (userRole) {
+      try {
+        const loginDetails = JSON.parse(localStorage.getItem(userRole + '-loginDetails') || '{}');
+        token = loginDetails.accessToken || '';
+      } catch (e) { }
+    }
+    return {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+      })
+    };
+  }
+
   getChatGPTResponse(data : {}) : Observable<{}> {
-    return this.http.post(this.apiProperties.pySmartChatUrl+'api/chats/chat_gpt', data , this.httpOptions).pipe(
+    return this.http.post(this.apiProperties.pySmartChatUrl+'api/chats/chat_gpt', data , this.getAuthHeaders()).pipe(
       retry(1),
       catchError(this.handleError)
     )
   }
 
   sendWhatsappTemplate(number : any, name : any) : Observable<{}> {
-    return this.http.get(this.apiProperties.pySmartChatUrl+'api/chats/send_whatsapp_template?to='+number+'&name='+name, this.httpOptions).pipe(
+    return this.http.get(this.apiProperties.pySmartChatUrl+'api/chats/send_whatsapp_template?to='+number+'&name='+name, this.getAuthHeaders()).pipe(
       retry(1),
       catchError(this.handleError)
     )
@@ -37,7 +57,7 @@ export class PySmartChatService {
   fetchMediaFile(id : string) : Observable<string>{
     const url = `${this.apiProperties.pySmartChatUrl}api/whatsapp/downloadmedia/${id}`;
 
-    return this.http.get(url, { headers: this.httpOptions.headers, responseType: 'blob' }).pipe(
+    return this.http.get(url, { headers: this.getAuthHeaders().headers, responseType: 'blob' }).pipe(
       map((response: Blob) => {
         // Convert the Blob response into a URL for display
         console.log(id+"==="+response.type);
@@ -62,7 +82,7 @@ export class PySmartChatService {
     return this.http.post(
       `${this.apiProperties.pySmartChatV2RateUrl}/${chatId}/rate`,
       { rating },
-      this.httpOptions
+      this.getAuthHeaders()
     ).pipe(
       retry(1),
       catchError(this.handleError)
@@ -73,7 +93,7 @@ export class PySmartChatService {
   fetchContextHistory(customerNumber: string): Observable<ContextHistoryResponse> {
     return this.http.get<ContextHistoryResponse>(
       `${this.apiProperties.pySmartChatUrl}api/chats/${customerNumber}/context-history`,
-      this.httpOptions
+      this.getAuthHeaders()
     ).pipe(
       retry(1),
       catchError(this.handleError)
@@ -84,7 +104,7 @@ export class PySmartChatService {
   fetchRides(customerNumber: string): Observable<RidesResponse> {
     return this.http.get<RidesResponse>(
       `${this.apiProperties.pySmartChatUrl}api/chats/${customerNumber}/rides`,
-      this.httpOptions
+      this.getAuthHeaders()
     ).pipe(
       retry(1),
       catchError(this.handleError)
@@ -95,7 +115,7 @@ export class PySmartChatService {
   fetchNotes(chatId: string): Observable<NotesResponse> {
     return this.http.get<NotesResponse>(
       `${this.apiProperties.pySmartChatUrl}api/chats/${chatId}/notes`,
-      this.httpOptions
+      this.getAuthHeaders()
     ).pipe(
       retry(1),
       catchError(this.handleError)
@@ -106,7 +126,7 @@ export class PySmartChatService {
   fetchTemplates(stakeholderType: string): Observable<TemplatesResponse> {
     return this.http.get<TemplatesResponse>(
       `${this.apiProperties.pySmartChatUrl}api/templates?stakeholder=${stakeholderType}`,
-      this.httpOptions
+      this.getAuthHeaders()
     ).pipe(
       retry(1),
       catchError(this.handleError)
@@ -114,26 +134,33 @@ export class PySmartChatService {
   }
 
   partner_stats() : Observable<{}> {
-    return this.http.get(this.apiProperties.pySmartChatUrl+'api/dashboard/stats', this.httpOptions).pipe(
+    return this.http.get(this.apiProperties.pySmartChatUrl+'api/dashboard/stats', this.getAuthHeaders()).pipe(
       retry(1),
       catchError(this.handleError)
     )
   }
 
-  private handleError(error: HttpErrorResponse): Observable<never> {
+  private handleError = (error: HttpErrorResponse): Observable<never> => {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
       errorMessage = `Client-side error: ${error.error.message}`;
     } else {
-      // Server-side error
       errorMessage = `Server-side error:\nError Code: ${error.status}\nMessage: ${error.message}`;
     }
 
-    // Log the error (optional)
     console.error(errorMessage);
 
-    // Return a user-friendly error message wrapped in an RxJS Error observable
+    // 401 Unauthorized → clear session and force login
+    if (error.status === 401) {
+      const userRole = localStorage.getItem('userRole');
+      if (userRole) {
+        localStorage.removeItem(userRole + '-loginDetails');
+      }
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('executiveStatus');
+      this.router.navigate(['/login']);
+    }
+
     return throwError(() => new Error(errorMessage));
   }
 
