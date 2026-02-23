@@ -644,10 +644,12 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
     return mergedChats.sort((a: any, b: any) => {
       if (a.chat_type === 'date-separator' && b.chat_type !== 'date-separator') {
-        return a.date < b.datetime.split('T')[0] ? -1 : 1;
+        // Date separator should come BEFORE messages of the same date (use <=)
+        return a.date <= b.datetime.split('T')[0] ? -1 : 1;
       }
       if (b.chat_type === 'date-separator' && a.chat_type !== 'date-separator') {
-        return b.date < a.datetime.split('T')[0] ? 1 : -1;
+        // Date separator should come BEFORE messages of the same date (use <=)
+        return b.date <= a.datetime.split('T')[0] ? 1 : -1;
       }
       if (a.chat_type === 'date-separator' && b.chat_type === 'date-separator') {
         return a.date.localeCompare(b.date);
