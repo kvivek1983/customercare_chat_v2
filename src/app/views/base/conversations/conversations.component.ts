@@ -427,6 +427,11 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         this.loadingNewData = false;
         this.selectedChat = chat.selectedChatData;
         this.assignedExecutiveName = this.selectedChat?.assigned_executive_name || '';
+        // Reset pagination & loading state for fresh chat load
+        this.currentPage = 1;
+        this.totalPages = 1;
+        this.isLoading = false;
+        this.chats = [];
         this.fetchConfig();
         if (this.config.showDcoPanels) {
           this.dcoInfoShow(this.selectedChat, chat.selectedFilter);
@@ -448,6 +453,11 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       // For other chat lists that emit the plain chat object, use it directly
       this.selectedChat = chat.selectedChatData ? chat.selectedChatData : chat;
       this.assignedExecutiveName = this.selectedChat?.assigned_executive_name || '';
+      // Reset pagination & loading state for fresh chat load
+      this.currentPage = 1;
+      this.totalPages = 1;
+      this.isLoading = false;
+      this.chats = [];
       this.fetchConfig();
       this.fetchChatsByUser();
 
@@ -481,9 +491,11 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
 
+    console.log('fetchChatsByUser request:', JSON.stringify(req));
     this.chatService.fetchChatsByUser(req);
 
     this.chatService.onFetchChatsByUserResponse().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: FetchAllChatByUser) => {
+      console.log('fetchChatsByUser response:', JSON.stringify(response));
       this.isLoading = false;
       if (response.status === 1) {
 
