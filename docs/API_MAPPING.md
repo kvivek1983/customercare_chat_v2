@@ -36,7 +36,7 @@
 | 7 | `fetchRides()` | GET | `/api/chats/{customerNumber}/rides` | Upcoming rides + search history |
 | 8 | `fetchNotes()` | GET | `/api/chats/{chatId}/notes` | Internal executive notes per chat |
 | 9 | `fetchTemplates()` | GET | `/api/templates?stakeholder={stakeholderType}` | WhatsApp template list by stakeholder |
-| 10 | `partner_stats()` | GET | `/api/dashboard/partner_stats` | Dashboard partner statistics |
+| 10 | `partner_stats()` | GET | `/api/dashboard/stats` | Dashboard statistics |
 
 ---
 

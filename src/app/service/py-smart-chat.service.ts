@@ -114,7 +114,7 @@ export class PySmartChatService {
   }
 
   partner_stats() : Observable<{}> {
-    return this.http.get(this.apiProperties.pySmartChatUrl+'api/dashboard/partner_stats', this.httpOptions).pipe(
+    return this.http.get(this.apiProperties.pySmartChatUrl+'api/dashboard/stats', this.httpOptions).pipe(
       retry(1),
       catchError(this.handleError)
     )
