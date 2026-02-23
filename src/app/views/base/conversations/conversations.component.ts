@@ -398,11 +398,22 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     this.chatService.onConfigResponse().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: Config) => {
       console.log('fetchConfig' + JSON.stringify(response));
       if (response.status === 1) {
-        this.isChatInitiated = response.isChatInitiated;
-        if (this.selectedChat.last_msg_by == 'PartnerApp') {
-          this.isWhatsappChatOpen = 1;
+        // V2 backend returns { status: 1, config: { whatsapp_window_open: [...], ... } }
+        // V1 backend returns { status: 1, isWhatsappChatOpen: 1, isChatInitiated: 1, ... }
+        const v2Config = (response as any).config;
+        if (v2Config) {
+          // V2 format: derive isWhatsappChatOpen from whatsapp_window_open array
+          const windowOpen = Array.isArray(v2Config.whatsapp_window_open) && v2Config.whatsapp_window_open.length > 0;
+          this.isWhatsappChatOpen = windowOpen ? 1 : 0;
+          this.isChatInitiated = 1; // V2: if config exists, chat is initiated
         } else {
-          this.isWhatsappChatOpen = response.isWhatsappChatOpen;
+          // V1 format
+          this.isChatInitiated = response.isChatInitiated;
+          if (this.selectedChat.last_msg_by == 'PartnerApp') {
+            this.isWhatsappChatOpen = 1;
+          } else {
+            this.isWhatsappChatOpen = response.isWhatsappChatOpen;
+          }
         }
       } else {
         // V2 backend may not implement fetch_config yet — default to open
