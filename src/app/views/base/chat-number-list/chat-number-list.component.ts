@@ -81,7 +81,8 @@ export class ChatNumberListComponent implements OnInit {
       .subscribe((response: FetchAllChat) => {
         console.log('fetchAllChat response:', JSON.stringify(response));
         if (response.status === 1) {
-          const chats = Array.isArray(response.chats) ? response.chats : [];
+          const chats = (Array.isArray(response.chats) ? response.chats : [])
+            .map((c: any) => ({ ...c, chat_id: c.chat_id || c._id }));
           if (this.isFresh) {
             this.chats = chats;
           } else {
@@ -103,7 +104,8 @@ export class ChatNumberListComponent implements OnInit {
       .subscribe((response: FetchAllChat) => {
         console.log('search_chat response:', JSON.stringify(response));
         if (response.status === 1) {
-          const chats = Array.isArray(response.chats) ? response.chats : [];
+          const chats = (Array.isArray(response.chats) ? response.chats : [])
+            .map((c: any) => ({ ...c, chat_id: c.chat_id || c._id }));
           if (this.isFresh) {
             this.chats = chats;
           } else {
@@ -268,7 +270,9 @@ export class ChatNumberListComponent implements OnInit {
   }
 
   onRoomUpdate() {
-    this.chatService.onRoomUpdate().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((chat: Chats) => {
+    this.chatService.onRoomUpdate().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((rawChat: Chats) => {
+      // V2 backend uses _id; map to chat_id for frontend compatibility
+      const chat = { ...rawChat, chat_id: (rawChat as any).chat_id || (rawChat as any)._id } as Chats;
       console.log('New onRoomUpdate received:', chat);
 
       const room = this.chats?.find((r) => r.chat_id === chat.chat_id);
