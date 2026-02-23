@@ -153,6 +153,15 @@ export class ChatService {
     this.socket?.emit('join_chat', data);
   }
 
+  /**
+   * Join a customer-type room to receive room_update broadcasts.
+   * V2 backend broadcasts room_update_customer to CustomerApp room, etc.
+   * Call this when a chat list page loads so we receive real-time list updates.
+   */
+  joinRoom(room: string): void {
+    this.socket?.emit('join_room', { room });
+  }
+
   updateChatStatus(data: {}): void {
     this.socket?.emit('update_chat_status', data);
   }

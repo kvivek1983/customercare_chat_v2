@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, ChangeD
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { compareDesc, parseISO } from 'date-fns';
-import { ChatAssignment, Chats, FetchAllChat, ExecutiveStatusUpdate, TagUpdate } from '../../../../app/models/chat.model';
+import { ChatAssignment, Chats, FetchAllChat, ExecutiveStatusUpdate, Message, TagUpdate } from '../../../../app/models/chat.model';
 import { ChatService } from '../../../../app/service/chat.service';
 import { SharedService } from '../../../service/shared.service';
 import { SlaTimerComponent } from '../../../../app/components/sla-timer/sla-timer.component';
@@ -120,6 +120,9 @@ export class ChatNumberListComponent implements OnInit {
         this.cdr.markForCheck();
       });
 
+    // Join the customer-type socket room to receive room_update broadcasts
+    this.joinCustomerTypeRoom();
+
     if (this.showFilter) {
       // Partner: subscribe to SharedService for mobile search
       this.sharedService.currentMobileNumber$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(mobile => {
@@ -136,6 +139,14 @@ export class ChatNumberListComponent implements OnInit {
       this.fetchAllChat();
       this.onRoomUpdate();
     }
+
+    // Subscribe to new_message as fallback for chat list updates
+    // (in case room_update_* events are not received)
+    this.chatService.onNewMessage()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((message: Message) => {
+        this.handleNewMessageForChatList(message);
+      });
 
     // Subscribe to executive status updates (Step 5)
     this.chatService.onExecutiveStatus()
@@ -340,6 +351,67 @@ export class ChatNumberListComponent implements OnInit {
     const index = this.chats?.findIndex((r) => r.chat_id === chat_id);
     if (index !== -1) {
       this.chats.splice(index, 1);
+    }
+  }
+
+  /**
+   * Join the appropriate socket room based on customerType so we receive
+   * room_update / room_update_customer / room_update_vendor / room_update_srdp broadcasts.
+   */
+  private joinCustomerTypeRoom(): void {
+    // Map customerType input → V2 socket room name
+    const roomMap: Record<string, string> = {
+      '': 'PartnerApp',
+      'Customer': 'CustomerApp',
+      'Partner': 'PartnerApp',
+      'Vendor': 'VendorApp',
+      'SRDP': 'SRDPApp',
+      '9726724247': 'VendorApp',   // Vendor customerType from config
+      '9586924247': 'SRDPApp',     // SRDP customerType from config
+    };
+    const room = roomMap[this.customerType] || 'PartnerApp';
+    console.log('Joining socket room:', room, 'for customerType:', this.customerType);
+    this.chatService.joinRoom(room);
+  }
+
+  /**
+   * When a new_message event fires, update the matching chat in the list
+   * with the new message preview and re-sort. This is a fallback in case
+   * room_update_* events are not received (e.g., if the server doesn't
+   * auto-join the socket to the customer-type room).
+   */
+  private handleNewMessageForChatList(message: Message): void {
+    const chatId = (message as any).chat_id;
+    if (!chatId) return;
+
+    const room = this.chats?.find((r) => r.chat_id === chatId);
+    if (room) {
+      room.last_message = message.message;
+      room.last_message_time = message.datetime;
+
+      // V2 uses sender_type; normalize
+      const senderType = message.type || (message as any).sender_type || 'Customer';
+      room.last_msg_by = senderType;
+      room.last_interaction_by = senderType;
+
+      // Increment unseen count if this chat is not the currently selected one
+      if (this.selectedChat == null || this.selectedChat.chat_id !== room.chat_id) {
+        room.unseen_count++;
+      }
+
+      // Re-sort so most recent chat appears at top
+      if (this.chats?.length) {
+        this.chats = [...this.chats].sort((a, b) => {
+          try {
+            return compareDesc(parseISO(a.last_message_time), parseISO(b.last_message_time));
+          } catch { return 0; }
+        });
+      }
+
+      this.cdr.markForCheck();
+    } else {
+      // Chat not in list — could be a brand new chat. Refresh the list.
+      this.fetchAllChat();
     }
   }
 
