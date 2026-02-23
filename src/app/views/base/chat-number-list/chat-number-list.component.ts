@@ -81,12 +81,13 @@ export class ChatNumberListComponent implements OnInit {
       .subscribe((response: FetchAllChat) => {
         console.log('fetchAllChat response:', JSON.stringify(response));
         if (response.status === 1) {
+          const chats = Array.isArray(response.chats) ? response.chats : [];
           if (this.isFresh) {
-            this.chats = response.chats;
+            this.chats = chats;
           } else {
-            this.chats = [...this.chats, ...response.chats];
+            this.chats = [...this.chats, ...chats];
           }
-          this.totalPages = response.pagination.total_pages;
+          this.totalPages = response.pagination?.total_pages ?? 0;
         } else {
           this.errorMessage = response.message || 'An error occurred';
           console.log('fetchAllChat error:', JSON.stringify(response));
@@ -102,12 +103,13 @@ export class ChatNumberListComponent implements OnInit {
       .subscribe((response: FetchAllChat) => {
         console.log('search_chat response:', JSON.stringify(response));
         if (response.status === 1) {
+          const chats = Array.isArray(response.chats) ? response.chats : [];
           if (this.isFresh) {
-            this.chats = response.chats;
+            this.chats = chats;
           } else {
-            this.chats = [...this.chats, ...response.chats];
+            this.chats = [...this.chats, ...chats];
           }
-          this.totalPages = response.pagination.total_pages;
+          this.totalPages = response.pagination?.total_pages ?? 0;
         } else {
           this.errorMessage = response.message || 'An error occurred';
         }
@@ -284,7 +286,9 @@ export class ChatNumberListComponent implements OnInit {
 
         if (this.chats?.length) {
           this.chats = [...this.chats].sort((a, b) => {
-            return compareDesc(parseISO(a.last_message_time), parseISO(b.last_message_time));
+            try {
+              return compareDesc(parseISO(a.last_message_time), parseISO(b.last_message_time));
+            } catch { return 0; }
           });
         }
 
