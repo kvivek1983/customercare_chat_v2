@@ -169,7 +169,17 @@ export class SlaTimerComponent implements OnInit, OnDestroy, OnChanges {
       this.elapsed = 0;
       return;
     }
-    const start = new Date(this.startTime).getTime();
+    // Parse timestamp — if no timezone info, treat as IST (UTC+5:30)
+    let start: number;
+    const ts = this.startTime;
+    if (ts.includes('Z') || ts.includes('+') || /\d{2}:\d{2}:\d{2}-/.test(ts)) {
+      // Has timezone info — parse directly
+      start = new Date(ts).getTime();
+    } else {
+      // No timezone info — assume IST. Append +05:30 to get correct UTC value.
+      const normalized = ts.replace(' ', 'T');
+      start = new Date(normalized + '+05:30').getTime();
+    }
     const now = Date.now();
     this.elapsed = Math.max(0, Math.floor((now - start) / 1000));
   }

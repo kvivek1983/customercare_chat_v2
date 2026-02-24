@@ -243,6 +243,7 @@
   <div class="right-panel-container" *ngIf="selectedChat">
     <app-right-panel-tabs
       [activeTab]="activeRightPanel"
+      [visibleTabs]="config.rightPanelTabs"
       (tabChange)="switchRightPanel($event)">
     </app-right-panel-tabs>
 
@@ -257,7 +258,7 @@
       </div>
 
       <!-- Context Section (inline field→value pills) -->
-      <div class="profile-context" *ngIf="selectedChat.context && selectedChat.context.length > 0">
+      <div class="profile-context" *ngIf="config.showContextSection && selectedChat.context && selectedChat.context.length > 0">
         <div class="context-label">Context</div>
         <div class="context-pills">
           <span class="context-pill" *ngFor="let ctx of selectedChat.context">
@@ -268,7 +269,7 @@
       </div>
 
       <!-- Details Grid -->
-      <div class="profile-details-grid">
+      <div class="profile-details-grid" *ngIf="config.showProfileDetails">
         <div class="detail-item" *ngIf="selectedChat.customer_type">
           <span class="detail-label">Type</span>
           <span class="detail-value">{{ selectedChat.customer_type }}</span>
@@ -299,7 +300,7 @@
       </ng-container>
 
       <!-- Assignment Info Card -->
-      <div class="assignment-card" *ngIf="assignedExecutiveName">
+      <div class="assignment-card" *ngIf="config.showAssignmentCard && assignedExecutiveName">
         <div class="assignment-card-label">Assigned To</div>
         <div class="assignment-card-body">
           <div class="assignment-avatar">
@@ -341,6 +342,7 @@
     <!-- Quick Actions Tab (Phase 4 Step 4) -->
     <div class="right-panel-content" *ngIf="activeRightPanel === 'actions'">
       <app-quick-actions-panel
+        [enabledActions]="config.enabledQuickActions"
         (actionClicked)="handleQuickAction($event)">
       </app-quick-actions-panel>
     </div>

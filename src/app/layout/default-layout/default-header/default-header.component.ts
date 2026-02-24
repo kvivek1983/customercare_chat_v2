@@ -85,10 +85,13 @@ export class DefaultHeaderComponent extends HeaderComponent {
       this.executiveStatus = savedStatus;
     }
 
-    // Restore theme from localStorage
-    this.isLightMode = localStorage.getItem('theme') === 'light';
+    // Restore theme from localStorage — light mode is default
+    const savedTheme = localStorage.getItem('theme');
+    this.isLightMode = savedTheme !== 'dark'; // Default to light unless explicitly set to dark
     if (this.isLightMode) {
       document.body.classList.add('light-mode');
+    } else {
+      document.body.classList.remove('light-mode');
     }
 
     // Derive user initials from login details

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, ChangeD
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { compareDesc, parseISO } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { ChatAssignment, Chats, FetchAllChat, ExecutiveStatusUpdate, Message, TagUpdate } from '../../../../app/models/chat.model';
 import { ChatService } from '../../../../app/service/chat.service';
 import { SharedService } from '../../../service/shared.service';
@@ -377,6 +378,14 @@ export class ChatNumberListComponent implements OnInit {
           room.last_interaction_by = lastBy;
         }
 
+        // Update last_incoming_message_time when message is from Customer
+        // This resets the SLA timer on new customer messages
+        if (chat.last_incoming_message_time) {
+          room.last_incoming_message_time = chat.last_incoming_message_time;
+        } else if (lastBy === 'Customer') {
+          room.last_incoming_message_time = chat.last_message_time;
+        }
+
         if (this.allChats?.length) {
           this.allChats = [...this.allChats].sort((a, b) => {
             try {
@@ -491,6 +500,11 @@ export class ChatNumberListComponent implements OnInit {
       room.last_msg_by = senderType;
       room.last_interaction_by = senderType;
 
+      // Update last_incoming_message_time for SLA timer reset on customer messages
+      if (senderType === 'Customer') {
+        room.last_incoming_message_time = message.datetime;
+      }
+
       // Increment unseen count if this chat is not the currently selected one
       if (this.selectedChat == null || this.selectedChat.chat_id !== room.chat_id) {
         room.unseen_count++;
@@ -514,6 +528,16 @@ export class ChatNumberListComponent implements OnInit {
       this.isFresh = true;
       this.isLoading = false;
       this.fetchAllChat();
+    }
+  }
+
+  /** Format chat list time in IST to avoid UTC/IST mismatch */
+  formatChatTime(timestamp: string): string {
+    if (!timestamp) return '';
+    try {
+      return formatInTimeZone(new Date(timestamp), 'Asia/Kolkata', 'hh:mm a');
+    } catch {
+      return '';
     }
   }
 

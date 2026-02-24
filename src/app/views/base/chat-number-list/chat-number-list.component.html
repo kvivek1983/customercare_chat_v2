@@ -86,7 +86,7 @@
       </div>
       <div class="chat-meta">
         <div class="chat-datetime">
-          {{ chat.last_message_time | date:dateFormat }}
+          {{ formatChatTime(chat.last_message_time) }}
         </div>
         <!-- SLA Timer compact (Phase 3 Step 2) -->
         <app-sla-timer *ngIf="chat.last_incoming_message_time"

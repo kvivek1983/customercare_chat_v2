@@ -31,6 +31,13 @@
 </head>
 
 <body class="mat-typography">
+  <script>
+    // Apply theme BEFORE Angular bootstraps to prevent flash.
+    // Light mode is default unless user explicitly chose dark.
+    if (localStorage.getItem('theme') !== 'dark') {
+      document.body.classList.add('light-mode');
+    }
+  </script>
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <app-root>
     <div class="fade show" style="text-align: center; padding-top: calc(100vh / 2); height: 100vh">

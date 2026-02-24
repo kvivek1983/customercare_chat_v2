@@ -669,7 +669,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     let currentDate: string = '';
 
     messages.forEach((message) => {
-      const messageDate = format(parseISO(message.datetime), 'yyyy-MM-dd');
+      const messageDate = formatInTimeZone(new Date(message.datetime), 'Asia/Kolkata', 'yyyy-MM-dd');
 
       if (messageDate !== currentDate) {
         currentDate = messageDate;
@@ -724,13 +724,17 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     try {
       if (!date) return 'Invalid Date';
 
-      const messageDate = parseISO(date);
+      // Use IST-aware parsing to avoid UTC/IST mismatch
+      const istDateStr = formatInTimeZone(new Date(date), 'Asia/Kolkata', 'yyyy-MM-dd');
+      const todayStr = formatInTimeZone(new Date(), 'Asia/Kolkata', 'yyyy-MM-dd');
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = formatInTimeZone(yesterday, 'Asia/Kolkata', 'yyyy-MM-dd');
 
-      if (isToday(messageDate)) return 'Today';
+      if (istDateStr === todayStr) return 'Today';
+      if (istDateStr === yesterdayStr) return 'Yesterday';
 
-      if (isYesterday(messageDate)) return 'Yesterday';
-
-      return format(messageDate, 'dd/MM/yyyy');
+      return formatInTimeZone(new Date(date), 'Asia/Kolkata', 'dd/MM/yyyy');
     } catch (error) {
       console.warn('Error parsing date input:', date, 'Error:', error);
       return 'Invalid Date';
@@ -738,7 +742,11 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   }
 
   formatTime(timestamp: string): string {
-    return format(parseISO(timestamp), 'hh:mm a');
+    try {
+      return formatInTimeZone(new Date(timestamp), 'Asia/Kolkata', 'hh:mm a');
+    } catch {
+      return '';
+    }
   }
 
   // --- DCO Panel Management (Partner only) ---
