@@ -25,12 +25,6 @@
   </button>
 </div>
 
-<!-- Type Filter Pills (Phase 2 Step 1) -->
-<div class="type-pills">
-  <button class="type-pill" *ngFor="let type of ['All', 'Partner', 'Customer', 'Vendor', 'SRDP']"
-    [class.active]="typeFilter === type" (click)="setTypeFilter(type)">{{ type }}</button>
-</div>
-
 <!-- Online Executives Bar (Step 5) -->
 <div class="online-executives-bar" *ngIf="onlineExecutives.length > 0">
   <span class="online-label">Online:</span>

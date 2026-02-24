@@ -10,24 +10,8 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'searchBookingDetailsByBookingId',
+        redirectTo: 'dashboard',
         pathMatch: 'full'
-      },
-      {
-        path: 'searchBookingDetailsByBookingId',
-        loadComponent: () => import('./search-booking-details-by-booking-id/search-booking-details-by-booking-id.component').then(m => m.SearchBookingDetailsByBookingIdComponent),
-        data: {
-          title: 'Search Booking Details By Booking Id'
-        },
-        canActivate : [authGuard]
-      },
-      {
-        path: 'chatGpt',
-        loadComponent: () => import('./chat-gpt/chat-gpt.component').then(m => m.ChatGptComponent),
-        data: {
-          title: 'ChatGpt'
-        },
-        canActivate : [authGuard]
       },
       {
         path: 'dcoChat',

@@ -25,16 +25,6 @@ export const navItems: INavData[] = [
   // },
 
   {
-    name: 'Search',
-    url: '/base/searchBookingDetailsByBookingId',
-    iconComponent: { name: 'cil-puzzle' },
-  },
-  {
-    name: 'ChatGpt',
-    url: '/base/chatGpt',
-    iconComponent: { name: 'cil-star' },
-  },
-  {
     name: 'DCO Chat',
     url: '/base/dcoChat',
     iconComponent: { name: 'cil-star' },

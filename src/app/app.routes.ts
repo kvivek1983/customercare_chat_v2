@@ -65,12 +65,5 @@ export const routes: Routes = [
       title: 'Login Page'
     }
   },
-  {
-    path: 'searchBookingDetailsByBookingId',
-    loadComponent: () => import('./views/base/search-booking-details-by-booking-id/search-booking-details-by-booking-id.component').then(m => m.SearchBookingDetailsByBookingIdComponent),
-    data: {
-      title: 'Search Booking Details By Booking Id'
-    }
-  },
   { path: '**', redirectTo: 'dashboard' }
 ];
