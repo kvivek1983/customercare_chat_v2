@@ -3,7 +3,7 @@
  * Helps detect whether the latest code is deployed.
  */
 export const BUILD_INFO = {
-  commit: '39a73d3',
+  commit: '677c321',
   date: '2026-02-24',
   version: 'v2.7'
 };
