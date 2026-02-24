@@ -1,5 +1,5 @@
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, ChangeDetectorRef, Output, EventEmitter, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, OnDestroy, ChangeDetectorRef, Output, EventEmitter, Input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { compareDesc } from 'date-fns';
@@ -17,7 +17,7 @@ import { SlaTimerComponent } from '../../../../app/components/sla-timer/sla-time
   styleUrl: './chat-number-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ChatNumberListComponent implements OnInit {
+export class ChatNumberListComponent implements OnInit, OnDestroy {
 
   /** customer_type value sent in fetchAllChat request. '' means no filter (Partner). */
   @Input() customerType: string = '';
@@ -68,6 +68,11 @@ export class ChatNumberListComponent implements OnInit {
   typeFilter: string = 'All';
   activeCount: number = 0;
   resolvedCount: number = 0;
+
+  // Periodic refresh fallback — backend has no `join_room` handler so
+  // room_update_* broadcasts are never received. Poll every 30s to keep list fresh.
+  private refreshInterval: ReturnType<typeof setInterval> | null = null;
+  private readonly REFRESH_INTERVAL_MS = 30_000;
 
   ngOnInit() {
     // Extract executive_id from localStorage (Step 6)
@@ -220,6 +225,17 @@ export class ChatNumberListComponent implements OnInit {
           this.cdr.markForCheck();
         }
       });
+
+    // Start periodic refresh — backend has no `join_room` handler, so
+    // room_update_customer broadcasts never reach us. Poll to keep list fresh.
+    this.startPeriodicRefresh();
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
   }
 
   // ===== Search + Filter Methods (Phase 2 Step 1) =====
@@ -455,6 +471,62 @@ export class ChatNumberListComponent implements OnInit {
     const room = roomMap[this.customerType] || 'PartnerApp';
     console.log('Joining socket room:', room, 'for customerType:', this.customerType);
     this.chatService.joinRoom(room);
+  }
+
+  /**
+   * Start periodic silent refresh of the chat list.
+   * Backend has no `join_room` handler, so `room_update_*` broadcasts are never
+   * received. This polling ensures the list stays reasonably fresh (every 30s).
+   * Pauses when the tab is not visible to save bandwidth.
+   */
+  private startPeriodicRefresh(): void {
+    if (this.refreshInterval) return;
+    this.refreshInterval = setInterval(() => {
+      // Skip if tab is hidden (saves bandwidth)
+      if (document.hidden) return;
+      // Skip if already loading (prevent overlapping requests)
+      if (this.isLoading) return;
+      console.log('[ChatList] periodic refresh triggered');
+      this.silentRefresh();
+    }, this.REFRESH_INTERVAL_MS);
+  }
+
+  /**
+   * Silently re-fetch page 1 of the chat list to pick up new messages.
+   * Unlike fetchAllChat(), this always resets to page 1 and replaces the list.
+   */
+  private silentRefresh(): void {
+    let agentNumber = null;
+    const userRole = localStorage.getItem('userRole');
+    if (userRole) {
+      const rawData = localStorage.getItem(`${userRole}-loginDetails`);
+      const data = rawData ? JSON.parse(rawData) : null;
+      if (data?.agentNumber) {
+        agentNumber = data.agentNumber;
+      }
+    }
+
+    const req: any = {
+      sender: agentNumber,
+      page: 1,
+      page_size: 20,
+      ...(this.selectedFilter !== '' && { search: this.selectedFilter }),
+    };
+
+    if (this.customerType !== '') {
+      req.customer_type = this.customerType;
+    }
+
+    if (this.activeTab === 'my' && this.executiveId) {
+      req.assigned_executive_id = this.executiveId;
+    }
+
+    // Set flags so the response handler replaces (not appends)
+    this.currentPage = 1;
+    this.isFresh = true;
+    this.isLoading = true;
+
+    this.chatService.fetchAllChatUser(req);
   }
 
   /**
