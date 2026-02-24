@@ -273,7 +273,9 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   submitRatingAndResolve(): void {
     if (!this.selectedChat || this.pendingRating === 0) return;
 
-    this.pscs.rateChat(this.selectedChat.chat_id, this.pendingRating)
+    // Include executive_id as required by V2 backend
+    const executiveId = this.selectedChat.assigned_executive_id || this.getExecutiveId();
+    this.pscs.rateChat(this.selectedChat.chat_id, this.pendingRating, executiveId)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -938,7 +940,8 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     if (!this.selectedChat) return;
     this.chatService.applyTag({
       chat_id: this.selectedChat.chat_id,
-      tag
+      tag,
+      action: 'add'
     });
     // Optimistic update
     if (!this.selectedChat.tags) {
@@ -989,6 +992,18 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     if (!this.selectedChat) return '?';
     const name = this.selectedChat.customer_name || this.selectedChat.customer || '?';
     return name.slice(0, 2).toUpperCase();
+  }
+
+  /** Extract executive_id from localStorage (fallback for rateChat) */
+  private getExecutiveId(): string {
+    const userRole = localStorage.getItem('userRole');
+    if (userRole) {
+      try {
+        const loginData = JSON.parse(localStorage.getItem(`${userRole}-loginDetails`) || '{}');
+        return loginData?.executive_id || '';
+      } catch (e) { }
+    }
+    return '';
   }
 
   // Phase 4 Step 4: Quick Actions handler

@@ -30,6 +30,7 @@ import {
 import { IconDirective } from '@coreui/icons-angular';
 import { OnewayNodeService } from '../../../service/oneway-node.service';
 import { ChatService } from '../../../service/chat.service';
+import { PySmartChatService } from '../../../service/py-smart-chat.service';
 import { DashboardStats, ExecutiveStatus } from '../../../models/chat.model';
 
 @Component({
@@ -73,6 +74,7 @@ export class DefaultHeaderComponent extends HeaderComponent {
     private ons: OnewayNodeService,
     private router: Router,
     private chatService: ChatService,
+    private pscs: PySmartChatService,
     private cdr: ChangeDetectorRef
   ) {
     super();
@@ -155,11 +157,18 @@ export class DefaultHeaderComponent extends HeaderComponent {
       return;
     }
 
-    var requestData = {
-      token: data.accessToken
-    };
+    const token = data.accessToken;
 
-    this.ons.logout(JSON.stringify(requestData)).subscribe({
+    // V2: Blacklist token via REST logout endpoint (non-blocking)
+    if (token) {
+      this.pscs.logoutV2(token).subscribe({
+        next: (res: any) => console.log('V2 logout:', res),
+        error: (err: any) => console.warn('V2 logout error:', err)
+      });
+    }
+
+    // V1: Legacy Node.js logout (non-blocking)
+    this.ons.logout(JSON.stringify({ token })).subscribe({
       next: (data: {}) => {
         this.responseData = data;
       },

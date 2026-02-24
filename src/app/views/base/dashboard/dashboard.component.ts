@@ -92,18 +92,21 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(){
     this.partnerStats();
-    this.onDriverChatStats();
+    this.onDashboardStats();
   }
 
-  onDriverChatStats(){
-    this.chatService.onDriverChatStats().subscribe((res: any) => {
-      console.log('New onDriverChatStats received:', res);
+  /** Listen for V2 dashboard_stats WebSocket event (replaces legacy driver-chat-stats) */
+  onDashboardStats(){
+    this.chatService.onDashboardStats().subscribe((res: any) => {
+      console.log('New dashboard_stats received:', res);
 
-      this.totalValue = res.total ?? 0;
-      this.chartData = this.sanitizeChartData(Array.isArray(res.data) ? res.data : []);
-      const unattended = this.sanitizeSeriesData(Array.isArray(res.unattended) ? res.unattended : []);
-      this.unattendedChartData = unattended.length ? [{ name: 'Unattended', series: unattended }] : [];
-
+      // V2 dashboard_stats: { active, resolved, pending }
+      // Map to chart data format
+      this.chartData = this.sanitizeChartData([
+        { name: 'Active', value: res.active ?? 0 },
+        { name: 'Resolved', value: res.resolved ?? 0 }
+      ]);
+      this.totalValue = (res.active ?? 0) + (res.resolved ?? 0) + (res.pending ?? 0);
     });
   }
 

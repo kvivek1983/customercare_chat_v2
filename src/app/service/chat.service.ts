@@ -30,7 +30,6 @@ export class ChatService {
   private configResponse$?: Observable<Config>;
   private updateChatStatusResponse$?: Observable<ResponseData>;
   private typing$?: Observable<{ chat_id: string; sender: string }>;
-  private driverChatStats$?: Observable<any>;
   private dashboardStats$?: Observable<DashboardStats>;
   private executiveStatus$?: Observable<ExecutiveStatusUpdate>;
   private chatAssigned$?: Observable<ChatAssignment>;
@@ -97,7 +96,6 @@ export class ChatService {
     this.configResponse$ = undefined;
     this.updateChatStatusResponse$ = undefined;
     this.typing$ = undefined;
-    this.driverChatStats$ = undefined;
     this.dashboardStats$ = undefined;
     this.executiveStatus$ = undefined;
     this.chatAssigned$ = undefined;
@@ -117,7 +115,6 @@ export class ChatService {
     this.onConfigResponse();
     this.onUpdateChatStatus();
     this.onTyping();
-    this.onDriverChatStats();
     this.onDashboardStats();
     this.onExecutiveStatus();
     this.onChatAssigned();
@@ -178,12 +175,15 @@ export class ChatService {
     this.socket?.emit('reassign_chat', data);
   }
 
-  applyTag(data: { chat_id: string; tag: string }): void {
-    this.socket?.emit('apply_tag', data);
+  applyTag(data: { chat_id: string; tag: string; action?: string }): void {
+    // V2 backend uses unified apply_tag with action: "add"|"remove"
+    const payload = { ...data, action: data.action || 'add' };
+    this.socket?.emit('apply_tag', payload);
   }
 
   removeTag(data: { chat_id: string; tag: string }): void {
-    this.socket?.emit('remove_tag', data);
+    // V2 backend: remove_tag is handled via unified apply_tag with action: "remove"
+    this.applyTag({ ...data, action: 'remove' });
   }
 
   addNote(data: { chat_id: string; content: string }): void {
@@ -288,16 +288,6 @@ export class ChatService {
       }).pipe(shareReplay(1));
     }
     return this.typing$;
-  }
-
-  onDriverChatStats(): Observable<any> {
-    if (!this.driverChatStats$) {
-      if (!this.socket) return EMPTY;
-      this.driverChatStats$ = new Observable<any>((observer) => {
-        this.socket!.on('driver-chat-stats', (data: any) => observer.next(data));
-      }).pipe(shareReplay(1));
-    }
-    return this.driverChatStats$;
   }
 
   onDashboardStats(): Observable<DashboardStats> {

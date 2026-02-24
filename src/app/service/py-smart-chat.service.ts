@@ -78,10 +78,14 @@ export class PySmartChatService {
     );
   }
 
-  rateChat(chatId: string, rating: number): Observable<any> {
+  rateChat(chatId: string, rating: number, executiveId?: string): Observable<any> {
+    const body: any = { rating };
+    if (executiveId) {
+      body.executive_id = executiveId;
+    }
     return this.http.post(
       `${this.apiProperties.pySmartChatV2RateUrl}/${chatId}/rate`,
-      { rating },
+      body,
       this.getAuthHeaders()
     ).pipe(
       retry(1),
@@ -147,6 +151,20 @@ export class PySmartChatService {
       }),
       catchError(this.handleError)
     )
+  }
+
+  /** V2 logout — blacklist token on backend */
+  logoutV2(token: string): Observable<any> {
+    return this.http.post(
+      `${this.apiProperties.pySmartChatUrl}api/auth/logout`,
+      { token },
+      this.httpOptions
+    ).pipe(
+      catchError((err) => {
+        console.warn('V2 logout failed (non-critical):', err);
+        return of({ status: 0 });
+      })
+    );
   }
 
   private handleError = (error: HttpErrorResponse): Observable<never> => {
