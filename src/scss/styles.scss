@@ -85,18 +85,111 @@
     }
 }
 
-.sidebar-nav .nav-link:hover{
-    background: var(--accent);
-}
-
-.sidebar-nav .nav-link.active {
-    background: var(--accent);
-}
-
 html, body { height: 100%; }
 body {
   margin: 0;
-  font-family: var(--font-body);
-  background-color: var(--bg);
-  color: var(--text);
+  font-family: var(--font-body) !important;
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+}
+
+// ===== COREUI SIDEBAR OVERRIDES =====
+.sidebar {
+  --cui-sidebar-bg: var(--surface) !important;
+  --cui-sidebar-border-color: var(--border) !important;
+  --cui-sidebar-color: var(--text-muted) !important;
+  --cui-sidebar-nav-link-color: var(--text-muted) !important;
+  --cui-sidebar-nav-link-hover-color: var(--text) !important;
+  --cui-sidebar-nav-link-hover-bg: var(--surface-hover) !important;
+  --cui-sidebar-nav-link-active-color: #fff !important;
+  --cui-sidebar-nav-link-active-bg: var(--accent) !important;
+  --cui-sidebar-nav-link-active-icon-color: #fff !important;
+  --cui-sidebar-nav-link-icon-color: var(--text-muted) !important;
+  --cui-sidebar-nav-link-hover-icon-color: var(--text) !important;
+  --cui-sidebar-nav-group-indicator-color: var(--text-muted) !important;
+  --cui-sidebar-toggler-bg: var(--surface) !important;
+  --cui-sidebar-toggler-color: var(--text-muted) !important;
+  --cui-sidebar-toggler-hover-bg: var(--surface-hover) !important;
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+.sidebar-dark {
+  background-color: var(--surface) !important;
+}
+
+.sidebar-nav .nav-link {
+  color: var(--text-muted) !important;
+  transition: color 0.15s, background 0.15s;
+}
+
+.sidebar-nav .nav-link:hover {
+  color: var(--text) !important;
+  background: var(--surface-hover) !important;
+}
+
+.sidebar-nav .nav-link.active {
+  color: #fff !important;
+  background: var(--accent) !important;
+}
+
+.sidebar-nav .nav-icon {
+  color: var(--text-muted) !important;
+}
+
+.sidebar-nav .nav-link.active .nav-icon {
+  color: #fff !important;
+}
+
+.sidebar-nav .nav-link:hover .nav-icon {
+  color: var(--text) !important;
+}
+
+// Sidebar scrollbar area
+ng-scrollbar.overflow,
+.sidebar ng-scrollbar {
+  background: var(--surface) !important;
+}
+
+.sidebar .ng-scrollbar,
+.sidebar .ng-scroll-viewport-wrapper,
+.sidebar .ng-scroll-viewport,
+.sidebar .ng-native-scrollbar-hider {
+  background: var(--surface) !important;
+}
+
+// Sidebar header and footer
+.sidebar-header {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.sidebar-footer {
+  background: var(--surface) !important;
+  border-top: 1px solid var(--border) !important;
+}
+
+// Sidebar border-end override
+.sidebar.border-end {
+  border-color: var(--border) !important;
+}
+
+// ===== COREUI HEADER OVERRIDES =====
+.header {
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+// ===== COREUI WRAPPER / BODY OVERRIDES =====
+.wrapper {
+  background-color: var(--bg) !important;
+}
+
+.body {
+  background-color: var(--bg) !important;
+}
+
+// ===== FOOTER HIDE =====
+.footer {
+  display: none !important;
 }

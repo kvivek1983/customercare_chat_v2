@@ -6,34 +6,44 @@
     --scrollbar-thumb-hover-color: var(--text-muted);
     --scrollbar-hover-size: calc(var(--scrollbar-size) * 1.5);
   }
+
+  ng-scrollbar,
+  ng-scrollbar.overflow {
+    background: var(--surface) !important;
+  }
 }
 
 .sidebar-header {
-  background: var(--surface);
+  background: var(--surface) !important;
   justify-content: center;
   border-bottom: 1px solid var(--border);
 }
 
 .sidebar-footer {
-  background: var(--surface);
+  background: var(--surface) !important;
   border-top: 1px solid var(--border);
 }
 
 .ng-native-scrollbar-hider,
 .ng-scroll-viewport {
-  background: var(--surface);
+  background: var(--surface) !important;
 }
 
 .ng-scroll-viewport-wrapper {
-  background: var(--surface);
+  background: var(--surface) !important;
 }
 
 .sidebar-nav a {
-  color: var(--text-muted);
+  color: var(--text-muted) !important;
   transition: color 0.15s, background 0.15s;
 
   &:hover {
-    color: var(--text);
-    background: var(--surface-hover);
+    color: var(--text) !important;
+    background: var(--surface-hover) !important;
+  }
+
+  &.active {
+    color: #fff !important;
+    background: var(--accent) !important;
   }
 }

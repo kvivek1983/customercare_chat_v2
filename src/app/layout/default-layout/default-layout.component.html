@@ -25,12 +25,7 @@
     </c-sidebar-brand>
   </c-sidebar-header>
 
-  <ng-scrollbar [cSidebarToggle]="sidebarId()"
-  cHeaderToggler
-  class="btn"
-  toggle="visible"
-  style="margin-inline-start: -14px;"
-  aria-label="Toggle sidebar navigation"  cheadertoggler  aria-label="Toggle sidebar navigation" toggle="visible" class="overflow" style="background: #ffd500;">
+  <ng-scrollbar class="overflow">
     <c-sidebar-nav  #overflow [navItems]="navItems"  dropdownMode="close" compact />
   </ng-scrollbar>
 
@@ -46,7 +41,7 @@
   <!--app-header-->
   <app-default-header
     [cShadowOnScroll]="'sm'"
-    class="mb-4 d-print-none header header-sticky p-0 shadow-sm"
+    class="d-print-none header header-sticky p-0"
     position="sticky"
     sidebarId="sidebar1"
   />
@@ -57,6 +52,5 @@
       
     </c-container>
   </div>
-  <!--app footer-->
-  <app-default-footer />
+  <!--app footer removed for V2 design-->
 </div>

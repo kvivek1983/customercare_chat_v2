@@ -1,5 +1,7 @@
 body {
-  background-color: var(--bg);
+  background-color: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: var(--font-body) !important;
 }
 
 .wrapper {
@@ -48,10 +50,7 @@ body {
 }
 
 .footer {
-  min-height: calc(3rem + 1px); // stylelint-disable-line function-disallowed-list
-  background-color: var(--surface);
-  border-top: 1px solid var(--border);
-  color: var(--text-muted);
+  display: none !important;
 }
 
 .header {
