@@ -181,13 +181,14 @@
 .message-bubble {
   display: inline-block;
   position: relative;
-  padding: 8px 50px 8px 12px;
+  padding: 8px 12px 18px 12px;
   max-width: 80%;
   margin: 3px 0;
   word-wrap: break-word;
   overflow-wrap: break-word;
   font-size: 13px;
   line-height: 1.5;
+  min-width: 80px;
 }
 
 .agent-message {
