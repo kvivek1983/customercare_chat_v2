@@ -156,7 +156,12 @@ export class ChatService {
    * Call this when a chat list page loads so we receive real-time list updates.
    */
   joinRoom(room: string): void {
+    console.log('[Socket] emitting join_room:', room);
     this.socket?.emit('join_room', { room });
+    // Listen for backend confirmation (one-time per call)
+    this.socket?.once('join_room_response', (response: any) => {
+      console.log('[Socket] join_room_response:', JSON.stringify(response));
+    });
   }
 
   updateChatStatus(data: {}): void {
@@ -220,11 +225,14 @@ export class ChatService {
     if (!this.roomUpdate$) {
       if (!this.socket) return EMPTY as Observable<Chats>;
       this.roomUpdate$ = new Observable<Chats>((observer) => {
-        const handler = (data: Chats) => observer.next(data);
-        this.socket!.on('room_update', handler);
-        this.socket!.on('room_update_customer', handler);
-        this.socket!.on('room_update_vendor', handler);
-        this.socket!.on('room_update_srdp', handler);
+        const handler = (eventName: string) => (data: Chats) => {
+          console.log(`[Socket] ${eventName} received:`, (data as any).chat_id, (data as any).customer_type);
+          observer.next(data);
+        };
+        this.socket!.on('room_update', handler('room_update'));
+        this.socket!.on('room_update_customer', handler('room_update_customer'));
+        this.socket!.on('room_update_vendor', handler('room_update_vendor'));
+        this.socket!.on('room_update_srdp', handler('room_update_srdp'));
       }).pipe(shareReplay(1));
     }
     return this.roomUpdate$;
