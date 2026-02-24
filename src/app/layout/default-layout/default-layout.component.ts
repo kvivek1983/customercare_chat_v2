@@ -20,6 +20,7 @@ import {
 
 import { DefaultFooterComponent, DefaultHeaderComponent } from './';
 import { navItems } from './_nav';
+import { BUILD_INFO } from '../../build-info';
 
 function isOverflown(element: HTMLElement) {
   return (
@@ -56,6 +57,7 @@ function isOverflown(element: HTMLElement) {
 })
 export class DefaultLayoutComponent {
   public navItems = navItems;
+  public buildInfo = BUILD_INFO;
   private chatService = inject(ChatService);
   private router = inject(Router);
 

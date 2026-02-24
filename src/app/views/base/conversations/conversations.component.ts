@@ -655,7 +655,34 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
       if (!isAgentMessage && this.selectedChat && message.sender == this.selectedChat.customer) {
         message['chat_type'] = 'message';
-        this.chats.push(message);
+
+        // Handle enriched media fields from V2 new_message broadcast (#3)
+        const msg = message as any;
+        if (msg.media_url) {
+          // Backend provides direct media URL — map to camelCase for template
+          msg.mediaUrl = msg.media_url;
+          this.chats.push(message);
+          this.scrollToBottom();
+          this.cdr.markForCheck();
+        } else if (msg.media && msg.media.id) {
+          // Fallback: resolve media URL via REST endpoint
+          this.chats.push(message);
+          this.fetchMediaFile(msg.media.id)
+            .then((mediaUrl) => {
+              msg.mediaUrl = mediaUrl;
+              this.blobUrls.push(mediaUrl);
+              this.cdr.markForCheck();
+            })
+            .catch((err) => console.error('Failed to fetch media for real-time message:', err));
+          this.scrollToBottom();
+          this.cdr.markForCheck();
+        } else {
+          // Text-only message
+          this.chats.push(message);
+          this.scrollToBottom();
+          this.cdr.markForCheck();
+        }
+        return;
       }
 
       this.scrollToBottom();
