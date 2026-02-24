@@ -1,5 +1,5 @@
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, OnDestroy, ChangeDetectorRef, Output, EventEmitter, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, OnDestroy, OnChanges, SimpleChanges, ChangeDetectorRef, Output, EventEmitter, Input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { compareDesc } from 'date-fns';
@@ -17,7 +17,7 @@ import { SlaTimerComponent } from '../../../../app/components/sla-timer/sla-time
   styleUrl: './chat-number-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ChatNumberListComponent implements OnInit, OnDestroy {
+export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
 
   /** customer_type value sent in fetchAllChat request. '' means no filter (Partner). */
   @Input() customerType: string = '';
@@ -73,6 +73,35 @@ export class ChatNumberListComponent implements OnInit, OnDestroy {
   // room_update_* broadcasts are never received. Poll every 30s to keep list fresh.
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
   private readonly REFRESH_INTERVAL_MS = 30_000;
+
+  // Track whether ngOnInit has run (to skip first ngOnChanges which fires before ngOnInit)
+  private initialized = false;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // When customerType input changes after initial load (navigation between stakeholder pages),
+    // reset the chat list and re-fetch for the new stakeholder type.
+    if (changes['customerType'] && !changes['customerType'].firstChange && this.initialized) {
+      console.log('[ChatList] customerType changed:', changes['customerType'].previousValue, '→', changes['customerType'].currentValue);
+      this.allChats = [];
+      this.chats = [];
+      this.selectedChat = null;
+      this.currentPage = 1;
+      this.totalPages = 0;
+      this.isFresh = true;
+      this.isLoading = false;
+      this.searchQuery = '';
+      this.statusFilter = 'active';
+      this.typeFilter = 'All';
+      this.activeCount = 0;
+      this.resolvedCount = 0;
+
+      // Re-join the correct socket room for the new stakeholder type
+      this.joinCustomerTypeRoom();
+      // Fetch chats for the new stakeholder type
+      this.fetchAllChat();
+      this.cdr.markForCheck();
+    }
+  }
 
   ngOnInit() {
     // Extract executive_id from localStorage (Step 6)
@@ -229,6 +258,8 @@ export class ChatNumberListComponent implements OnInit, OnDestroy {
     // Start periodic refresh — backend has no `join_room` handler, so
     // room_update_customer broadcasts never reach us. Poll to keep list fresh.
     this.startPeriodicRefresh();
+
+    this.initialized = true;
   }
 
   ngOnDestroy(): void {

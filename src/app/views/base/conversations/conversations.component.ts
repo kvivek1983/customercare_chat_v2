@@ -136,9 +136,22 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   showTemplatePicker: boolean = false;
 
   ngOnInit() {
-    // Read customerType from route data and look up config
-    const customerType = this.route.snapshot.data['customerType'] || 'Partner';
-    this.config = CHAT_TYPE_CONFIGS[customerType] || CHAT_TYPE_CONFIGS['Partner'];
+    // Subscribe to route data changes — same component is reused across
+    // dcoChat/customerChat/vendorChat/srdpChat routes, so snapshot only
+    // captures the first activation. This subscription reacts to navigation.
+    this.route.data
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => {
+        const customerType = data['customerType'] || 'Partner';
+        const newConfig = CHAT_TYPE_CONFIGS[customerType] || CHAT_TYPE_CONFIGS['Partner'];
+
+        // Only reset if the config actually changed (avoids unnecessary work on first load)
+        if (this.config && this.config.customerType !== newConfig.customerType) {
+          this.resetComponentState();
+        }
+        this.config = newConfig;
+        this.cdr.markForCheck();
+      });
 
     const userRole = localStorage.getItem('userRole');
     if (userRole) {
@@ -215,6 +228,39 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         );
         this.cdr.markForCheck();
       });
+  }
+
+  /**
+   * Reset component state when navigating between stakeholder pages.
+   * Since Angular reuses this component for dcoChat/customerChat/vendorChat/srdpChat,
+   * we must manually clear old state when route data changes.
+   */
+  private resetComponentState(): void {
+    this.selectedChat = null;
+    this.chats = [];
+    this.openChat = false;
+    this.isWhatsappChatOpen = 0;
+    this.isChatInitiated = 0;
+    this.isResolved = false;
+    this.currentPage = 1;
+    this.totalPages = 1;
+    this.isLoading = false;
+    this.loadingNewData = false;
+    this.errorMessage = '';
+    this.newMessage = '';
+    this.assignedExecutiveName = '';
+    this.showReassignDropdown = false;
+    this.showTagSelector = false;
+    this.showRatingModal = false;
+    this.showTemplatePicker = false;
+    this.dcoInfo = false;
+    this.dcoSuspendView = false;
+    this.dcoPendingView = false;
+    this.dcoActiveApprovedView = false;
+    this.activeRightPanel = 'profile';
+    // Clear mobile search (Partner-specific)
+    this.mobileForm.reset();
+    this.sharedService.setMobileNumber(null);
   }
 
   ngOnDestroy(): void {
