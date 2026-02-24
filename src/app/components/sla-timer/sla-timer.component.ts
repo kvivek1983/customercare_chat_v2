@@ -169,16 +169,16 @@ export class SlaTimerComponent implements OnInit, OnDestroy, OnChanges {
       this.elapsed = 0;
       return;
     }
-    // Parse timestamp — if no timezone info, treat as IST (UTC+5:30)
+    // Parse timestamp — if no timezone info, treat as UTC (MongoDB stores UTC)
     let start: number;
     const ts = this.startTime;
-    if (ts.includes('Z') || ts.includes('+') || /\d{2}:\d{2}:\d{2}-/.test(ts)) {
+    if (/Z$/.test(ts) || /[+-]\d{2}:\d{2}$/.test(ts) || /[+-]\d{4}$/.test(ts)) {
       // Has timezone info — parse directly
       start = new Date(ts).getTime();
     } else {
-      // No timezone info — assume IST. Append +05:30 to get correct UTC value.
+      // No timezone info — assume UTC. Append 'Z' so Date parses correctly.
       const normalized = ts.replace(' ', 'T');
-      start = new Date(normalized + '+05:30').getTime();
+      start = new Date(normalized + 'Z').getTime();
     }
     const now = Date.now();
     this.elapsed = Math.max(0, Math.floor((now - start) / 1000));

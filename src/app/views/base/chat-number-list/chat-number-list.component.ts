@@ -2,7 +2,7 @@ import { CommonModule, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, ChangeDetectorRef, Output, EventEmitter, Input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { compareDesc, parseISO } from 'date-fns';
+import { compareDesc } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { ChatAssignment, Chats, FetchAllChat, ExecutiveStatusUpdate, Message, TagUpdate } from '../../../../app/models/chat.model';
 import { ChatService } from '../../../../app/service/chat.service';
@@ -389,7 +389,7 @@ export class ChatNumberListComponent implements OnInit {
         if (this.allChats?.length) {
           this.allChats = [...this.allChats].sort((a, b) => {
             try {
-              return compareDesc(parseISO(a.last_message_time), parseISO(b.last_message_time));
+              return compareDesc(this.parseDateTime(a.last_message_time), this.parseDateTime(b.last_message_time));
             } catch { return 0; }
           });
         }
@@ -514,7 +514,7 @@ export class ChatNumberListComponent implements OnInit {
       if (this.allChats?.length) {
         this.allChats = [...this.allChats].sort((a, b) => {
           try {
-            return compareDesc(parseISO(a.last_message_time), parseISO(b.last_message_time));
+            return compareDesc(this.parseDateTime(a.last_message_time), this.parseDateTime(b.last_message_time));
           } catch { return 0; }
         });
       }
@@ -535,10 +535,24 @@ export class ChatNumberListComponent implements OnInit {
   formatChatTime(timestamp: string): string {
     if (!timestamp) return '';
     try {
-      return formatInTimeZone(new Date(timestamp), 'Asia/Kolkata', 'hh:mm a');
+      return formatInTimeZone(this.parseDateTime(timestamp), 'Asia/Kolkata', 'hh:mm a');
     } catch {
       return '';
     }
+  }
+
+  /**
+   * Parse a datetime string into a Date, treating ambiguous (no timezone) strings as UTC.
+   * MongoDB stores UTC; backend may return strings without 'Z' or offset.
+   */
+  private parseDateTime(dt: string): Date {
+    if (!dt) return new Date();
+    // If already has timezone info ('Z', '+05:30', '-04:00'), parse directly
+    if (/Z$/.test(dt) || /[+-]\d{2}:\d{2}$/.test(dt) || /[+-]\d{4}$/.test(dt)) {
+      return new Date(dt);
+    }
+    // Ambiguous: treat as UTC by normalizing to ISO + 'Z'
+    return new Date(dt.replace(' ', 'T') + 'Z');
   }
 
 }
