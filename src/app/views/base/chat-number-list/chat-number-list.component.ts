@@ -465,8 +465,6 @@ export class ChatNumberListComponent implements OnInit, OnDestroy {
       'Partner': 'PartnerApp',
       'Vendor': 'VendorApp',
       'SRDP': 'SRDPApp',
-      '9726724247': 'VendorApp',   // Vendor customerType from config
-      '9586924247': 'SRDPApp',     // SRDP customerType from config
     };
     const room = roomMap[this.customerType] || 'PartnerApp';
     console.log('Joining socket room:', room, 'for customerType:', this.customerType);
