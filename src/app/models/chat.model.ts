@@ -15,6 +15,11 @@ export interface Message {
   media?: Media;
   chat_type?: string;
   mediaUrl?: string;
+  chat_id?: string;      // V2 includes chat_id in new_message broadcasts
+  channel?: string;      // V2: "whatsapp" | "inapp"
+  message_id?: string;   // V2: unique message identifier
+  message_tag?: string;  // V2: WhatsApp interactive button reply ID
+  seen_by?: string[];    // V2: executives who have viewed this message
 }
 
 export interface Media {
@@ -53,8 +58,14 @@ export interface Chats{
   assigned_executive_name?: string;
   tags?: string[];
   rating?: number;
-  last_incoming_message_time?: string;
+  last_incoming_message_time?: string;  // Normalized from V2 last_incoming_message
   last_interaction_by?: string;
+  // V2 fields (raw from backend, normalized in normalizeChat)
+  last_incoming_message?: string;       // V2 field name for SLA timer source
+  last_incoming_whatsapp_message?: string; // V2: for 24h service window
+  last_outgoing_message?: string;       // V2: last executive message time
+  is_resolved?: boolean;                // V2: convenience boolean
+  status?: string;                      // V2: "active" | "resolved"
 }
 
 export interface Config{
@@ -71,6 +82,7 @@ export interface Pagination{
   page_size : number;
   total_chats : number;
   total_pages : number;
+  total?: number;  // V2 sends "total" instead of "total_chats"
 }
 
 export interface ResponseData{
@@ -79,10 +91,16 @@ export interface ResponseData{
 }
 
 export interface LoginResponse {
-  token: string;
-  executive_id: string;
-  name: string;
-  agent_number: string;
+  // V2 fields
+  accessToken: string;
+  refreshToken?: string;
+  agentNumber: string;
+  adminid: string;
+  name?: string;           // V2 may not return this — derived from username
+  // V1 compat fields
+  token?: string;
+  executive_id?: string;
+  agent_number?: string;
 }
 
 export interface DashboardStats {

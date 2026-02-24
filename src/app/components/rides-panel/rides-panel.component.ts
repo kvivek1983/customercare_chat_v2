@@ -26,7 +26,7 @@ import { PySmartChatService } from '../../service/py-smart-chat.service';
               <span class="ride-type-badge">{{ ride.type }}</span>
             </div>
             <div class="ride-route">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2c3e50"
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M5 17h14 M5 17a2 2 0 01-2-2V7a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2"></path>
               </svg>
@@ -51,47 +51,49 @@ import { PySmartChatService } from '../../service/py-smart-chat.service';
   styles: [`
     .rides-panel { padding: 4px 0; }
     .rides-loading, .rides-empty {
-      text-align: center; color: #95a5a6;
-      font-size: 13px; padding: 16px 0;
+      text-align: center; color: var(--text-muted);
+      font-size: 12px; padding: 16px 0;
     }
     .rides-section { margin-bottom: 16px; }
     .rides-section-title {
-      font-size: 11px; font-weight: 700; color: #95a5a6;
+      font-size: 10px; font-weight: 700; color: var(--text-muted);
       letter-spacing: 0.5px; text-transform: uppercase;
       margin-bottom: 8px;
     }
     .ride-card {
-      padding: 12px 14px; border: 1px solid #e0e0e0;
-      border-radius: 12px; margin-bottom: 8px;
+      padding: 12px 14px; border: 1px solid var(--border);
+      border-radius: 10px; margin-bottom: 8px;
+      background: var(--bg);
     }
     .ride-card-header {
       display: flex; justify-content: space-between;
       align-items: center; margin-bottom: 6px;
     }
     .ride-id {
-      font-size: 13px; font-weight: 700; color: #2c3e50;
-      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; font-weight: 700; color: var(--accent);
+      font-family: var(--font-mono);
     }
     .ride-type-badge {
       font-size: 10px; font-weight: 700; padding: 2px 8px;
       border-radius: 4px; letter-spacing: 0.5px;
-      background: rgba(34, 197, 94, 0.12); color: #22C55E;
+      background: rgba(34, 197, 94, 0.12); color: var(--success);
       text-transform: uppercase;
     }
     .ride-route {
       display: flex; align-items: center; gap: 6px;
-      font-size: 13px; color: #2c3e50; margin-bottom: 4px;
+      font-size: 13px; color: var(--text); margin-bottom: 4px;
     }
-    .ride-date { font-size: 11px; color: #95a5a6; }
+    .ride-route svg { stroke: var(--text-muted); }
+    .ride-date { font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); }
     .search-row {
       display: flex; justify-content: space-between;
       align-items: center; padding: 8px 14px;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid var(--border);
       font-size: 12px;
     }
     .search-row:last-child { border-bottom: none; }
-    .search-route { color: #2c3e50; }
-    .search-date { color: #95a5a6; font-size: 11px; }
+    .search-route { color: var(--text); }
+    .search-date { color: var(--text-muted); font-size: 10px; font-family: var(--font-mono); }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

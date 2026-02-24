@@ -13,59 +13,67 @@ interface TabDef {
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="rp-tabs">
+    <div class="rp-icon-bar">
       <button *ngFor="let tab of tabs"
-              class="rp-tab"
-              [class.rp-tab--active]="tab.key === activeTab"
+              class="rp-icon-btn"
+              [class.rp-icon-btn--active]="tab.key === activeTab"
+              [title]="tab.label"
               (click)="tabChange.emit(tab.key)">
-        <svg class="rp-tab-icon" width="16" height="16" viewBox="0 0 24 24"
+        <svg class="rp-icon" width="18" height="18" viewBox="0 0 24 24"
              fill="none" stroke="currentColor" stroke-width="2"
              stroke-linecap="round" stroke-linejoin="round">
           <path [attr.d]="tab.icon"></path>
         </svg>
-        <span class="rp-tab-label">{{ tab.label }}</span>
       </button>
     </div>
   `,
   styles: [`
-    .rp-tabs {
+    .rp-icon-bar {
       display: flex;
-      border-bottom: 1px solid #e0e0e0;
-      background: #fff;
-      padding: 0 4px;
-      gap: 0;
+      flex-direction: column;
+      align-items: center;
+      width: 48px;
+      min-width: 48px;
+      padding: 8px 0;
+      gap: 2px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
     }
-    .rp-tab {
-      flex: 1;
+    .rp-icon-btn {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 5px;
-      padding: 10px 6px;
+      width: 36px;
+      height: 36px;
       border: none;
+      border-radius: 8px;
       background: transparent;
-      color: #95a5a6;
-      font-size: 11px;
-      font-weight: 600;
+      color: var(--text-muted);
       cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: color 0.15s, border-color 0.15s;
-      font-family: inherit;
-      white-space: nowrap;
-      letter-spacing: 0.3px;
+      transition: color 0.15s, background 0.15s;
     }
-    .rp-tab:hover {
-      color: #2c3e50;
+    .rp-icon-btn:hover {
+      color: var(--text);
+      background: var(--surface-hover);
     }
-    .rp-tab--active {
-      color: #3498db;
-      border-bottom-color: #3498db;
+    .rp-icon-btn--active {
+      color: var(--accent);
+      background: var(--accent-glow);
     }
-    .rp-tab-icon {
+    .rp-icon-btn--active::before {
+      content: '';
+      position: absolute;
+      left: -6px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2.5px;
+      height: 20px;
+      border-radius: 0 2px 2px 0;
+      background: var(--accent);
+    }
+    .rp-icon {
       flex-shrink: 0;
-    }
-    .rp-tab-label {
-      letter-spacing: 0.3px;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush

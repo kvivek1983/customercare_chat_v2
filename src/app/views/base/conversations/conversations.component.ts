@@ -556,11 +556,13 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
       this.totalPages = response.pagination?.total_pages ?? 0;
 
-      // V2 backend uses sender_type instead of type — normalize
-      const chatMessages = rawMessages.map((m: any) => ({
-        ...m,
-        type: m.type || m.sender_type || 'Customer'
-      }));
+      // V2 backend uses sender_type ("Customer"/"Executive") instead of type ("Customer"/"Agent")
+      const chatMessages = rawMessages.map((m: any) => {
+        let type = m.type || m.sender_type || 'Customer';
+        // Normalize V2 "Executive" → "Agent" for template ngClass binding
+        if (type === 'Executive') type = 'Agent';
+        return { ...m, type };
+      });
       chatMessages.sort((a: any, b: any) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
 
       this.chats = this.mergeGroupedMessages(this.chats, this.groupMessagesByDate(chatMessages));
@@ -637,12 +639,18 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   onNewMessage() {
     this.chatService.onNewMessage().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((message: Message) => {
       console.log('New message received:', message);
-      // V2 backend uses sender_type instead of type — normalize
+      // V2 backend uses sender_type ("Executive") instead of type ("Agent") — normalize
       if (!message.type && (message as any).sender_type) {
         message.type = (message as any).sender_type;
       }
+      // Normalize V2 "Executive" → "Agent" for consistent frontend handling
+      if (message.type === 'Executive') {
+        message.type = 'Agent';
+      }
 
-      if (message.type != 'Agent' && this.selectedChat && message.sender == this.selectedChat.customer) {
+      const isAgentMessage = message.type === 'Agent';
+
+      if (!isAgentMessage && this.selectedChat && message.sender == this.selectedChat.customer) {
         message['chat_type'] = 'message';
         this.chats.push(message);
       }

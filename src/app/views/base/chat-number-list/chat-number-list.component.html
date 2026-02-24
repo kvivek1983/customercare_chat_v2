@@ -27,9 +27,9 @@
 </div>
 
 <ul *ngIf="chats && chats.length > 0">
-  <li *ngFor="let chat of chats" (click)="onChatClick(chat)">
-    <div class="chat-item" [class.active]="chat.chat_id === selectedChat?.chat_id">
-      <div class="avatar"></div>
+  <li *ngFor="let chat of chats; let i = index" [style.animation-delay.ms]="i * 25" class="chat-li">
+    <div class="chat-item" [class.active]="chat.chat_id === selectedChat?.chat_id" (click)="onChatClick(chat)">
+      <div class="avatar">{{ (chat.customer_name || chat.customer || '?') | slice:0:2 | uppercase }}</div>
       <div class="chat-info">
         <!-- Partner: show name + number; Others: show number only -->
         <p class="chat-name" *ngIf="showCustomerName">{{ chat.customer_name }} {{ chat.customer }}</p>
@@ -66,7 +66,7 @@
   </li>
 </ul>
 
-<button class="btn btn-warning mb-2" *ngIf="currentPage < totalPages && !isLoading" (click)="loadFetchAllChat()">Load
+<button class="load-more-btn" *ngIf="currentPage < totalPages && !isLoading" (click)="loadFetchAllChat()">Load
   More</button>
-<p *ngIf="isLoading">Loading...</p>
-<p *ngIf="currentPage >= totalPages">No more chats to load.</p>
+<p class="status-text" *ngIf="isLoading">Loading...</p>
+<p class="status-text" *ngIf="currentPage >= totalPages && chats.length > 0">No more chats to load.</p>

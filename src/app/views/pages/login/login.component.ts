@@ -66,10 +66,12 @@ export class LoginComponent implements OnInit {
             isLoggedIn: true,
             date_time: new Date(),
             accessToken: this.responseData.accessToken,
+            refreshToken: this.responseData.refreshToken || null,
             agentNumber: this.responseData.agentNumber,
             adminUserId: this.responseData.adminid,
             executive_id: this.responseData.adminid,
-            executive_name: this.responseData.name
+            // V2 login may not return 'name'; fall back to username
+            executive_name: this.responseData.name || this.loginForm.get("username")?.value || ''
           };
 
           const usernameControl = this.loginForm.get("username");

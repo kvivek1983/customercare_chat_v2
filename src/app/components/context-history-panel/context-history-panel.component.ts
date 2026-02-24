@@ -59,60 +59,48 @@ import { PySmartChatService } from '../../service/py-smart-chat.service';
   styles: [`
     .ctx-panel { padding: 4px 0; }
     .ctx-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #2c3e50;
-      margin-bottom: 4px;
+      font-size: 10px; font-weight: 700; color: var(--text-muted);
+      margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;
     }
     .ctx-subtitle {
-      font-size: 11px;
-      color: #95a5a6;
-      margin-bottom: 12px;
-      line-height: 1.4;
+      font-size: 11px; color: var(--text-muted);
+      margin-bottom: 12px; line-height: 1.4;
     }
     .ctx-loading, .ctx-empty {
-      text-align: center;
-      color: #95a5a6;
-      font-size: 13px;
-      padding: 20px 0;
+      text-align: center; color: var(--text-muted);
+      font-size: 12px; padding: 20px 0;
     }
     .ctx-timeline {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: flex; flex-direction: column; gap: 10px;
     }
     .ctx-card {
-      padding: 10px 12px;
-      border: 1px solid #e0e0e0;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: border-color 0.15s, box-shadow 0.15s;
+      padding: 10px 12px; border: 1px solid var(--border);
+      border-radius: 10px; background: var(--bg);
+      cursor: pointer; transition: border-color 0.15s;
     }
     .ctx-card:hover {
-      border-color: #3498db;
-      box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+      border-color: var(--accent);
     }
     .ctx-card--active {
-      border-color: rgba(26, 188, 156, 0.3);
-      background: rgba(26, 188, 156, 0.04);
+      border-color: var(--accent);
+      background: var(--accent-glow);
     }
     .ctx-card-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
+      display: flex; align-items: center;
+      gap: 8px; margin-bottom: 8px;
     }
     .ctx-status-dot {
       width: 8px; height: 8px; border-radius: 50%;
-      background: #95a5a6; flex-shrink: 0;
+      background: var(--text-muted); flex-shrink: 0;
     }
-    .ctx-status-dot--active { background: #1abc9c; }
-    .ctx-status-dot--resolved { background: #95a5a6; }
+    .ctx-status-dot--active { background: var(--accent); }
+    .ctx-status-dot--resolved { background: var(--text-muted); }
     .ctx-date {
-      font-size: 12px; font-weight: 600; color: #2c3e50;
+      font-size: 12px; font-weight: 600; color: var(--text);
     }
     .ctx-chat-count {
-      font-size: 11px; color: #95a5a6; margin-left: auto;
+      font-size: 10px; color: var(--text-muted); margin-left: auto;
+      font-family: var(--font-mono);
     }
     .ctx-card-body { margin-bottom: 6px; }
     .ctx-field {
@@ -120,30 +108,26 @@ import { PySmartChatService } from '../../service/py-smart-chat.service';
       font-size: 12px; line-height: 1.6;
     }
     .ctx-field-key {
-      font-weight: 600; color: #7f8c8d; min-width: 80px;
+      font-weight: 600; color: var(--text-muted); min-width: 80px;
     }
-    .ctx-field-value { color: #2c3e50; }
-    .ctx-value--success { color: #22C55E; font-weight: 600; }
-    .ctx-value--warning { color: #EAB308; font-weight: 600; }
-    .ctx-value--danger { color: #EF4444; font-weight: 600; }
+    .ctx-field-value { color: var(--text); }
+    .ctx-value--success { color: var(--success); font-weight: 600; }
+    .ctx-value--warning { color: var(--warning); font-weight: 600; }
+    .ctx-value--danger { color: var(--danger); font-weight: 600; }
     .ctx-card-footer {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      display: flex; align-items: center; gap: 8px;
     }
     .ctx-badge {
       font-size: 10px; font-weight: 700; padding: 2px 8px;
       border-radius: 4px; letter-spacing: 0.5px;
-      background: rgba(149, 165, 166, 0.15); color: #95a5a6;
+      background: rgba(113, 113, 122, 0.15); color: var(--text-muted);
     }
     .ctx-badge--active {
-      background: rgba(26, 188, 156, 0.15); color: #1abc9c;
+      background: rgba(99, 102, 241, 0.15); color: var(--accent);
     }
     .ctx-current-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: #1abc9c;
-      letter-spacing: 0.5px;
+      font-size: 10px; font-weight: 700;
+      color: var(--accent); letter-spacing: 0.5px;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush

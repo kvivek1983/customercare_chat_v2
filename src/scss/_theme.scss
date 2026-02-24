@@ -1,5 +1,5 @@
 body {
-  background-color: var(--cui-tertiary-bg);
+  background-color: var(--bg);
 }
 
 .wrapper {
@@ -49,16 +49,12 @@ body {
 
 .footer {
   min-height: calc(3rem + 1px); // stylelint-disable-line function-disallowed-list
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
 }
 
-@if $enable-dark-mode {
-  @include color-mode(dark) {
-    body {
-      background-color: var(--cui-dark-bg-subtle);
-    }
-
-    .footer {
-      --cui-footer-bg: var(--cui-body-bg);
-    }
-  }
+.header {
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border) !important;
 }

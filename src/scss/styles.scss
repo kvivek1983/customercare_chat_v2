@@ -18,12 +18,67 @@
 // If you want to add custom CSS you can put it here.
 @import "custom";
 
+// Scrollbar
+@import "scrollbar";
+
 // Examples
 // We use those styles to show code examples, you should remove them in your application.
 @import "examples";
 
 @import 'ngx-toastr/toastr';
 
+// ===== DESIGN SYSTEM TOKENS =====
+:root {
+  --bg: #08080D;
+  --surface: #101018;
+  --surface-hover: #171722;
+  --border: #1C1C2C;
+  --text: #E4E4E7;
+  --text-muted: #71717A;
+  --accent: #6366F1;
+  --accent-glow: rgba(99,102,241,0.13);
+  --success: #22C55E;
+  --warning: #EAB308;
+  --danger: #EF4444;
+  --card-bg: #13131C;
+  --header-bg: #0C0C13;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+.light-mode {
+  --bg: #F4F6F9;
+  --surface: #FFFFFF;
+  --surface-hover: #EFF1F5;
+  --border: #E0E4EB;
+  --text: #1E293B;
+  --text-muted: #64748B;
+  --accent: #4F46E5;
+  --accent-glow: rgba(79,70,229,0.07);
+  --success: #16A34A;
+  --warning: #CA8A04;
+  --danger: #DC2626;
+  --card-bg: #FFFFFF;
+  --header-bg: #FFFFFF;
+}
+
+// ===== ANIMATIONS =====
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+// ===== GLOBAL =====
 @media (min-width: 1400px) {
     .container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
         max-width: 1502px !important;
@@ -31,11 +86,17 @@
 }
 
 .sidebar-nav .nav-link:hover{
-    background: #008bd2;
+    background: var(--accent);
 }
 
 .sidebar-nav .nav-link.active {
-    background: #008bd2;
+    background: var(--accent);
 }
+
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+}

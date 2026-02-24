@@ -82,7 +82,7 @@ export class ChatNumberListComponent implements OnInit {
         console.log('fetchAllChat response:', JSON.stringify(response));
         if (response.status === 1) {
           const chats = (Array.isArray(response.chats) ? response.chats : [])
-            .map((c: any) => ({ ...c, chat_id: c.chat_id || c._id }));
+            .map((c: any) => this.normalizeChat(c));
           if (this.isFresh) {
             this.chats = chats;
           } else {
@@ -105,7 +105,7 @@ export class ChatNumberListComponent implements OnInit {
         console.log('search_chat response:', JSON.stringify(response));
         if (response.status === 1) {
           const chats = (Array.isArray(response.chats) ? response.chats : [])
-            .map((c: any) => ({ ...c, chat_id: c.chat_id || c._id }));
+            .map((c: any) => this.normalizeChat(c));
           if (this.isFresh) {
             this.chats = chats;
           } else {
@@ -293,8 +293,8 @@ export class ChatNumberListComponent implements OnInit {
 
   onRoomUpdate() {
     this.chatService.onRoomUpdate().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((rawChat: Chats) => {
-      // V2 backend uses _id; map to chat_id for frontend compatibility
-      const chat = { ...rawChat, chat_id: (rawChat as any).chat_id || (rawChat as any)._id } as Chats;
+      // Normalize V2 fields to frontend field names
+      const chat = this.normalizeChat(rawChat);
       console.log('New onRoomUpdate received:', chat);
 
       const room = this.chats?.find((r) => r.chat_id === chat.chat_id);
@@ -372,6 +372,30 @@ export class ChatNumberListComponent implements OnInit {
     const room = roomMap[this.customerType] || 'PartnerApp';
     console.log('Joining socket room:', room, 'for customerType:', this.customerType);
     this.chatService.joinRoom(room);
+  }
+
+  /**
+   * Normalize a V2 backend chat object to the field names used by the frontend template.
+   * V2 field changes:
+   *   _id → chat_id
+   *   last_incoming_message → last_incoming_message_time (for SLA timer)
+   *   last_interaction_by → last_msg_by (V1 compat)
+   *   is_resolved → status mapping
+   */
+  private normalizeChat(raw: any): Chats {
+    return {
+      ...raw,
+      chat_id: raw.chat_id || raw._id,
+      // V2 sends last_incoming_message; SLA timer binds to last_incoming_message_time
+      last_incoming_message_time: raw.last_incoming_message_time || raw.last_incoming_message || null,
+      // V2 sends last_interaction_by; some V1 code reads last_msg_by
+      last_msg_by: raw.last_msg_by || raw.last_interaction_by || null,
+      last_interaction_by: raw.last_interaction_by || raw.last_msg_by || null,
+      // Ensure unseen_count defaults to 0 (V2 only includes when sender is provided)
+      unseen_count: raw.unseen_count ?? 0,
+      // Ensure tags is always an array
+      tags: Array.isArray(raw.tags) ? raw.tags : [],
+    } as Chats;
   }
 
   /**

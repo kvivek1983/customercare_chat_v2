@@ -299,7 +299,15 @@ export class ChatService {
     if (!this.dashboardStats$) {
       if (!this.socket) return EMPTY as Observable<DashboardStats>;
       this.dashboardStats$ = new Observable<DashboardStats>((observer) => {
-        this.socket!.on('dashboard_stats', (data: DashboardStats) => observer.next(data));
+        this.socket!.on('dashboard_stats', (data: any) => {
+          // V2 sends { active, resolved, awaiting_customer_response }
+          // Frontend expects { active, resolved, pending }
+          observer.next({
+            active: data.active ?? 0,
+            resolved: data.resolved ?? 0,
+            pending: data.pending ?? data.awaiting_customer_response ?? 0,
+          });
+        });
       }).pipe(shareReplay(1));
     }
     return this.dashboardStats$;

@@ -4,7 +4,7 @@ import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http
 import { Router } from '@angular/router';
 import { retry, catchError, map } from 'rxjs/operators';
 import { APiProperties } from '../../app/class/api-properties';
-import { ContextHistoryResponse, NotesResponse, RidesResponse, TemplatesResponse } from '../../app/models/chat.model';
+import { ContextHistoryResponse, DashboardStats, NotesResponse, RidesResponse, TemplatesResponse } from '../../app/models/chat.model';
 
 @Injectable({
   providedIn: 'root'
@@ -133,9 +133,18 @@ export class PySmartChatService {
     );
   }
 
-  partner_stats() : Observable<{}> {
-    return this.http.get(this.apiProperties.pySmartChatUrl+'api/dashboard/stats', this.getAuthHeaders()).pipe(
+  partner_stats() : Observable<DashboardStats> {
+    return this.http.get<any>(this.apiProperties.pySmartChatUrl+'api/dashboard/stats', this.getAuthHeaders()).pipe(
       retry(1),
+      map((res: any) => {
+        // V2 wraps stats in { status: 1, data: { active, resolved, awaiting_customer_response } }
+        const raw = res.data || res;
+        return {
+          active: raw.active ?? 0,
+          resolved: raw.resolved ?? 0,
+          pending: raw.pending ?? raw.awaiting_customer_response ?? 0,
+        } as DashboardStats;
+      }),
       catchError(this.handleError)
     )
   }

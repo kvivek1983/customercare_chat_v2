@@ -40,62 +40,61 @@ import { PySmartChatService } from '../../service/py-smart-chat.service';
   `,
   styles: [`
     .tp-panel {
-      border: 1px solid #e0e0e0; border-radius: 10px;
-      background: #fff; margin-bottom: 8px;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); margin-bottom: 8px;
       max-height: 280px; overflow-y: auto;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     }
     .tp-header {
       display: flex; align-items: center;
       justify-content: space-between;
-      padding: 10px 14px; border-bottom: 1px solid #f0f0f0;
-      position: sticky; top: 0; background: #fff; z-index: 1;
+      padding: 10px 14px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--surface); z-index: 1;
     }
     .tp-title {
-      font-size: 13px; font-weight: 700; color: #2c3e50;
-      margin: 0;
+      font-size: 10px; font-weight: 700; color: var(--text-muted);
+      margin: 0; text-transform: uppercase; letter-spacing: 0.5px;
     }
     .tp-close {
       background: none; border: none; font-size: 20px;
-      color: #95a5a6; cursor: pointer; line-height: 1;
+      color: var(--text-muted); cursor: pointer; line-height: 1;
       padding: 0 4px;
     }
-    .tp-close:hover { color: #e74c3c; }
+    .tp-close:hover { color: var(--danger); }
     .tp-loading, .tp-empty {
-      text-align: center; color: #95a5a6;
-      font-size: 13px; padding: 20px 0;
+      text-align: center; color: var(--text-muted);
+      font-size: 12px; padding: 20px 0;
     }
     .tp-list {
       display: flex; flex-direction: column;
-      gap: 1px; background: #f0f0f0;
+      gap: 1px; background: var(--border);
     }
     .tp-card {
-      padding: 10px 14px; background: #fff;
+      padding: 10px 14px; background: var(--surface);
       cursor: pointer;
       transition: background 0.15s;
     }
-    .tp-card:hover { background: #f7fafc; }
+    .tp-card:hover { background: var(--surface-hover); }
     .tp-card-header {
       display: flex; align-items: center;
       gap: 8px; margin-bottom: 4px;
     }
     .tp-name {
-      font-size: 13px; font-weight: 600; color: #2c3e50;
+      font-size: 13px; font-weight: 600; color: var(--text);
     }
     .tp-lang-badge {
       font-size: 10px; font-weight: 700;
       padding: 2px 8px; border-radius: 4px;
-      background: rgba(52, 152, 219, 0.12); color: #3498db;
+      background: rgba(99, 102, 241, 0.12); color: var(--accent);
       letter-spacing: 0.5px; text-transform: uppercase;
     }
     .tp-preview {
-      font-size: 12px; color: #7f8c8d;
+      font-size: 12px; color: var(--text-muted);
       line-height: 1.4; margin-bottom: 4px;
       display: -webkit-box; -webkit-line-clamp: 2;
       -webkit-box-orient: vertical; overflow: hidden;
     }
     .tp-category {
-      font-size: 10px; color: #95a5a6;
+      font-size: 10px; color: var(--text-muted);
       font-weight: 600; text-transform: uppercase;
       letter-spacing: 0.5px;
     }

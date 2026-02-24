@@ -1,4 +1,4 @@
-import { NgClass, NgStyle, NgTemplateOutlet } from '@angular/common';
+import { NgClass, NgIf, NgStyle, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectorRef, Component, computed, DestroyRef, inject, input } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
@@ -37,7 +37,7 @@ import { DashboardStats, ExecutiveStatus } from '../../../models/chat.model';
   templateUrl: './default-header.component.html',
   styleUrl: './default-header.component.scss',
   standalone: true,
-  imports: [ContainerComponent, HeaderTogglerDirective, SidebarToggleDirective, IconDirective, HeaderNavComponent, NavItemComponent, NavLinkDirective, RouterLink, RouterLinkActive, NgTemplateOutlet, BreadcrumbRouterComponent, ThemeDirective, DropdownComponent, DropdownToggleDirective, TextColorDirective, AvatarComponent, DropdownMenuDirective, DropdownHeaderDirective, DropdownItemDirective, BadgeComponent, DropdownDividerDirective, ProgressBarDirective, ProgressComponent, NgStyle, NgClass]
+  imports: [ContainerComponent, HeaderTogglerDirective, SidebarToggleDirective, IconDirective, HeaderNavComponent, NavItemComponent, NavLinkDirective, RouterLink, RouterLinkActive, NgTemplateOutlet, BreadcrumbRouterComponent, ThemeDirective, DropdownComponent, DropdownToggleDirective, TextColorDirective, AvatarComponent, DropdownMenuDirective, DropdownHeaderDirective, DropdownItemDirective, BadgeComponent, DropdownDividerDirective, ProgressBarDirective, ProgressComponent, NgStyle, NgClass, NgIf]
 })
 export class DefaultHeaderComponent extends HeaderComponent {
 
@@ -55,6 +55,10 @@ export class DefaultHeaderComponent extends HeaderComponent {
     const currentMode = this.colorMode();
     return this.colorModes.find(mode => mode.name === currentMode)?.icon ?? 'cilSun';
   });
+
+  // Theme
+  isLightMode = false;
+  userInitials = 'U';
 
   // Dashboard Stats (Step 3)
   dashboardStats: DashboardStats = { active: 0, resolved: 0, pending: 0 };
@@ -76,6 +80,27 @@ export class DefaultHeaderComponent extends HeaderComponent {
       this.executiveStatus = savedStatus;
     }
 
+    // Restore theme from localStorage
+    this.isLightMode = localStorage.getItem('theme') === 'light';
+    if (this.isLightMode) {
+      document.body.classList.add('light-mode');
+    }
+
+    // Derive user initials from login details
+    const userRole = localStorage.getItem('userRole');
+    if (userRole) {
+      try {
+        const loginData = JSON.parse(localStorage.getItem(userRole + '-loginDetails') || '{}');
+        const name = loginData.name || loginData.userName || '';
+        if (name) {
+          const parts = name.trim().split(/\s+/);
+          this.userInitials = parts.length >= 2
+            ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+            : name.substring(0, 2).toUpperCase();
+        }
+      } catch (_) {}
+    }
+
     // Subscribe to dashboard stats updates (Step 3)
     this.chatService.onDashboardStats()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -86,6 +111,13 @@ export class DefaultHeaderComponent extends HeaderComponent {
   }
 
   sidebarId = input('sidebar1');
+
+  // Theme toggle
+  toggleTheme(): void {
+    this.isLightMode = !this.isLightMode;
+    document.body.classList.toggle('light-mode', this.isLightMode);
+    localStorage.setItem('theme', this.isLightMode ? 'light' : 'dark');
+  }
 
   // Executive Status Toggle (Step 4)
   toggleExecutiveStatus(): void {

@@ -1,31 +1,25 @@
 <!-- Mobile Search (Partner + Vendor only) -->
-<div class="d-flex flex-row-reverse" *ngIf="config.showMobileSearch">
-  <div class="col-md-4 col-12">
-    <form [formGroup]="mobileForm">
-
-      <div class="form-group d-flex align-items-start">
-        <input type="text" id="mobileNumber" formControlName="mobileNumber" class="form-control mr-2"
-          placeholder="Enter 10-digit mobile number" style="max-width: 250px;" />
-        <button type="button" class="btn btn-primary mr-2" (click)="searchMobile()">Search</button>
-        <button type="button" class="btn btn-secondary" (click)="clearMobile()">Clear</button>
-      </div>
-
-      <div *ngIf="mobileNumber?.invalid && (mobileNumber?.touched || mobileNumber?.dirty)" class="text-danger mt-1">
-        <small *ngIf="mobileNumber?.errors?.['required']">Mobile number is required.</small>
-        <small *ngIf="mobileNumber?.errors?.['pattern']">Must be a 10-digit number.</small>
-      </div>
-    </form>
+<div class="mobile-search-bar" *ngIf="config.showMobileSearch">
+  <form [formGroup]="mobileForm" class="mobile-search-form">
+    <input type="text" id="mobileNumber" formControlName="mobileNumber" class="mobile-search-input"
+      placeholder="Enter 10-digit mobile number" />
+    <button type="button" class="mobile-search-btn" (click)="searchMobile()">Search</button>
+    <button type="button" class="mobile-search-btn mobile-search-btn--clear" (click)="clearMobile()">Clear</button>
+  </form>
+  <div *ngIf="mobileNumber?.invalid && (mobileNumber?.touched || mobileNumber?.dirty)" class="mobile-search-error">
+    <small *ngIf="mobileNumber?.errors?.['required']">Mobile number is required.</small>
+    <small *ngIf="mobileNumber?.errors?.['pattern']">Must be a 10-digit number.</small>
   </div>
 </div>
 
-<div class="row">
+<div class="main-layout">
 
   <div *ngIf="errorMessage" class="error-message">
     {{ errorMessage }}
   </div>
 
   <!-- Sidebar with Chat List -->
-  <div class="col-md-3 scrollable-list">
+  <div class="chat-list-panel">
     <app-chat-number-list
       [customerType]="config.chatListCustomerType"
       [showFilter]="config.showChatListFilter"
@@ -37,11 +31,11 @@
   </div>
 
   <!-- Loading indicator (Partner only) -->
-  <div *ngIf="loadingNewData" class="col-md-7 col-12 loading-spinner text-danger">
+  <div *ngIf="loadingNewData" class="conversation-panel loading-spinner">
     Loading Data...
   </div>
 
-  <div class="col-md-4 mb-2 scrollable-list" style="margin-top: -10px;margin-bottom: -100px;">
+  <div class="conversation-panel">
 
     <div class="message-input" *ngIf="isResolved">
       <p>Is this chat Resolved?
@@ -53,8 +47,8 @@
     <!-- Chat Thread -->
     <div class="chat-thread" *ngIf="!isResolved && selectedChat">
 
-      <h4 class="message-input">
-        Chat with {{ getChatTitle() }}
+      <div class="chat-thread-header">
+        <span class="chat-thread-title">Chat with {{ getChatTitle() }}</span>
         <span class="assigned-to-header" *ngIf="assignedExecutiveName">
           <span class="assigned-to-icon">&#128100;</span> {{ assignedExecutiveName }}
         </span>
@@ -64,14 +58,14 @@
           [isActive]="selectedChat?.last_interaction_by === 'Customer'"
           [compact]="false">
         </app-sla-timer>
-        <button *ngIf="config.showResolvedButton" (click)="initiateResolve()">Resolved</button>
-      </h4>
+        <button class="resolved-btn" *ngIf="config.showResolvedButton" (click)="initiateResolve()">Resolved</button>
+      </div>
 
       <!-- Tag Bar (Phase 3 Step 3) -->
       <div class="tag-bar" *ngIf="selectedChat">
         <span class="tag-bar-label">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-            stroke="#818CF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/>
             <line x1="7" y1="7" x2="7.01" y2="7"/>
           </svg>
@@ -159,47 +153,46 @@
         (closed)="closeTemplatePicker()">
       </app-template-picker>
 
-      <!-- Input Area: textarea (Partner/Vendor), input (SRDP), none (Customer) -->
-      <div style="border-top: 1px solid #bdc3c7;margin-bottom: -20px;">
+      <!-- Input Area -->
+      <div class="input-area">
 
         <!-- Textarea input (Partner + Vendor) -->
         <ng-container *ngIf="config.inputType === 'textarea'">
-          <div *ngIf="isWhatsappChatOpen == 1" class="chat-input-wrapper-agent mt-1">
+          <div *ngIf="isWhatsappChatOpen == 1" class="chat-input-wrapper">
             <textarea type="text" class="chat-input" rows="1" [(ngModel)]="newMessage" placeholder="Type your message..."
               (keydown)="handleKeydown($event)" (input)="resizeTextarea($event)"></textarea>
-            <div class="chat-actions">
-              <button class="circle-btn-agent" (click)="sendMessage()">
-                <svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" fill="white" viewBox="0 0 24 24">
-                  <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
-                </svg>
-              </button>
-            </div>
+            <button class="send-btn" (click)="sendMessage()">
+              <svg xmlns="http://www.w3.org/2000/svg" height="18" width="18" fill="white" viewBox="0 0 24 24">
+                <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
+              </svg>
+            </button>
           </div>
-          <br>
         </ng-container>
 
         <!-- Simple input (SRDP) -->
         <ng-container *ngIf="config.inputType === 'input'">
-          <input *ngIf="isWhatsappChatOpen == 1" type="text" [(ngModel)]="newMessage" placeholder="Type your message..."
-            (keydown.enter)="sendMessage()" />
-          <button *ngIf="isWhatsappChatOpen == 1" (click)="sendMessage()">Send</button>
+          <div *ngIf="isWhatsappChatOpen == 1" class="chat-input-wrapper">
+            <input type="text" class="chat-input" [(ngModel)]="newMessage" placeholder="Type your message..."
+              (keydown.enter)="sendMessage()" />
+            <button class="send-btn" (click)="sendMessage()">Send</button>
+          </div>
         </ng-container>
 
-        <!-- Initiate Chat buttons (Partner + Vendor + SRDP — gated by showInitiateChat + showWhatsappTemplate) -->
+        <!-- Initiate Chat buttons -->
         <ng-container *ngIf="config.showInitiateChat">
-          <button *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 0 && !openChat" (click)="openChatWindow()">Initiate
+          <button class="initiate-btn" *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 0 && !openChat" (click)="openChatWindow()">Initiate
             Chat</button>
         </ng-container>
-        <button *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 1">Waiting for User Response</button>
-        <div *ngIf="openChat && config.showWhatsappTemplate">
+        <button class="initiate-btn initiate-btn--waiting" *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 1">Waiting for User Response</button>
+        <div *ngIf="openChat && config.showWhatsappTemplate" class="initiate-confirm">
           <p>Do you want to initiate chat?
-            <button (click)="sendWhatsappTemplate()">Yes</button>
-            <button (click)="closeChatWindow()">No</button>
+            <button class="initiate-btn" (click)="sendWhatsappTemplate()">Yes</button>
+            <button class="initiate-btn initiate-btn--cancel" (click)="closeChatWindow()">No</button>
           </p>
         </div>
       </div>
 
-      <!-- ChatGPT Response Area (Partner only, currently hidden with *ngIf="false") -->
+      <!-- ChatGPT Response Area (Partner only, currently hidden) -->
       <div class="chat-input-wrapper" *ngIf="false && config.showChatGptIntegration">
         <textarea type="text" class="chat-input response-text" #chatInput [(ngModel)]="chatgptMessage" rows="1"
           placeholder="Generating Response..." (input)="resizeTextarea($event)"></textarea>
@@ -215,10 +208,10 @@
                 class="star">&#9733;</span>
         </div>
         <div class="rating-actions">
-          <button class="btn btn-sm btn-success"
+          <button class="action-btn action-btn--success"
                   [disabled]="pendingRating === 0"
                   (click)="submitRatingAndResolve()">Submit &amp; Resolve</button>
-          <button class="btn btn-sm btn-secondary" (click)="cancelRating()">Cancel</button>
+          <button class="action-btn action-btn--muted" (click)="cancelRating()">Cancel</button>
         </div>
       </div>
 
@@ -226,7 +219,7 @@
   </div>
 
   <!-- Right Panel: Tabbed Layout (Phase 4) -->
-  <div class="col-md-5 scrollable-list right-panel-container" *ngIf="selectedChat">
+  <div class="right-panel-container" *ngIf="selectedChat">
     <app-right-panel-tabs
       [activeTab]="activeRightPanel"
       (tabChange)="switchRightPanel($event)">

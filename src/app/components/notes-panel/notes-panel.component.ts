@@ -59,15 +59,16 @@ import { ChatService } from '../../service/chat.service';
   styles: [`
     .notes-panel { padding: 4px 0; }
     .notes-title {
-      font-size: 14px; font-weight: 700; color: #2c3e50;
-      margin-bottom: 12px;
+      font-size: 10px; font-weight: 700; color: var(--text-muted);
+      margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;
     }
     .notes-form {
       margin-bottom: 16px;
     }
     .notes-textarea {
       width: 100%; padding: 10px 12px;
-      border: 1px solid #e0e0e0; border-radius: 8px;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--bg); color: var(--text);
       font-size: 13px; font-family: inherit;
       resize: vertical; min-height: 60px;
       transition: border-color 0.15s;
@@ -75,42 +76,43 @@ import { ChatService } from '../../service/chat.service';
     }
     .notes-textarea:focus {
       outline: none;
-      border-color: #3498db;
-      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
     }
+    .notes-textarea::placeholder { color: var(--text-muted); }
     .notes-add-btn {
       margin-top: 8px;
       padding: 8px 20px;
-      background: #3498db; color: #fff;
+      background: var(--accent); color: #fff;
       border: none; border-radius: 6px;
       font-size: 13px; font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s;
+      cursor: pointer; font-family: inherit;
+      transition: opacity 0.15s;
     }
-    .notes-add-btn:hover:not(:disabled) { background: #2980b9; }
+    .notes-add-btn:hover:not(:disabled) { opacity: 0.85; }
     .notes-add-btn:disabled {
-      background: #bdc3c7; cursor: not-allowed;
+      background: var(--border); color: var(--text-muted); cursor: not-allowed;
     }
     .notes-loading, .notes-empty {
-      text-align: center; color: #95a5a6;
-      font-size: 13px; padding: 20px 0;
+      text-align: center; color: var(--text-muted);
+      font-size: 12px; padding: 20px 0;
     }
     .notes-list {
       display: flex; flex-direction: column; gap: 10px;
     }
     .note-card {
       padding: 10px 12px;
-      border: 1px solid #e0e0e0; border-radius: 10px;
-      background: #fafafa;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: var(--bg);
     }
     .note-header {
       display: flex; align-items: center; gap: 10px;
       margin-bottom: 8px;
     }
     .note-avatar {
-      width: 30px; height: 30px;
-      border-radius: 50%; background: #818CF8;
-      color: #fff; font-size: 11px; font-weight: 700;
+      width: 28px; height: 28px;
+      border-radius: 7px; background: rgba(99, 102, 241, 0.12);
+      color: var(--accent); font-size: 10px; font-weight: 700;
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
@@ -118,13 +120,14 @@ import { ChatService } from '../../service/chat.service';
       display: flex; flex-direction: column;
     }
     .note-author {
-      font-size: 12px; font-weight: 600; color: #2c3e50;
+      font-size: 12px; font-weight: 600; color: var(--accent);
     }
     .note-time {
-      font-size: 11px; color: #95a5a6;
+      font-size: 10px; color: var(--text-muted);
+      font-family: var(--font-mono);
     }
     .note-content {
-      font-size: 13px; color: #2c3e50;
+      font-size: 13px; color: var(--text);
       line-height: 1.5; white-space: pre-wrap;
     }
   `],
