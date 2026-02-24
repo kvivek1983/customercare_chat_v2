@@ -411,16 +411,17 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     this.chatService.onConfigResponse().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: Config) => {
       console.log('fetchConfig' + JSON.stringify(response));
       if (response.status === 1) {
-        // V2 backend returns { status: 1, config: { whatsapp_window_open: [...], ... } }
-        // V1 backend returns { status: 1, isWhatsappChatOpen: 1, isChatInitiated: 1, ... }
+        // V2 full format: { status: 1, config: { whatsapp_window_open: [...], ... } }
+        // V1 format:      { status: 1, isWhatsappChatOpen: 1, isChatInitiated: 1, config?: { customer metadata } }
+        // Detect V2 by checking for whatsapp_window_open inside config (not just config existence)
         const v2Config = (response as any).config;
-        if (v2Config) {
+        if (v2Config && Array.isArray(v2Config.whatsapp_window_open)) {
           // V2 format: derive isWhatsappChatOpen from whatsapp_window_open array
-          const windowOpen = Array.isArray(v2Config.whatsapp_window_open) && v2Config.whatsapp_window_open.length > 0;
+          const windowOpen = v2Config.whatsapp_window_open.length > 0;
           this.isWhatsappChatOpen = windowOpen ? 1 : 0;
-          this.isChatInitiated = 1; // V2: if config exists, chat is initiated
+          this.isChatInitiated = 1;
         } else {
-          // V1 format
+          // V1 format (may also include a config object with customer metadata)
           this.isChatInitiated = response.isChatInitiated;
           if (this.selectedChat.last_msg_by == 'PartnerApp') {
             this.isWhatsappChatOpen = 1;
@@ -565,7 +566,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         if (type === 'Executive') type = 'Agent';
         return { ...m, type };
       });
-      chatMessages.sort((a: any, b: any) => new Date(a.datetime).getTime() - new Date(b.datetime).getTime());
+      chatMessages.sort((a: any, b: any) => this.parseDateTime(a.datetime).getTime() - this.parseDateTime(b.datetime).getTime());
 
       this.chats = this.mergeGroupedMessages(this.chats, this.groupMessagesByDate(chatMessages));
 
@@ -669,7 +670,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     let currentDate: string = '';
 
     messages.forEach((message) => {
-      const messageDate = formatInTimeZone(new Date(message.datetime), 'Asia/Kolkata', 'yyyy-MM-dd');
+      const messageDate = formatInTimeZone(this.parseDateTime(message.datetime), 'Asia/Kolkata', 'yyyy-MM-dd');
 
       if (messageDate !== currentDate) {
         currentDate = messageDate;
@@ -714,7 +715,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         return a.date.localeCompare(b.date);
       }
 
-      return new Date(a.datetime).getTime() - new Date(b.datetime).getTime();
+      return this.parseDateTime(a.datetime).getTime() - this.parseDateTime(b.datetime).getTime();
     });
   }
 
@@ -725,7 +726,8 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       if (!date) return 'Invalid Date';
 
       // Use IST-aware parsing to avoid UTC/IST mismatch
-      const istDateStr = formatInTimeZone(new Date(date), 'Asia/Kolkata', 'yyyy-MM-dd');
+      const parsed = this.parseDateTime(date);
+      const istDateStr = formatInTimeZone(parsed, 'Asia/Kolkata', 'yyyy-MM-dd');
       const todayStr = formatInTimeZone(new Date(), 'Asia/Kolkata', 'yyyy-MM-dd');
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
@@ -734,7 +736,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       if (istDateStr === todayStr) return 'Today';
       if (istDateStr === yesterdayStr) return 'Yesterday';
 
-      return formatInTimeZone(new Date(date), 'Asia/Kolkata', 'dd/MM/yyyy');
+      return formatInTimeZone(parsed, 'Asia/Kolkata', 'dd/MM/yyyy');
     } catch (error) {
       console.warn('Error parsing date input:', date, 'Error:', error);
       return 'Invalid Date';
@@ -743,7 +745,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
   formatTime(timestamp: string): string {
     try {
-      return formatInTimeZone(new Date(timestamp), 'Asia/Kolkata', 'hh:mm a');
+      return formatInTimeZone(this.parseDateTime(timestamp), 'Asia/Kolkata', 'hh:mm a');
     } catch {
       return '';
     }
@@ -806,7 +808,22 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   getFormattedCurrentDateByZone() {
     const timeZone = 'Asia/Kolkata';
     const now = new Date();
-    return formatInTimeZone(now, timeZone, 'yyyy-MM-dd HH:mm:ss');
+    // Include timezone offset so round-tripped timestamps are unambiguous
+    return formatInTimeZone(now, timeZone, "yyyy-MM-dd'T'HH:mm:ssXXX");
+  }
+
+  /**
+   * Parse a datetime string into a Date, treating ambiguous (no timezone) strings as UTC.
+   * MongoDB stores UTC; backend may return strings without 'Z' or offset.
+   */
+  private parseDateTime(dt: string): Date {
+    if (!dt) return new Date();
+    // If already has timezone info ('Z', '+05:30', '-04:00'), parse directly
+    if (/Z$/.test(dt) || /[+-]\d{2}:\d{2}$/.test(dt) || /[+-]\d{4}$/.test(dt)) {
+      return new Date(dt);
+    }
+    // Ambiguous: treat as UTC by normalizing to ISO + 'Z'
+    return new Date(dt.replace(' ', 'T') + 'Z');
   }
 
   // --- ChatGPT Integration (Partner only) ---

@@ -1,7 +1,7 @@
 import { NgClass, NgIf, NgStyle, NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectorRef, Component, computed, DestroyRef, EventEmitter, inject, input, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterLink, RouterLinkActive, Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 
 import {
   AvatarComponent,
@@ -32,6 +32,7 @@ import { OnewayNodeService } from '../../../service/oneway-node.service';
 import { ChatService } from '../../../service/chat.service';
 import { PySmartChatService } from '../../../service/py-smart-chat.service';
 import { DashboardStats, ExecutiveStatus } from '../../../models/chat.model';
+import { filter as rxFilter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-default-header',
@@ -70,9 +71,13 @@ export class DefaultHeaderComponent extends HeaderComponent {
   // Executive Status Toggle (Step 4)
   executiveStatus: ExecutiveStatus = 'OFFLINE';
 
+  // Current stakeholder type from route data (e.g. 'Customer', 'Partner', 'Vendor', 'SRDP')
+  currentCustomerType: string = '';
+
   constructor(
     private ons: OnewayNodeService,
     private router: Router,
+    private activatedRoute: ActivatedRoute,
     private chatService: ChatService,
     private pscs: PySmartChatService,
     private cdr: ChangeDetectorRef
@@ -123,6 +128,33 @@ export class DefaultHeaderComponent extends HeaderComponent {
     setTimeout(() => {
       this.chatService.fetchDashboardStats();
     }, 1500);
+
+    // Subscribe to route changes to read customerType from route data
+    this.router.events
+      .pipe(
+        rxFilter(e => e instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => {
+        // Walk the activated route tree to find the deepest child's data
+        let route = this.activatedRoute;
+        while (route.firstChild) {
+          route = route.firstChild;
+        }
+        const ct = route.snapshot.data['customerType'] || '';
+        this.currentCustomerType = ct;
+        this.cdr.markForCheck();
+      });
+
+    // Also set on initial load
+    setTimeout(() => {
+      let route = this.activatedRoute;
+      while (route.firstChild) {
+        route = route.firstChild;
+      }
+      this.currentCustomerType = route.snapshot.data['customerType'] || '';
+      this.cdr.markForCheck();
+    }, 0);
   }
 
   sidebarId = input('sidebar1');
