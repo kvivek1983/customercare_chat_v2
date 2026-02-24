@@ -143,6 +143,8 @@ export class SlaTimerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private startTimer(): void {
+    // Guard: prevent duplicate intervals (ngOnChanges fires before ngOnInit)
+    if (this.timerInterval) return;
     this.calculateElapsed();
     this.timerInterval = setInterval(() => {
       this.elapsed++;

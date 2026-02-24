@@ -158,6 +158,7 @@ export class ChatNumberListComponent implements OnInit {
     this.chatService.onNewMessage()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((message: Message) => {
+        console.log('[ChatList] new_message event received:', (message as any).chat_id, message.message?.substring(0, 30));
         this.handleNewMessageForChatList(message);
       });
 
@@ -488,9 +489,11 @@ export class ChatNumberListComponent implements OnInit {
    */
   private handleNewMessageForChatList(message: Message): void {
     const chatId = (message as any).chat_id;
+    console.log('[ChatList] handleNewMessage:', chatId, 'message:', message.message?.substring(0, 30), 'allChats:', this.allChats?.length);
     if (!chatId) return;
 
     const room = this.allChats?.find((r) => r.chat_id === chatId);
+    console.log('[ChatList] room found:', !!room, room ? room.customer : 'N/A');
     if (room) {
       room.last_message = message.message;
       room.last_message_time = message.datetime;
