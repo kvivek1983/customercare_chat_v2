@@ -57,9 +57,7 @@
         </div>
       </div>
       <div class="chat-info">
-        <!-- Primary: customer name, Secondary: number + type -->
         <p class="chat-name">{{ chat.customer_name || chat.customer }}</p>
-        <p class="chat-subtitle">{{ chat.customer }} <span *ngIf="chat.customer_type">&middot; {{ chat.customer_type }}</span></p>
         <p class="chat-preview">{{ chat.last_message && chat.last_message.length > 0 ? (chat.last_message.length >
           35
           ? (chat.last_message | slice: 0:35) + '...'
