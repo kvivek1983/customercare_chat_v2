@@ -118,7 +118,7 @@
 
             <div class="message-bubble" *ngIf="message.message">
               <span class="message-text">{{ message.message }}</span>
-              <span class="message-time">{{ formatTime(message.datetime) }}</span>
+              <span class="message-time">{{ formatTime(message.datetime) }}<span class="read-receipt" *ngIf="message.type === 'Agent'"> &#10003;&#10003;</span></span>
             </div>
 
             <div class="media-container" *ngIf="message.mediaUrl">
@@ -143,7 +143,7 @@
               </a>
 
               <!-- Common timestamp for all media -->
-              <span class="message-time">{{ formatTime(message.datetime) }}</span>
+              <span class="message-time">{{ formatTime(message.datetime) }}<span class="read-receipt" *ngIf="message.type === 'Agent'"> &#10003;&#10003;</span></span>
 
             </div>
 
@@ -254,6 +254,37 @@
         <div class="profile-name">{{ selectedChat.customer_name || selectedChat.customer }}</div>
         <div class="profile-phone">{{ selectedChat.customer }}</div>
         <span class="profile-type-pill">{{ selectedChat.customer_type || 'Customer' }}</span>
+      </div>
+
+      <!-- Context Section (inline field→value pills) -->
+      <div class="profile-context" *ngIf="selectedChat.context && selectedChat.context.length > 0">
+        <div class="context-label">Context</div>
+        <div class="context-pills">
+          <span class="context-pill" *ngFor="let ctx of selectedChat.context">
+            <span class="context-key">{{ ctx.field }}</span>
+            <span class="context-value">{{ ctx.value }}</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Details Grid -->
+      <div class="profile-details-grid">
+        <div class="detail-item" *ngIf="selectedChat.customer_type">
+          <span class="detail-label">Type</span>
+          <span class="detail-value">{{ selectedChat.customer_type }}</span>
+        </div>
+        <div class="detail-item" *ngIf="selectedChat.assigned_executive_name">
+          <span class="detail-label">Assigned To</span>
+          <span class="detail-value">{{ selectedChat.assigned_executive_name }}</span>
+        </div>
+        <div class="detail-item" *ngIf="selectedChat.status">
+          <span class="detail-label">Status</span>
+          <span class="detail-value">{{ selectedChat.status }}</span>
+        </div>
+        <div class="detail-item" *ngIf="selectedChat.rating">
+          <span class="detail-label">Rating</span>
+          <span class="detail-value">{{ selectedChat.rating }} / 5</span>
+        </div>
       </div>
 
       <ng-container *ngIf="config.showDcoPanels">

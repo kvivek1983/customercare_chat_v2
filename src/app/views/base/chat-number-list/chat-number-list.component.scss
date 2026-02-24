@@ -339,6 +339,23 @@ ul {
   white-space: nowrap;
 }
 
+// ===== STAR RATING (resolved chats) =====
+.chat-rating {
+  display: flex;
+  gap: 1px;
+  margin-top: 2px;
+
+  .star-icon {
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1;
+
+    &.filled {
+      color: var(--warning);
+    }
+  }
+}
+
 // ===== UNSEEN BADGE (repositioned onto avatar) =====
 .unseen-count-badge {
   position: absolute;

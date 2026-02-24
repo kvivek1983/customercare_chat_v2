@@ -74,6 +74,10 @@
         <div class="chat-tags" *ngIf="chat.tags && chat.tags.length > 0">
           <span class="tag-pill-sm" *ngFor="let tag of chat.tags">{{ tag }}</span>
         </div>
+        <!-- Star Rating for resolved chats -->
+        <span class="chat-rating" *ngIf="chat.rating && chat.rating > 0">
+          <span class="star-icon" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= chat.rating">&#9733;</span>
+        </span>
         <!-- Assigned Executive (Phase 3 Step 1) -->
         <span class="assigned-exec" *ngIf="chat.assigned_executive_name">
           <span class="assigned-exec-avatar">{{ chat.assigned_executive_name | slice:0:2 | uppercase }}</span>
