@@ -67,22 +67,22 @@
         <p class="chat-name">{{ chat.customer_name || chat.customer }}</p>
         <p class="chat-subtitle">{{ chat.customer }} <span *ngIf="chat.customer_type">&middot; {{ chat.customer_type }}</span></p>
         <p class="chat-preview">{{ chat.last_message && chat.last_message.length > 0 ? (chat.last_message.length >
-          30
-          ? (chat.last_message | slice: 0:30) + '...'
+          35
+          ? (chat.last_message | slice: 0:35) + '...'
           : chat.last_message) : 'No messages yet...' }}</p>
-        <!-- Tag Pills (Phase 3 Step 3) -->
-        <div class="chat-tags" *ngIf="chat.tags && chat.tags.length > 0">
-          <span class="tag-pill-sm" *ngFor="let tag of chat.tags">{{ tag }}</span>
+        <!-- Compact bottom row: tags + rating + assigned exec -->
+        <div class="chat-bottom-row" *ngIf="(chat.tags && chat.tags.length > 0) || (chat.rating && chat.rating > 0) || chat.assigned_executive_name">
+          <div class="chat-tags" *ngIf="chat.tags && chat.tags.length > 0">
+            <span class="tag-pill-sm" *ngFor="let tag of chat.tags | slice:0:2">{{ tag }}</span>
+            <span class="tag-pill-sm tag-more" *ngIf="chat.tags.length > 2">+{{ chat.tags.length - 2 }}</span>
+          </div>
+          <span class="chat-rating" *ngIf="chat.rating && chat.rating > 0">
+            <span class="star-icon" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= chat.rating">&#9733;</span>
+          </span>
+          <span class="assigned-exec" *ngIf="chat.assigned_executive_name">
+            → {{ chat.assigned_executive_name | slice:0:8 }}
+          </span>
         </div>
-        <!-- Star Rating for resolved chats -->
-        <span class="chat-rating" *ngIf="chat.rating && chat.rating > 0">
-          <span class="star-icon" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= chat.rating">&#9733;</span>
-        </span>
-        <!-- Assigned Executive (Phase 3 Step 1) -->
-        <span class="assigned-exec" *ngIf="chat.assigned_executive_name">
-          <span class="assigned-exec-avatar">{{ chat.assigned_executive_name | slice:0:2 | uppercase }}</span>
-          {{ chat.assigned_executive_name }}
-        </span>
       </div>
       <div class="chat-meta">
         <div class="chat-datetime">

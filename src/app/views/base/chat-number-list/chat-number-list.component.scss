@@ -2,12 +2,12 @@
 .search-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 11px;
-  margin-bottom: 6px;
+  gap: 6px;
+  padding: 5px 10px;
+  margin-bottom: 4px;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 9px;
+  border-radius: 8px;
   transition: border-color 0.2s;
 
   &:focus-within {
@@ -38,15 +38,15 @@
 // ===== STATUS TABS (Phase 2 Step 1) =====
 .status-tabs {
   display: flex;
-  gap: 5px;
-  padding: 6px 0;
-  margin-bottom: 4px;
+  gap: 4px;
+  padding: 4px 0;
+  margin-bottom: 2px;
 }
 
 .status-tab {
   flex: 1;
-  padding: 6px 14px;
-  border-radius: 7px;
+  padding: 4px 10px;
+  border-radius: 6px;
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-muted);
@@ -72,8 +72,8 @@
 .type-pills {
   display: flex;
   gap: 3px;
-  padding: 4px 0;
-  margin-bottom: 8px;
+  padding: 2px 0;
+  margin-bottom: 4px;
   flex-wrap: wrap;
 }
 
@@ -103,15 +103,15 @@
 // ===== CHAT TABS =====
 .chat-tabs {
   display: flex;
-  margin-bottom: 6px;
-  border-radius: 8px;
+  margin-bottom: 4px;
+  border-radius: 7px;
   overflow: hidden;
   border: 1px solid var(--border);
 }
 
 .chat-tab {
   flex: 1;
-  padding: 8px 0;
+  padding: 6px 0;
   border: none;
   background-color: var(--surface);
   color: var(--text-muted);
@@ -136,12 +136,12 @@
 .online-executives-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  margin-bottom: 10px;
+  gap: 6px;
+  padding: 5px 10px;
+  margin-bottom: 4px;
   background-color: rgba(34, 197, 94, 0.06);
   border: 1px solid rgba(34, 197, 94, 0.15);
-  border-radius: 8px;
+  border-radius: 7px;
 }
 
 .online-label {
@@ -186,9 +186,16 @@
   border: 1.5px solid var(--surface);
 }
 
+// ===== TAG OVERFLOW =====
+.tag-more {
+  background: rgba(99, 102, 241, 0.06);
+  color: var(--text-muted);
+  border-color: rgba(99, 102, 241, 0.12);
+}
+
 // ===== DROPDOWN FILTER =====
 .dropdown-container {
-  margin-bottom: 10px;
+  margin-bottom: 4px;
 }
 
 .form-select {
@@ -218,14 +225,14 @@ ul {
 }
 
 .chat-li {
-  animation: slideUp 0.25s ease both;
+  animation: slideUp 0.18s ease both;
 }
 
 .chat-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
-  padding: 10px 12px;
+  padding: 6px 10px;
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   background-color: transparent;
@@ -244,23 +251,24 @@ ul {
 // ===== AVATAR =====
 .avatar {
   position: relative;
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  border-radius: 9px;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 8px;
   background: rgba(99, 102, 241, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: 0.3px;
+  margin-top: 2px;
 }
 
 // ===== CHAT INFO =====
 .chat-info {
-  margin-left: 10px;
+  margin-left: 8px;
   flex-grow: 1;
   min-width: 0;
 }
@@ -269,84 +277,96 @@ ul {
   font-weight: 600;
   margin: 0;
   color: var(--text);
-  font-size: 13px;
+  font-size: 12px;
+  line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .chat-subtitle {
-  font-size: 10px;
+  font-size: 9.5px;
   color: var(--text-muted);
-  margin: 1px 0 0 0;
+  margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .chat-preview {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 1px;
   margin-bottom: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.3;
+}
+
+// Row combining tags + assigned exec inline
+.chat-bottom-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+  min-height: 0;
 }
 
 // ===== ASSIGNED EXECUTIVE =====
 .assigned-exec {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 3px;
-  font-size: 10px;
+  gap: 3px;
+  font-size: 9.5px;
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .assigned-exec-avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
   background-color: rgba(99, 102, 241, 0.12);
   color: var(--accent);
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 700;
   letter-spacing: 0.2px;
 }
 
 // ===== TAG PILLS =====
 .chat-tags {
-  display: flex;
+  display: inline-flex;
   flex-wrap: wrap;
-  gap: 3px;
-  margin-top: 3px;
+  gap: 2px;
 }
 
 .tag-pill-sm {
   display: inline-block;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 9px;
+  padding: 0 5px;
+  border-radius: 3px;
+  font-size: 8.5px;
   font-weight: 600;
   background: rgba(99, 102, 241, 0.1);
   color: var(--accent);
   border: 1px solid rgba(99, 102, 241, 0.18);
   letter-spacing: 0.2px;
   white-space: nowrap;
+  line-height: 16px;
 }
 
 // ===== STAR RATING (resolved chats) =====
 .chat-rating {
-  display: flex;
-  gap: 1px;
-  margin-top: 2px;
+  display: inline-flex;
+  gap: 0px;
 
   .star-icon {
-    font-size: 10px;
+    font-size: 9px;
     color: var(--text-muted);
     line-height: 1;
 
@@ -361,15 +381,15 @@ ul {
   position: absolute;
   top: -3px;
   right: -3px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
   background-color: var(--danger);
   color: #fff;
-  font-size: 8px;
+  font-size: 7.5px;
   font-weight: 700;
   text-align: center;
-  line-height: 16px;
+  line-height: 15px;
   border-radius: 8px;
   border: 1.5px solid var(--surface);
 }
@@ -387,13 +407,14 @@ ul {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
-  margin-right: 22px;
-  min-width: 70px;
+  gap: 2px;
+  margin-left: 6px;
+  min-width: 52px;
+  margin-top: 2px;
 }
 
 .chat-datetime {
-  font-size: 10px;
+  font-size: 9.5px;
   font-family: var(--font-mono);
   color: var(--text-muted);
   text-align: right;
@@ -430,11 +451,11 @@ ul {
 // ===== RESPONSIVE =====
 @media (max-width: 600px) {
   .chat-item {
-    padding: 8px 10px;
+    padding: 5px 8px;
   }
 
   .chat-name {
-    font-size: 12px;
+    font-size: 11px;
   }
 
   .chat-preview {
@@ -442,14 +463,14 @@ ul {
   }
 
   .avatar {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    font-size: 10px;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    font-size: 9px;
   }
 
   .chat-datetime {
     font-size: 9px;
-    min-width: 60px;
+    min-width: 48px;
   }
 }
