@@ -61,7 +61,7 @@ export const CHAT_TYPE_CONFIGS: Record<string, ChatTypeConfig> = {
     useLoadingDelay: true,
     dcoNameFallback: true,
     userMessageNgClass: 'equals_customer',
-    chatListCustomerType: '',
+    chatListCustomerType: 'Partner',
     showChatListFilter: true,
     chatListDateFormat: 'HH:mm',
     showChatListCustomerName: true,
