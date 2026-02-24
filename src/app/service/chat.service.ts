@@ -190,6 +190,11 @@ export class ChatService {
     this.socket?.emit('add_note', data);
   }
 
+  /** Request current dashboard stats from server (Step 6 debug) */
+  fetchDashboardStats(): void {
+    this.socket?.emit('get_dashboard_stats', {});
+  }
+
   // --- Listen methods (shared Observables — one listener per event) ---
 
   onNewMessage(): Observable<Message> {

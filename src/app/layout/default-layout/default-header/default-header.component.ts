@@ -105,9 +105,16 @@ export class DefaultHeaderComponent extends HeaderComponent {
     this.chatService.onDashboardStats()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((stats: DashboardStats) => {
+        console.log('Dashboard stats received:', stats);
         this.dashboardStats = stats;
         this.cdr.markForCheck();
       });
+
+    // Request initial stats from server (Step 6 debug)
+    // Small delay to ensure socket is connected before emitting
+    setTimeout(() => {
+      this.chatService.fetchDashboardStats();
+    }, 1500);
   }
 
   sidebarId = input('sidebar1');

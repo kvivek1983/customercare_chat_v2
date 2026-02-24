@@ -109,6 +109,8 @@ export class SlaTimerComponent implements OnInit, OnDestroy, OnChanges {
   get isEscalated(): boolean { return this.minutes >= 10; }
 
   get formattedTime(): string {
+    // Cap at 99:59+ for very old chats (prevents "1362:37" display)
+    if (this.minutes >= 100) return '99:59+';
     return `${this.minutes.toString().padStart(2, '0')}:${this.seconds.toString().padStart(2, '0')}`;
   }
 

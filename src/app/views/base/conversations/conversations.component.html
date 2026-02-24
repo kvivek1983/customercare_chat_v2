@@ -48,10 +48,17 @@
     <div class="chat-thread" *ngIf="!isResolved && selectedChat">
 
       <div class="chat-thread-header">
-        <span class="chat-thread-title">Chat with {{ getChatTitle() }}</span>
-        <span class="assigned-to-header" *ngIf="assignedExecutiveName">
-          <span class="assigned-to-icon">&#128100;</span> {{ assignedExecutiveName }}
-        </span>
+        <div class="chat-header-avatar">{{ getInitials() }}</div>
+        <div class="chat-header-info">
+          <span class="chat-thread-title">Chat with {{ getChatTitle() }}</span>
+          <span class="chat-header-subtitle">
+            {{ selectedChat.customer_name || selectedChat.customer }}
+            <span *ngIf="selectedChat.customer_type"> &middot; {{ selectedChat.customer_type }}</span>
+            <span class="chat-header-exec" *ngIf="assignedExecutiveName">
+              &#128100; {{ assignedExecutiveName }}
+            </span>
+          </span>
+        </div>
         <!-- SLA Timer full (Phase 3 Step 2) -->
         <app-sla-timer *ngIf="selectedChat?.last_incoming_message_time"
           [startTime]="selectedChat.last_incoming_message_time"
@@ -159,6 +166,13 @@
         <!-- Textarea input (Partner + Vendor) -->
         <ng-container *ngIf="config.inputType === 'textarea'">
           <div *ngIf="isWhatsappChatOpen == 1" class="chat-input-wrapper">
+            <button class="template-toggle-btn" [class.active]="showTemplatePicker"
+              (click)="toggleTemplatePicker()" title="Templates">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </button>
             <textarea type="text" class="chat-input" rows="1" [(ngModel)]="newMessage" placeholder="Type your message..."
               (keydown)="handleKeydown($event)" (input)="resizeTextarea($event)"></textarea>
             <button class="send-btn" (click)="sendMessage()">
@@ -172,6 +186,13 @@
         <!-- Simple input (SRDP) -->
         <ng-container *ngIf="config.inputType === 'input'">
           <div *ngIf="isWhatsappChatOpen == 1" class="chat-input-wrapper">
+            <button class="template-toggle-btn" [class.active]="showTemplatePicker"
+              (click)="toggleTemplatePicker()" title="Templates">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </button>
             <input type="text" class="chat-input" [(ngModel)]="newMessage" placeholder="Type your message..."
               (keydown.enter)="sendMessage()" />
             <button class="send-btn" (click)="sendMessage()">Send</button>
@@ -227,6 +248,14 @@
 
     <!-- Profile Tab Content -->
     <div class="right-panel-content" *ngIf="activeRightPanel === 'profile'">
+      <!-- Profile Card (Phase 2 Step 5) -->
+      <div class="profile-card" *ngIf="selectedChat">
+        <div class="profile-avatar">{{ getInitials() }}</div>
+        <div class="profile-name">{{ selectedChat.customer_name || selectedChat.customer }}</div>
+        <div class="profile-phone">{{ selectedChat.customer }}</div>
+        <span class="profile-type-pill">{{ selectedChat.customer_type || 'Customer' }}</span>
+      </div>
+
       <ng-container *ngIf="config.showDcoPanels">
         <app-dco-info *ngIf="dcoInfo" [chatNumber]="chatNumber" [selectedView]="selectedView"
           (dcoSelected)="getDcoName($event)"></app-dco-info>

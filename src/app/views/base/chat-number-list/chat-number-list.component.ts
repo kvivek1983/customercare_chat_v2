@@ -44,7 +44,8 @@ export class ChatNumberListComponent implements OnInit {
   errorMessage: string = '';
   selectedChat: any = null;
   fetchAllChatData: FetchAllChat | null = null;
-  chats: Chats[] = [];
+  allChats: Chats[] = [];   // Master unfiltered list
+  chats: Chats[] = [];      // Filtered display list
   currentPage: number = 1;
   totalPages: number = 0;
   isLoading: boolean = false;
@@ -59,6 +60,13 @@ export class ChatNumberListComponent implements OnInit {
   // My Chats / All Chats Tabs (Step 6)
   activeTab: 'my' | 'all' = 'my';
   executiveId: string | null = null;
+
+  // Search + Filter (Phase 2 Step 1)
+  searchQuery: string = '';
+  statusFilter: 'active' | 'resolved' = 'active';
+  typeFilter: string = 'All';
+  activeCount: number = 0;
+  resolvedCount: number = 0;
 
   ngOnInit() {
     // Extract executive_id from localStorage (Step 6)
@@ -84,11 +92,13 @@ export class ChatNumberListComponent implements OnInit {
           const chats = (Array.isArray(response.chats) ? response.chats : [])
             .map((c: any) => this.normalizeChat(c));
           if (this.isFresh) {
-            this.chats = chats;
+            this.allChats = chats;
           } else {
-            this.chats = [...this.chats, ...chats];
+            this.allChats = [...this.allChats, ...chats];
           }
           this.totalPages = response.pagination?.total_pages ?? 0;
+          this.computeCounts();
+          this.filterChats();
         } else {
           this.errorMessage = response.message || 'An error occurred';
           console.log('fetchAllChat error:', JSON.stringify(response));
@@ -107,11 +117,13 @@ export class ChatNumberListComponent implements OnInit {
           const chats = (Array.isArray(response.chats) ? response.chats : [])
             .map((c: any) => this.normalizeChat(c));
           if (this.isFresh) {
-            this.chats = chats;
+            this.allChats = chats;
           } else {
-            this.chats = [...this.chats, ...chats];
+            this.allChats = [...this.allChats, ...chats];
           }
           this.totalPages = response.pagination?.total_pages ?? 0;
+          this.computeCounts();
+          this.filterChats();
         } else {
           this.errorMessage = response.message || 'An error occurred';
         }
@@ -167,10 +179,11 @@ export class ChatNumberListComponent implements OnInit {
 
     // Subscribe to chat assignment events (Phase 3 Step 1)
     const handleAssignment = (assignment: ChatAssignment) => {
-      const chat = this.chats?.find(c => c.chat_id === assignment.chat_id);
+      const chat = this.allChats?.find(c => c.chat_id === assignment.chat_id);
       if (chat) {
         chat.assigned_executive_id = assignment.executive_id;
         chat.assigned_executive_name = assignment.executive_name;
+        this.filterChats();
         this.cdr.markForCheck();
       }
     };
@@ -187,7 +200,7 @@ export class ChatNumberListComponent implements OnInit {
     this.chatService.onTagUpdated()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((update: TagUpdate) => {
-        const chat = this.chats?.find(c => c.chat_id === update.chat_id);
+        const chat = this.allChats?.find(c => c.chat_id === update.chat_id);
         if (chat) {
           if (update.tags) {
             // V1 format: full tags array
@@ -201,10 +214,59 @@ export class ChatNumberListComponent implements OnInit {
               chat.tags = currentTags.filter((t: string) => t !== update.tag);
             }
           }
+          this.filterChats();
           this.cdr.markForCheck();
         }
       });
   }
+
+  // ===== Search + Filter Methods (Phase 2 Step 1) =====
+
+  filterChats(): void {
+    let filtered = [...this.allChats];
+
+    // Status filter
+    if (this.statusFilter === 'resolved') {
+      filtered = filtered.filter(c => c.status === 'resolved' || c.is_resolved === true);
+    } else {
+      // 'active' shows everything that is NOT explicitly resolved
+      filtered = filtered.filter(c => c.status !== 'resolved' && c.is_resolved !== true);
+    }
+
+    // Type filter
+    if (this.typeFilter !== 'All') {
+      filtered = filtered.filter(c => c.customer_type === this.typeFilter);
+    }
+
+    // Search query (mobile number or name)
+    if (this.searchQuery.trim()) {
+      const q = this.searchQuery.trim().toLowerCase();
+      filtered = filtered.filter(c =>
+        (c.customer && c.customer.toLowerCase().includes(q)) ||
+        (c.customer_name && c.customer_name.toLowerCase().includes(q))
+      );
+    }
+
+    this.chats = filtered;
+    this.cdr.markForCheck();
+  }
+
+  setStatusFilter(status: 'active' | 'resolved'): void {
+    this.statusFilter = status;
+    this.filterChats();
+  }
+
+  setTypeFilter(type: string): void {
+    this.typeFilter = type;
+    this.filterChats();
+  }
+
+  private computeCounts(): void {
+    this.activeCount = this.allChats.filter(c => c.status !== 'resolved' && c.is_resolved !== true).length;
+    this.resolvedCount = this.allChats.filter(c => c.status === 'resolved' || c.is_resolved === true).length;
+  }
+
+  // ===== Existing Methods =====
 
   loadFetchAllChat() {
     this.currentPage++;
@@ -214,6 +276,7 @@ export class ChatNumberListComponent implements OnInit {
 
   onFilterChange(event: any): void {
     this.dropdownSelected.emit({ status: true, value: event.target.value });
+    this.allChats = [];
     this.chats = [];
     this.fetchAllChat();
   }
@@ -222,6 +285,7 @@ export class ChatNumberListComponent implements OnInit {
   switchTab(tab: 'my' | 'all'): void {
     if (this.activeTab === tab) return;
     this.activeTab = tab;
+    this.allChats = [];
     this.chats = [];
     this.currentPage = 1;
     this.totalPages = 0;
@@ -297,7 +361,7 @@ export class ChatNumberListComponent implements OnInit {
       const chat = this.normalizeChat(rawChat);
       console.log('New onRoomUpdate received:', chat);
 
-      const room = this.chats?.find((r) => r.chat_id === chat.chat_id);
+      const room = this.allChats?.find((r) => r.chat_id === chat.chat_id);
       if (room) {
         room.last_message = chat.last_message;
         room.last_message_time = chat.last_message_time;
@@ -313,14 +377,16 @@ export class ChatNumberListComponent implements OnInit {
           room.last_interaction_by = lastBy;
         }
 
-        if (this.chats?.length) {
-          this.chats = [...this.chats].sort((a, b) => {
+        if (this.allChats?.length) {
+          this.allChats = [...this.allChats].sort((a, b) => {
             try {
               return compareDesc(parseISO(a.last_message_time), parseISO(b.last_message_time));
             } catch { return 0; }
           });
         }
 
+        this.computeCounts();
+        this.filterChats();
       } else {
         this.fetchAllChat();
       }
@@ -341,16 +407,19 @@ export class ChatNumberListComponent implements OnInit {
   }
 
   updateUnSeenCount(chat_id: any, count: any) {
-    const room = this.chats?.find((r) => r.chat_id === chat_id);
+    const room = this.allChats?.find((r) => r.chat_id === chat_id);
     if (room) {
       room.unseen_count = count;
+      this.filterChats();
     }
   }
 
   removeResolveChat(chat_id: any) {
-    const index = this.chats?.findIndex((r) => r.chat_id === chat_id);
+    const index = this.allChats?.findIndex((r) => r.chat_id === chat_id);
     if (index !== -1) {
-      this.chats.splice(index, 1);
+      this.allChats.splice(index, 1);
+      this.computeCounts();
+      this.filterChats();
     }
   }
 
@@ -408,7 +477,7 @@ export class ChatNumberListComponent implements OnInit {
     const chatId = (message as any).chat_id;
     if (!chatId) return;
 
-    const room = this.chats?.find((r) => r.chat_id === chatId);
+    const room = this.allChats?.find((r) => r.chat_id === chatId);
     if (room) {
       room.last_message = message.message;
       room.last_message_time = message.datetime;
@@ -424,14 +493,16 @@ export class ChatNumberListComponent implements OnInit {
       }
 
       // Re-sort so most recent chat appears at top
-      if (this.chats?.length) {
-        this.chats = [...this.chats].sort((a, b) => {
+      if (this.allChats?.length) {
+        this.allChats = [...this.allChats].sort((a, b) => {
           try {
             return compareDesc(parseISO(a.last_message_time), parseISO(b.last_message_time));
           } catch { return 0; }
         });
       }
 
+      this.computeCounts();
+      this.filterChats();
       this.cdr.markForCheck();
     } else {
       // Chat not in list — could be a brand new chat. Refresh the list.

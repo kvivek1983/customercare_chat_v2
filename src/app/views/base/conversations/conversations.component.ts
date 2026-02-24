@@ -984,6 +984,13 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       : this.selectedChat.customer_name;
   }
 
+  /** Returns 2-letter initials for the selected chat avatar */
+  getInitials(): string {
+    if (!this.selectedChat) return '?';
+    const name = this.selectedChat.customer_name || this.selectedChat.customer || '?';
+    return name.slice(0, 2).toUpperCase();
+  }
+
   // Phase 4 Step 4: Quick Actions handler
   handleQuickAction(action: QuickAction): void {
     switch (action) {

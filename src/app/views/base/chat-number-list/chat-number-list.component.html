@@ -4,6 +4,33 @@
   <button class="chat-tab" [class.active]="activeTab === 'all'" (click)="switchTab('all')">All Chats</button>
 </div>
 
+<!-- Search Bar (Phase 2 Step 1) -->
+<div class="search-bar">
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="m21 21-4.3-4.3"/>
+  </svg>
+  <input type="text" class="search-input" placeholder="Search mobile or name..."
+    [(ngModel)]="searchQuery" (input)="filterChats()">
+</div>
+
+<!-- Active / Resolved Status Tabs (Phase 2 Step 1) -->
+<div class="status-tabs">
+  <button class="status-tab" [class.active]="statusFilter === 'active'" (click)="setStatusFilter('active')">
+    Active ({{ activeCount }})
+  </button>
+  <button class="status-tab" [class.active]="statusFilter === 'resolved'" (click)="setStatusFilter('resolved')">
+    Resolved ({{ resolvedCount }})
+  </button>
+</div>
+
+<!-- Type Filter Pills (Phase 2 Step 1) -->
+<div class="type-pills">
+  <button class="type-pill" *ngFor="let type of ['All', 'Partner', 'Customer', 'Vendor', 'SRDP']"
+    [class.active]="typeFilter === type" (click)="setTypeFilter(type)">{{ type }}</button>
+</div>
+
 <!-- Online Executives Bar (Step 5) -->
 <div class="online-executives-bar" *ngIf="onlineExecutives.length > 0">
   <span class="online-label">Online:</span>
@@ -29,14 +56,19 @@
 <ul *ngIf="chats && chats.length > 0">
   <li *ngFor="let chat of chats; let i = index" [style.animation-delay.ms]="i * 25" class="chat-li">
     <div class="chat-item" [class.active]="chat.chat_id === selectedChat?.chat_id" (click)="onChatClick(chat)">
-      <div class="avatar">{{ (chat.customer_name || chat.customer || '?') | slice:0:2 | uppercase }}</div>
+      <div class="avatar">
+        {{ (chat.customer_name || chat.customer || '?') | slice:0:2 | uppercase }}
+        <div class="unseen-count-badge" *ngIf="chat.unseen_count && chat.unseen_count > 0">
+          {{ chat.unseen_count }}
+        </div>
+      </div>
       <div class="chat-info">
-        <!-- Partner: show name + number; Others: show number only -->
-        <p class="chat-name" *ngIf="showCustomerName">{{ chat.customer_name }} {{ chat.customer }}</p>
-        <p class="chat-name" *ngIf="!showCustomerName">{{ chat.customer }}</p>
+        <!-- Primary: customer name, Secondary: number + type -->
+        <p class="chat-name">{{ chat.customer_name || chat.customer }}</p>
+        <p class="chat-subtitle">{{ chat.customer }} <span *ngIf="chat.customer_type">&middot; {{ chat.customer_type }}</span></p>
         <p class="chat-preview">{{ chat.last_message && chat.last_message.length > 0 ? (chat.last_message.length >
-          10
-          ? (chat.last_message | slice: 0:10) + '...'
+          30
+          ? (chat.last_message | slice: 0:30) + '...'
           : chat.last_message) : 'No messages yet...' }}</p>
         <!-- Tag Pills (Phase 3 Step 3) -->
         <div class="chat-tags" *ngIf="chat.tags && chat.tags.length > 0">
@@ -59,12 +91,13 @@
           [compact]="true">
         </app-sla-timer>
       </div>
-      <div class="unseen-count-badge" *ngIf="chat.unseen_count && chat.unseen_count > 0">
-        {{ chat.unseen_count }}
-      </div>
     </div>
   </li>
 </ul>
+
+<p class="status-text empty-state" *ngIf="!isLoading && chats.length === 0 && allChats.length > 0">
+  No chats match the current filters.
+</p>
 
 <button class="load-more-btn" *ngIf="currentPage < totalPages && !isLoading" (click)="loadFetchAllChat()">Load
   More</button>
