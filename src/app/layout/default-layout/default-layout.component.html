@@ -1,40 +1,33 @@
-<!--sidebar-->
-<c-sidebar
-  #sidebar1="cSidebar"
-  class="d-print-none sidebar sidebar-fixed border-end"
-  colorScheme="dark"
-  id="sidebar1"
-  visible
->
-<!-- <c-sidebar
-  #sidebar1="cSidebar"
-  class="d-print-none sidebar sidebar-fixed border-end"
-  colorScheme="dark"
-  id="sidebar1"
-> -->
-  <c-sidebar-header class="border-bottom">
-    <c-sidebar-brand [routerLink]="[]">
-      <!-- <svg [class]="{icon: false}" cIcon class="sidebar-brand-full" height="32" name="logo" title="OWC Logo"></svg>
-      <svg cIcon class="sidebar-brand-narrow" height="32" name="signet" title="OWC Logo"></svg> -->
+<!-- Sidebar Backdrop (click to close) -->
+<div class="sidebar-backdrop" *ngIf="sidebarOpen" (click)="closeSidebar()"></div>
 
-      <a href="#/">
-        <img src="assets/brand/logo.png" width="160" height="80" alt="OneCheck Logo" class="sidebar-brand-full ml-0 py-1">
-        <img src="assets/brand/logo.png" width="46" height="46" alt="OneCheck Logo" class="sidebar-brand-narrow">
+<!-- Sidebar Drawer -->
+<nav class="sidebar-drawer" [class.open]="sidebarOpen">
+  <!-- Drawer Header with logo -->
+  <div class="drawer-header">
+    <a href="#/">
+      <img src="assets/brand/logo.png" width="140" height="70" alt="Oneway Cab Logo">
+    </a>
+    <button class="drawer-close" (click)="closeSidebar()" aria-label="Close menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Nav Items -->
+  <ul class="drawer-nav">
+    <li *ngFor="let item of navItems" class="drawer-nav-item">
+      <a [routerLink]="item.url" routerLinkActive="active" class="drawer-nav-link" (click)="closeSidebar()">
+        <svg *ngIf="item.name === 'Dashboard'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <svg *ngIf="item.name === 'Search'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <svg *ngIf="item.name !== 'Dashboard' && item.name !== 'Search'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="drawer-nav-text">{{ item.name }}</span>
+        <span class="drawer-nav-badge" *ngIf="item.badge">{{ item.badge.text }}</span>
       </a>
-
-    </c-sidebar-brand>
-  </c-sidebar-header>
-
-  <ng-scrollbar class="overflow">
-    <c-sidebar-nav  #overflow [navItems]="navItems"  dropdownMode="close" compact />
-  </ng-scrollbar>
-
-  @if (!sidebar1.narrow) {
-    <c-sidebar-footer cSidebarToggle="sidebar1" class="border-top d-none d-lg-flex" toggle="unfoldable" style="cursor: pointer;">
-      <button cSidebarToggler aria-label="Toggle sidebar fold"></button>
-    </c-sidebar-footer>
-  }
-</c-sidebar>
+    </li>
+  </ul>
+</nav>
 
 <!--main-->
 <div class="wrapper d-flex flex-column min-vh-100">
@@ -44,12 +37,12 @@
     class="d-print-none header header-sticky p-0"
     position="sticky"
     sidebarId="sidebar1"
+    (menuToggle)="toggleSidebar()"
   />
   <!--app-body-->
   <div class="body flex-grow-1">
     <c-container breakpoint="lg" class="h-auto px-1">
       <router-outlet />
-      
     </c-container>
   </div>
   <!--app footer removed for V2 design-->

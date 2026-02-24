@@ -1,7 +1,9 @@
 import { Component, inject, input } from '@angular/core';
-import { RouterLink, RouterOutlet } from '@angular/router';
+import { RouterLink, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { ChatService } from '../../service/chat.service';
 import { NgScrollbar } from 'ngx-scrollbar';
+import { NgIf, NgFor, NgClass } from '@angular/common';
+import { filter } from 'rxjs/operators';
 
 import { IconDirective } from '@coreui/icons-angular';
 import {
@@ -46,16 +48,38 @@ function isOverflown(element: HTMLElement) {
     ShadowOnScrollDirective,
     ContainerComponent,
     RouterOutlet,
-    DefaultFooterComponent
+    DefaultFooterComponent,
+    NgIf,
+    NgFor,
+    NgClass
   ]
 })
 export class DefaultLayoutComponent {
   public navItems = navItems;
   private chatService = inject(ChatService);
+  private router = inject(Router);
+
+  /** Sidebar drawer state — collapsed by default */
+  sidebarOpen = false;
 
   constructor() {
     // Reconnect socket on page refresh if token exists in localStorage
     this.reconnectSocketIfNeeded();
+
+    // Auto-close sidebar on navigation
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => {
+        this.sidebarOpen = false;
+      });
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebar(): void {
+    this.sidebarOpen = false;
   }
 
   private reconnectSocketIfNeeded(): void {

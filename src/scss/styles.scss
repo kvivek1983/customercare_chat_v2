@@ -183,6 +183,10 @@ ng-scrollbar.overflow,
 // ===== COREUI WRAPPER / BODY OVERRIDES =====
 .wrapper {
   background-color: var(--bg) !important;
+  // Ensure wrapper takes full width now that CoreUI sidebar is removed
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+  --cui-sidebar-occupy-start: 0 !important;
 }
 
 .body {

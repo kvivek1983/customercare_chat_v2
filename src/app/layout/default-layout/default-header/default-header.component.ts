@@ -1,5 +1,5 @@
 import { NgClass, NgIf, NgStyle, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectorRef, Component, computed, DestroyRef, inject, input } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, DestroyRef, EventEmitter, inject, input, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 
@@ -40,6 +40,9 @@ import { DashboardStats, ExecutiveStatus } from '../../../models/chat.model';
   imports: [ContainerComponent, HeaderTogglerDirective, SidebarToggleDirective, IconDirective, HeaderNavComponent, NavItemComponent, NavLinkDirective, RouterLink, RouterLinkActive, NgTemplateOutlet, BreadcrumbRouterComponent, ThemeDirective, DropdownComponent, DropdownToggleDirective, TextColorDirective, AvatarComponent, DropdownMenuDirective, DropdownHeaderDirective, DropdownItemDirective, BadgeComponent, DropdownDividerDirective, ProgressBarDirective, ProgressComponent, NgStyle, NgClass, NgIf]
 })
 export class DefaultHeaderComponent extends HeaderComponent {
+
+  /** Emits when hamburger menu icon is clicked */
+  @Output() menuToggle = new EventEmitter<void>();
 
   readonly #colorModeService = inject(ColorModeService);
   readonly colorMode = this.#colorModeService.colorMode;
