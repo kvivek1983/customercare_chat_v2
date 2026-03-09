@@ -217,12 +217,15 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         }
       });
 
-    // SLA alert subscription (Review Fix 1)
+    // SLA alert subscription — only show alerts for current stakeholder + assigned executive
     this.chatService.onSlaAlert()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((alert: any) => {
+        if (alert.customer_type !== this.config.customerType) return;
+        if (alert.assigned_executive_id && alert.assigned_executive_id !== this.getExecutiveId()) return;
+        const displayName = alert.customer_name || alert.customer || alert.chat_id;
         this.toastr.warning(
-          `SLA breach on chat ${alert.chat_id}`,
+          `SLA breach: ${displayName} (${alert.elapsed_minutes} min)`,
           'SLA Alert',
           { timeOut: 10000 }
         );
