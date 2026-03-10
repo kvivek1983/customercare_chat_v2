@@ -72,7 +72,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
   // Periodic refresh fallback — backend has no `join_room` handler so
   // room_update_* broadcasts are never received. Poll every 30s to keep list fresh.
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
-  private readonly REFRESH_INTERVAL_MS = 30_000;
+  private readonly REFRESH_INTERVAL_MS = 15_000;
 
   // Track whether ngOnInit has run (to skip first ngOnChanges which fires before ngOnInit)
   private initialized = false;
@@ -410,6 +410,12 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       const chat = this.normalizeChat(rawChat);
       console.log('New onRoomUpdate received:', chat);
 
+      // Filter: ignore updates for a different customer type
+      if (this.customerType && chat.customer_type && chat.customer_type !== this.customerType) {
+        console.log('[ChatList] Ignoring room_update for different type:', chat.customer_type, 'expected:', this.customerType);
+        return;
+      }
+
       const room = this.allChats?.find((r) => r.chat_id === chat.chat_id);
       if (room) {
         room.last_message = chat.last_message;
@@ -488,6 +494,8 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
    * Join the appropriate socket room based on customerType so we receive
    * room_update / room_update_customer / room_update_vendor / room_update_srdp broadcasts.
    */
+  private currentRoom: string | null = null;
+
   private joinCustomerTypeRoom(): void {
     // Map customerType input → V2 socket room name
     const roomMap: Record<string, string> = {
@@ -498,8 +506,15 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       'SRDP': 'SRDPApp',
     };
     const room = roomMap[this.customerType] || 'PartnerApp';
+
+    // Leave old room first to prevent cross-type updates
+    if (this.currentRoom && this.currentRoom !== room) {
+      this.chatService.leaveRoom(this.currentRoom);
+    }
+
     console.log('Joining socket room:', room, 'for customerType:', this.customerType);
     this.chatService.joinRoom(room);
+    this.currentRoom = room;
   }
 
   /**

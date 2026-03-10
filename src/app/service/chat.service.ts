@@ -164,6 +164,11 @@ export class ChatService {
     });
   }
 
+  leaveRoom(room: string): void {
+    console.log('[Socket] emitting leave_room:', room);
+    this.socket?.emit('leave_room', { room });
+  }
+
   updateChatStatus(data: {}): void {
     this.socket?.emit('update_chat_status', data);
   }
