@@ -410,6 +410,17 @@
   background: var(--surface);
 }
 
+// ===== WHATSAPP WINDOW STATUS ICON =====
+.wa-icon {
+  display: flex;
+  align-items: center;
+  margin-right: 4px;
+  cursor: default;
+
+  &--open { color: #25D366; }
+  &--closed { color: #ef4444; }
+}
+
 .chat-input-wrapper {
   display: flex;
   align-items: center;

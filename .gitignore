@@ -89,3 +89,22 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+.vercel
+
+# Test screenshots
+test-*.png
+
+# Environment files
+.env
+.env.*
+
+# Angular cache
+.angular/
+
+# Editor
+*.swp
+*.swo
+*~
+
+# Claude Code
+.claude/
