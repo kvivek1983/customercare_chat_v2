@@ -69,8 +69,8 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
   activeCount: number = 0;
   resolvedCount: number = 0;
 
-  // Periodic refresh fallback — backend has no `join_room` handler so
-  // room_update_* broadcasts are never received. Poll every 30s to keep list fresh.
+  // Periodic refresh fallback — poll every 15s to keep list fresh in case
+  // room_update events are missed due to network issues.
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
   private readonly REFRESH_INTERVAL_MS = 15_000;
 
@@ -170,6 +170,9 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
     // Join the customer-type socket room to receive room_update broadcasts
     this.joinCustomerTypeRoom();
 
+    // Subscribe to room_update ONCE for all pages (real-time chat list updates)
+    this.onRoomUpdate();
+
     if (this.showFilter) {
       // Partner: subscribe to SharedService for mobile search
       this.sharedService.currentMobileNumber$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(mobile => {
@@ -178,13 +181,11 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
           this.search_chat();
         } else {
           this.fetchAllChat();
-          this.onRoomUpdate();
         }
       });
     } else {
-      // Customer/Vendor/SRDP: just fetch and listen for updates
+      // Customer/Vendor/SRDP: just fetch
       this.fetchAllChat();
-      this.onRoomUpdate();
     }
 
     // Subscribe to new_message as fallback for chat list updates
@@ -255,8 +256,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
         }
       });
 
-    // Start periodic refresh — backend has no `join_room` handler, so
-    // room_update_customer broadcasts never reach us. Poll to keep list fresh.
+    // Start periodic refresh as fallback for missed room_update events.
     this.startPeriodicRefresh();
 
     this.initialized = true;
