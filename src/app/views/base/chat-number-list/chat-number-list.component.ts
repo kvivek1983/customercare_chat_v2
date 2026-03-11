@@ -149,16 +149,22 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       .subscribe((response: FetchAllChat) => {
         console.log('search_chat response:', JSON.stringify(response));
         if (response.status === 1) {
-          const chats = (Array.isArray(response.chats) ? response.chats : [])
-            .map((c: any) => this.normalizeChat(c));
-          if (this.isFresh) {
-            this.allChats = chats;
+          // Backend returns `chat` (singular) or `chats` (array) — handle both
+          let rawChats: any[];
+          if (Array.isArray((response as any).chats)) {
+            rawChats = (response as any).chats;
+          } else if ((response as any).chat) {
+            rawChats = [( response as any).chat];
           } else {
-            this.allChats = [...this.allChats, ...chats];
+            rawChats = [];
           }
+          const chats = rawChats.map((c: any) => this.normalizeChat(c));
+          this.allChats = chats;
           this.totalPages = response.pagination?.total_pages ?? 0;
-          this.computeCounts();
-          this.filterChats();
+          // Show all search results regardless of active/resolved filter
+          this.chats = chats;
+          this.activeCount = chats.filter(c => c.status !== 'resolved' && c.is_resolved !== true).length;
+          this.resolvedCount = chats.filter(c => c.status === 'resolved' || c.is_resolved === true).length;
         } else {
           this.errorMessage = response.message || 'An error occurred';
         }
