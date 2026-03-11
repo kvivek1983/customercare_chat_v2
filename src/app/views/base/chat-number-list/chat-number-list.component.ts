@@ -343,31 +343,14 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public search_chat() {
-    // Reset state for fresh search
+    // Reset state and use fetchAllChat with mobile number filter
     this.allChats = [];
     this.chats = [];
     this.currentPage = 1;
     this.totalPages = 0;
     this.isFresh = true;
-    this.isLoading = true;
-
-    let agentNumber = null;
-    const userRole = localStorage.getItem('userRole');
-    if (userRole) {
-      const rawData = localStorage.getItem(`${userRole}-loginDetails`);
-      const data = rawData ? JSON.parse(rawData) : null;
-      if (data && data.agentNumber) {
-        agentNumber = data.agentNumber;
-      }
-    }
-
-    let req = {
-      sender: agentNumber, customer: this.mobileNumber,
-    };
-    console.log(req);
-
-    this.chatService.search_chat(req);
-    // Subscription is in ngOnInit — no duplicate here
+    this.isLoading = false; // Reset so fetchAllChat doesn't get blocked
+    this.fetchAllChat();
   }
 
   public fetchAllChat() {
@@ -394,6 +377,11 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
 
     if (this.customerType !== '') {
       req.customer_type = this.customerType;
+    }
+
+    // Mobile number search filter (Partner top search bar)
+    if (this.mobileNumber) {
+      req.customer = this.mobileNumber;
     }
 
     // My Chats tab: filter by assigned executive (Step 6)
