@@ -343,9 +343,13 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   public search_chat() {
-    if (this.isLoading || (this.totalPages && this.currentPage > this.totalPages)) {
-      return;
-    }
+    // Reset state for fresh search
+    this.allChats = [];
+    this.chats = [];
+    this.currentPage = 1;
+    this.totalPages = 0;
+    this.isFresh = true;
+    this.isLoading = true;
 
     let agentNumber = null;
     const userRole = localStorage.getItem('userRole');
@@ -356,7 +360,6 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
         agentNumber = data.agentNumber;
       }
     }
-    this.isLoading = true;
 
     let req = {
       sender: agentNumber, customer: this.mobileNumber,
