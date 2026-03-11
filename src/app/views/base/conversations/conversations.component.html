@@ -203,8 +203,8 @@
         <ng-container *ngIf="config.showInitiateChat">
           <button class="initiate-btn" *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 0 && !openChat" (click)="openChatWindow()">Initiate
             Chat</button>
+          <button class="initiate-btn initiate-btn--waiting" *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 1">Waiting for User Response</button>
         </ng-container>
-        <button class="initiate-btn initiate-btn--waiting" *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 1">Waiting for User Response</button>
         <div *ngIf="openChat && config.showWhatsappTemplate" class="initiate-confirm">
           <p>Do you want to initiate chat?
             <button class="initiate-btn" (click)="sendWhatsappTemplate()">Yes</button>

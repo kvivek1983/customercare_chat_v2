@@ -484,6 +484,14 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         this.isWhatsappChatOpen = 1;
         this.isChatInitiated = 1;
       }
+
+      // For stakeholders without initiate-chat flow (Customer, etc.),
+      // always keep the input open so executives can reply directly
+      if (!this.config.showInitiateChat) {
+        this.isWhatsappChatOpen = 1;
+        this.isChatInitiated = 1;
+      }
+
       this.cdr.markForCheck();
     });
   }

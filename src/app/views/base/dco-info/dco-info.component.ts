@@ -100,6 +100,10 @@ export class DcoInfoComponent implements OnInit, OnChanges {
     console.log(requestData);
 
     this.opeas.getPartner(JSON.stringify(requestData)).subscribe((data: {}) => {
+      if (!data) {
+        this.getPartnerBlk = false;
+        return;
+      }
       this.getPartnerResponse = data;
       console.log(this.getPartnerResponse);
 
@@ -162,6 +166,9 @@ export class DcoInfoComponent implements OnInit, OnChanges {
   requestData: any = {};
   getDcoDetailsRes: any = [];
   driverAllDetails(dcoNumber: any) {
+    this.getDcoDetailsBlk = false;
+    this.getDcoDetailsRes = [];
+
     var userRole = localStorage.getItem('userRole');
     //const data = JSON.parse(localStorage.getItem(userRole+"-loginDetails"));
     const storedData = localStorage.getItem(userRole + "-loginDetails");
@@ -180,6 +187,10 @@ export class DcoInfoComponent implements OnInit, OnChanges {
     };
 
     this.ons.getDcoDetails(JSON.stringify(this.requestData), data.accessToken).subscribe((data: {}) => {
+      if (!data) {
+        this.getDcoDetailsBlk = false;
+        return;
+      }
       this.getDcoDetailsRes = data;
       //console.log(this.getDcoDetailsRes);
 
