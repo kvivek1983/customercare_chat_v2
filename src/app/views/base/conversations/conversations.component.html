@@ -165,7 +165,7 @@
 
         <!-- Textarea input (Partner + Vendor) -->
         <ng-container *ngIf="config.inputType === 'textarea'">
-          <div *ngIf="isWhatsappChatOpen == 1" class="chat-input-wrapper">
+          <div class="chat-input-wrapper">
             <button class="template-toggle-btn" [class.active]="showTemplatePicker"
               (click)="toggleTemplatePicker()" title="Templates">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -185,7 +185,7 @@
 
         <!-- Simple input (SRDP) -->
         <ng-container *ngIf="config.inputType === 'input'">
-          <div *ngIf="isWhatsappChatOpen == 1" class="chat-input-wrapper">
+          <div class="chat-input-wrapper">
             <button class="template-toggle-btn" [class.active]="showTemplatePicker"
               (click)="toggleTemplatePicker()" title="Templates">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -203,7 +203,6 @@
         <ng-container *ngIf="config.showInitiateChat">
           <button class="initiate-btn" *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 0 && !openChat" (click)="openChatWindow()">Initiate
             Chat</button>
-          <button class="initiate-btn initiate-btn--waiting" *ngIf="isWhatsappChatOpen == 0 && isChatInitiated == 1">Waiting for User Response</button>
         </ng-container>
         <div *ngIf="openChat && config.showWhatsappTemplate" class="initiate-confirm">
           <p>Do you want to initiate chat?

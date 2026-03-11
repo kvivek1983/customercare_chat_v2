@@ -2,30 +2,6 @@
 
   <ng-container *ngIf="getPartnerBlk">
 
-    <div class="col-md-12 col-12 mb-2" *ngIf="isOnboardingFeeBlk">
-
-      <div class="card  h-100">
-        <div class="card-body" style="background: #fed50138;">
-          <div class="row">
-
-            <div class="col-md-7 col-12 text-left" *ngIf="isOnboardingFeeBlk">
-              <p class="mb-0">
-                Is onboarding fee paid ?
-                <label class="mb-0"> {{getPartnerResponse.isOnboardingFeePaid}} </label>
-              </p>
-            </div>
-
-            <div class="col-md-5 col-12" *ngIf="isOnboardingFeePaidNo">
-              <button class="btn btn-success" (click)="resendPaytmPaymentLink(getPartnerResponse.dcoId)">
-                Resend Payment Link
-              </button>
-            </div>
-
-          </div>
-        </div>
-      </div>
-    </div>
-
     <ng-container *ngIf="getDcoDetailsBlk">
     <div class="col-md-6 col-12 mt-2">
 
