@@ -16,7 +16,8 @@
     "start": "node server.js",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:e2e": "npx playwright test"
   },
   "private": true,
   "dependencies": {
@@ -60,6 +61,7 @@
     "@angular/cli": "^18.2.10",
     "@angular/compiler-cli": "^18.2.9",
     "@angular/localize": "^18.2.9",
+    "@playwright/test": "^1.58.2",
     "@types/d3-scale": "^4.0.9",
     "@types/d3-selection": "^3.0.11",
     "@types/d3-shape": "^3.1.7",
@@ -72,7 +74,6 @@
     "karma-coverage": "^2.2.1",
     "karma-jasmine": "^5.1.0",
     "karma-jasmine-html-reporter": "^2.1.0",
-    "@playwright/test": "^1.50.0",
     "playwright": "^1.50.0",
     "typescript": "~5.5.4"
   },

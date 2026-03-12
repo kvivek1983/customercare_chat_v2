@@ -277,6 +277,14 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
 
   // ===== Search + Filter Methods (Phase 2 Step 1) =====
 
+  onSearchInput(): void {
+    // If input is all digits, enforce max 10 digit limit (Indian mobile numbers)
+    if (/^\d+$/.test(this.searchQuery) && this.searchQuery.length > 10) {
+      this.searchQuery = this.searchQuery.slice(0, 10);
+    }
+    this.filterChats();
+  }
+
   filterChats(): void {
     let filtered = [...this.allChats];
 
