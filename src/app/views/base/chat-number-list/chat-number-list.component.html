@@ -12,7 +12,7 @@
     <path d="m21 21-4.3-4.3"/>
   </svg>
   <input type="text" class="search-input" placeholder="Search mobile or name..."
-    [(ngModel)]="searchQuery" (input)="onSearchInput()">
+    [(ngModel)]="searchQuery" (input)="onSearchInput()" (keydown)="onSearchKeydown($event)">
 </div>
 
 <!-- Active / Resolved Status Tabs (Phase 2 Step 1) -->

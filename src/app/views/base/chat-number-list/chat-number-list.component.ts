@@ -277,8 +277,22 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
 
   // ===== Search + Filter Methods (Phase 2 Step 1) =====
 
+  /** Block digit keypress when search already has 10 digits (prevents typing) */
+  onSearchKeydown(event: KeyboardEvent): void {
+    // Allow control keys: backspace, delete, arrow keys, tab, etc.
+    const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'];
+    if (allowedKeys.includes(event.key)) return;
+    // Allow Ctrl/Cmd combinations (copy, paste, select all)
+    if (event.ctrlKey || event.metaKey) return;
+
+    // If current value is all digits and already 10, block any new digit
+    if (/^\d{10}$/.test(this.searchQuery) && /^\d$/.test(event.key)) {
+      event.preventDefault();
+    }
+  }
+
   onSearchInput(): void {
-    // If input is all digits, enforce max 10 digit limit (Indian mobile numbers)
+    // Fallback: truncate if pasted value exceeds 10 digits
     if (/^\d+$/.test(this.searchQuery) && this.searchQuery.length > 10) {
       this.searchQuery = this.searchQuery.slice(0, 10);
     }
