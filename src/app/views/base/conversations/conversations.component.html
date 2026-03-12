@@ -2,7 +2,7 @@
 <div class="mobile-search-bar" *ngIf="config.showMobileSearch">
   <form [formGroup]="mobileForm" class="mobile-search-form">
     <input type="text" id="mobileNumber" formControlName="mobileNumber" class="mobile-search-input"
-      placeholder="Enter 10-digit mobile number" />
+      placeholder="Enter 10-digit mobile number" maxlength="10" />
     <button type="button" class="mobile-search-btn" (click)="searchMobile()">Search</button>
     <button type="button" class="mobile-search-btn mobile-search-btn--clear" (click)="clearMobile()">Clear</button>
   </form>
