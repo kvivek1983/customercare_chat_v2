@@ -276,18 +276,6 @@
 
     <!-- Profile Tab Content -->
     <div class="right-panel-content" *ngIf="activeRightPanel === 'profile'">
-      <!-- DCO Panels (Partner chat only) — shown FIRST -->
-      <ng-container *ngIf="config.showDcoPanels">
-        <app-dco-info *ngIf="dcoInfo" [chatNumber]="chatNumber" [selectedView]="selectedView"
-          (dcoSelected)="getDcoName($event)"></app-dco-info>
-        <app-dco-suspend-view *ngIf="dcoSuspendView" [chatNumber]="chatNumber" [selectedView]="selectedView"
-          (dcoSelected)="getDcoName($event)"></app-dco-suspend-view>
-        <app-dco-pending-view *ngIf="dcoPendingView" [chatNumber]="chatNumber" [selectedView]="selectedView"
-          (dcoSelected)="getDcoName($event)"></app-dco-pending-view>
-        <app-dco-active-approved-view *ngIf="dcoActiveApprovedView" [chatNumber]="chatNumber" [selectedView]="selectedView"
-          (dcoSelected)="getDcoName($event)"></app-dco-active-approved-view>
-      </ng-container>
-
       <!-- Profile Card -->
       <div class="profile-card" *ngIf="selectedChat">
         <div class="profile-avatar">{{ getInitials() }}</div>
@@ -326,6 +314,18 @@
           <span class="detail-value">{{ selectedChat.rating }} / 5</span>
         </div>
       </div>
+
+      <!-- DCO Panels (Partner chat only) -->
+      <ng-container *ngIf="config.showDcoPanels">
+        <app-dco-info *ngIf="dcoInfo" [chatNumber]="chatNumber" [selectedView]="selectedView"
+          (dcoSelected)="getDcoName($event)"></app-dco-info>
+        <app-dco-suspend-view *ngIf="dcoSuspendView" [chatNumber]="chatNumber" [selectedView]="selectedView"
+          (dcoSelected)="getDcoName($event)"></app-dco-suspend-view>
+        <app-dco-pending-view *ngIf="dcoPendingView" [chatNumber]="chatNumber" [selectedView]="selectedView"
+          (dcoSelected)="getDcoName($event)"></app-dco-pending-view>
+        <app-dco-active-approved-view *ngIf="dcoActiveApprovedView" [chatNumber]="chatNumber" [selectedView]="selectedView"
+          (dcoSelected)="getDcoName($event)"></app-dco-active-approved-view>
+      </ng-container>
 
       <!-- Assignment Info Card -->
       <div class="assignment-card" *ngIf="config.showAssignmentCard && assignedExecutiveName">
