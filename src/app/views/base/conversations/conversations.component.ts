@@ -65,6 +65,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     });
   }
 
+  connectionStatus: 'connected' | 'disconnected' | 'error' = 'connected';
   responseData: any = {};
   selectedChat: any = null;
   chats: any = [];
@@ -162,6 +163,14 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       }
     }
     this.onNewMessage();
+
+    // Connection status monitoring
+    this.chatService.connectionStatus
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((status) => {
+        this.connectionStatus = status;
+        this.cdr.markForCheck();
+      });
 
     // Chat assignment subscriptions (Phase 3 Step 1)
     const handleAssignment = (assignment: ChatAssignment) => {

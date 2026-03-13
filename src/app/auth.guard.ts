@@ -14,25 +14,33 @@ export const authGuard: CanActivateFn = (route, state) => {
 
 // Helper function to check login status
 function isLoggedIn(): boolean {
-  const userRole = localStorage.getItem('userRole');
-  if (!userRole) return false;
+  try {
+    const userRole = localStorage.getItem('userRole');
+    if (!userRole) return false;
 
-  const data = JSON.parse(localStorage.getItem(`${userRole}-loginDetails`));
-  if (!data || !data.isLoggedIn) {
+    const raw = localStorage.getItem(`${userRole}-loginDetails`);
+    if (!raw) return false;
+
+    const data = JSON.parse(raw);
+    if (!data || !data.isLoggedIn) {
+      return false;
+    }
+
+    const now = new Date();
+    const loginDateTime = new Date(data.date_time);
+    const diffInMinutes = Math.round((now.getTime() - loginDateTime.getTime()) / 60000);
+
+    if (diffInMinutes >= 60) {
+      // Session expired: Reset login details
+      data.isLoggedIn = false;
+      data.accessToken = null;
+      localStorage.setItem(`${userRole}-loginDetails`, JSON.stringify(data));
+      return false;
+    }
+
+    return true;
+  } catch {
+    // Corrupted localStorage data — treat as logged out
     return false;
   }
-
-  const now = new Date();
-  const loginDateTime = new Date(data.date_time);
-  const diffInMinutes = Math.round((now.getTime() - loginDateTime.getTime()) / 60000);
-
-  if (diffInMinutes >= 60) {
-    // Session expired: Reset login details
-    data.isLoggedIn = false;
-    data.accessToken = null;
-    localStorage.setItem(`${userRole}-loginDetails`, JSON.stringify(data));
-    return false;
-  }
-
-  return true;
 }

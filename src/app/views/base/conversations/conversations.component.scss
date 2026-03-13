@@ -109,6 +109,27 @@
   font-size: 12px;
 }
 
+// ===== CONNECTION BANNER =====
+.connection-banner {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  animation: slideIn 0.2s ease-out;
+
+  &--disconnected {
+    background: rgba(234, 179, 8, 0.15);
+    color: var(--warning);
+    border-bottom: 1px solid rgba(234, 179, 8, 0.3);
+  }
+
+  &--error {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger);
+    border-bottom: 1px solid rgba(239, 68, 68, 0.3);
+  }
+}
+
 // ===== CHAT THREAD =====
 .chat-thread {
   flex: 1;

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { io, Socket } from 'socket.io-client';
-import { Observable, shareReplay, EMPTY } from 'rxjs';
+import { Observable, shareReplay, EMPTY, BehaviorSubject } from 'rxjs';
 import { Chat, ChatAssignment, Chats, Config, DashboardStats, ExecutiveStatusUpdate, FetchAllChat, FetchAllChatByUser, InternalNote, Message, ReassignRequest, ResponseData, TagUpdate } from '../models/chat.model';
 import { APiProperties } from '../class/api-properties';
 
@@ -12,14 +12,16 @@ export class ChatService {
 
   apiProperties: APiProperties = new APiProperties();
 
-  private apiUrl = 'http://localhost:5000';
-
   // Socket is nullable — created only after connect() is called with JWT
   private socket: Socket | null = null;
 
-  // Track connection state
+  // Track connection state — exposed as observable for UI binding
   private _isConnected = false;
   get isConnected(): boolean { return this._isConnected; }
+
+  /** Observable connection status: 'connected' | 'disconnected' | 'error' */
+  private connectionStatus$ = new BehaviorSubject<'connected' | 'disconnected' | 'error'>('disconnected');
+  get connectionStatus(): Observable<'connected' | 'disconnected' | 'error'> { return this.connectionStatus$.asObservable(); }
 
   // Cached shared Observables — each socket event gets exactly ONE listener
   private newMessage$?: Observable<Message>;
@@ -404,14 +406,20 @@ export class ChatService {
   private initializeSocketListeners(): void {
     this.socket?.on('connect', () => {
       console.log('Socket connected!');
+      this._isConnected = true;
+      this.connectionStatus$.next('connected');
     });
 
-    this.socket?.on('disconnect', () => {
-      console.warn('Socket disconnected!');
+    this.socket?.on('disconnect', (reason) => {
+      console.warn('Socket disconnected:', reason);
+      this._isConnected = false;
+      this.connectionStatus$.next('disconnected');
     });
 
     this.socket?.on('connect_error', (error) => {
       console.error('Socket connection error:', error);
+      this._isConnected = false;
+      this.connectionStatus$.next('error');
     });
   }
 

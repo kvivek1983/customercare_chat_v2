@@ -37,6 +37,14 @@
 
   <div class="conversation-panel">
 
+    <!-- Connection Status Banner -->
+    <div class="connection-banner connection-banner--disconnected" *ngIf="connectionStatus === 'disconnected'">
+      <span>&#9888; Connection lost. Reconnecting...</span>
+    </div>
+    <div class="connection-banner connection-banner--error" *ngIf="connectionStatus === 'error'">
+      <span>&#9888; Unable to connect to chat server. Please check your network.</span>
+    </div>
+
     <div class="message-input" *ngIf="isResolved">
       <p>Is this chat Resolved?
         <button (click)="saveResolved()">Yes</button>
@@ -134,7 +142,7 @@
 
               <!-- Audio -->
               <audio *ngIf="message.media_type === 'audio'" controls>
-                <source [src]="message.mediaUrl" type="audio/mpeg">
+                <source [src]="message.mediaUrl" [type]="message.media?.mime_type || 'audio/mpeg'">
               </audio>
 
               <!-- Image -->
@@ -142,7 +150,7 @@
 
               <!-- Video -->
               <video *ngIf="message.media_type === 'video'" controls>
-                <source [src]="message.mediaUrl" type="video/mp4">
+                <source [src]="message.mediaUrl" [type]="message.media?.mime_type || 'video/mp4'">
               </video>
 
               <!-- Document -->

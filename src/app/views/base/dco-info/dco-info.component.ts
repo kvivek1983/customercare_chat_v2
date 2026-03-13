@@ -51,16 +51,20 @@ export class DcoInfoComponent implements OnInit, OnChanges {
 
     //alert(this.selectedView);
 
-    const userRole = localStorage.getItem('userRole');
-    if (userRole) {
-      const rawData = localStorage.getItem(`${userRole}-loginDetails`);
-      const data = rawData ? JSON.parse(rawData) : null;
-      if (data && data.agentNumber) {
-        this.agentNumber = data.agentNumber;
-      }
+    try {
+      const userRole = localStorage.getItem('userRole');
+      if (userRole) {
+        const rawData = localStorage.getItem(`${userRole}-loginDetails`);
+        const data = rawData ? JSON.parse(rawData) : null;
+        if (data && data.agentNumber) {
+          this.agentNumber = data.agentNumber;
+        }
 
-      this.fetchAllTagsForFreelancer(this.dcoNumber);
-      this.fetchMainTagsList();
+        this.fetchAllTagsForFreelancer(this.dcoNumber);
+        this.fetchMainTagsList();
+      }
+    } catch {
+      console.error('Failed to parse login details from localStorage');
     }
   }
 
@@ -169,16 +173,16 @@ export class DcoInfoComponent implements OnInit, OnChanges {
     this.getDcoDetailsBlk = false;
     this.getDcoDetailsRes = [];
 
-    var userRole = localStorage.getItem('userRole');
-    //const data = JSON.parse(localStorage.getItem(userRole+"-loginDetails"));
-    const storedData = localStorage.getItem(userRole + "-loginDetails");
-    const data = storedData ? JSON.parse(storedData) : null;
-
-    if (data == null) {
+    let data: any = null;
+    try {
+      const userRole = localStorage.getItem('userRole');
+      const storedData = localStorage.getItem(userRole + "-loginDetails");
+      data = storedData ? JSON.parse(storedData) : null;
+    } catch {
       return;
     }
 
-    if (data.accessToken == null) {
+    if (data == null || data.accessToken == null) {
       return;
     }
 

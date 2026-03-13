@@ -562,6 +562,8 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       if (document.hidden) return;
       // Skip if already loading (prevent overlapping requests)
       if (this.isLoading) return;
+      // Skip if a mobile search is active (don't overwrite search results)
+      if (this.mobileNumber) return;
       console.log('[ChatList] periodic refresh triggered');
       this.silentRefresh();
     }, this.REFRESH_INTERVAL_MS);
