@@ -83,7 +83,8 @@ export class LoginComponent implements OnInit {
           // Also login to Node server for DCO/Partner APIs
           const nodeLoginData = {
             username: this.loginForm.get("username")!.value,
-            password: this.loginForm.get("password")!.value
+            password: this.loginForm.get("password")!.value,
+            login_from: "customercare"
           };
           this.ons.login(JSON.stringify(nodeLoginData)).subscribe({
             next: (nodeRes: any) => {
