@@ -88,6 +88,9 @@ export class DcoInfoComponent implements OnInit, OnChanges {
   getPartnerBlk: boolean = false;
   isOnboardingFeePaidNo: boolean = true;
   getPartnerResponse: any = [];
+  dcoLoadingPartner: boolean = false;
+  dcoLoadingDetails: boolean = false;
+  dcoError: string = '';
   getPartner(dcoNumber: any) {
     this.getPartnerResponse = [];
 
@@ -101,15 +104,18 @@ export class DcoInfoComponent implements OnInit, OnChanges {
       clientSecret: this.apiProperties.peaClientSecret,
       mobileNumber: dcoNumber
     };
-    console.log(requestData);
+    console.log('getPartner request:', requestData);
+    this.dcoLoadingPartner = true;
+    this.dcoError = '';
 
     this.opeas.getPartner(JSON.stringify(requestData)).subscribe((data: {}) => {
+      this.dcoLoadingPartner = false;
       if (!data) {
         this.getPartnerBlk = false;
         return;
       }
       this.getPartnerResponse = data;
-      console.log(this.getPartnerResponse);
+      console.log('getPartner response:', this.getPartnerResponse);
 
       if (this.getPartnerResponse.status == 1) {
         this.getPartnerBlk = true;
@@ -150,7 +156,9 @@ export class DcoInfoComponent implements OnInit, OnChanges {
       }
 
     }, error => {
-      //console.log("Error: "+error);
+      this.dcoLoadingPartner = false;
+      this.dcoError = 'Failed to load partner details';
+      console.error('getPartner error:', error);
     });
 
   }
@@ -190,13 +198,15 @@ export class DcoInfoComponent implements OnInit, OnChanges {
       mobileNumber: dcoNumber
     };
 
+    this.dcoLoadingDetails = true;
     this.ons.getDcoDetails(JSON.stringify(this.requestData), data.accessToken).subscribe((data: {}) => {
+      this.dcoLoadingDetails = false;
       if (!data) {
         this.getDcoDetailsBlk = false;
         return;
       }
       this.getDcoDetailsRes = data;
-      //console.log(this.getDcoDetailsRes);
+      console.log('getDcoDetails response:', this.getDcoDetailsRes);
 
       if(this.getDcoDetailsRes.status == 1) {
         this.driverIdPass = this.getDcoDetailsRes.personal_details.driver_id;
@@ -216,11 +226,13 @@ export class DcoInfoComponent implements OnInit, OnChanges {
 
       } else {
         this.getDcoDetailsBlk = false;
-        //alert(this.getDcoDetailsRes.message);
+        this.dcoError = this.getDcoDetailsRes.message || 'DCO details not found';
       }
 
     }, error => {
-      //console.log("Error: "+error);
+      this.dcoLoadingDetails = false;
+      this.dcoError = this.dcoError || 'Failed to load DCO details';
+      console.error('getDcoDetails error:', error);
     });
 
   }
