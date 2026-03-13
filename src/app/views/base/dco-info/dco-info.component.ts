@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, 
 import { NgTemplateOutlet, CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { APiProperties } from '../../../../app/class/api-properties';
 import { OnewayNodeService } from '../../../../app/service/oneway-node.service';
 import { OnewayPartnerEnrolApiService } from '../../../service/oneway-partner-enrol-api.service';
@@ -26,6 +27,7 @@ export class DcoInfoComponent implements OnInit, OnChanges {
   dcoStatusForm: FormGroup;
 
   constructor(private fb: FormBuilder,
+    private http: HttpClient,
     private ons: OnewayNodeService,
     private opeas: OnewayPartnerEnrolApiService,
     private owas: OnewayWebApiService,
@@ -177,20 +179,29 @@ export class DcoInfoComponent implements OnInit, OnChanges {
   driverIdPass: any;
   requestData: any = {};
   getDcoDetailsRes: any = [];
+  private dcoDetailsRetried = false;
+
   driverAllDetails(dcoNumber: any) {
     this.getDcoDetailsBlk = false;
     this.getDcoDetailsRes = [];
+    this.dcoDetailsRetried = false;
 
-    let data: any = null;
+    this.callDcoDetailsApi(dcoNumber);
+  }
+
+  private getLoginData(): any {
     try {
       const userRole = localStorage.getItem('userRole');
       const storedData = localStorage.getItem(userRole + "-loginDetails");
-      data = storedData ? JSON.parse(storedData) : null;
+      return storedData ? JSON.parse(storedData) : null;
     } catch {
-      return;
+      return null;
     }
+  }
 
-    if (data == null || data.accessToken == null) {
+  private callDcoDetailsApi(dcoNumber: any) {
+    const loginData = this.getLoginData();
+    if (!loginData || !loginData.accessToken) {
       return;
     }
 
@@ -199,31 +210,28 @@ export class DcoInfoComponent implements OnInit, OnChanges {
     };
 
     this.dcoLoadingDetails = true;
-    this.ons.getDcoDetails(JSON.stringify(this.requestData), data.accessToken).subscribe((data: {}) => {
+    this.ons.getDcoDetails(JSON.stringify(this.requestData), loginData.accessToken).subscribe((data: any) => {
       this.dcoLoadingDetails = false;
       if (!data) {
         this.getDcoDetailsBlk = false;
         return;
       }
+
+      // Token expired — refresh and retry once
+      if (data.status == 1001 && !this.dcoDetailsRetried) {
+        console.warn('getDcoDetails: token expired, attempting refresh...');
+        this.dcoDetailsRetried = true;
+        this.refreshTokenAndRetry(dcoNumber, loginData);
+        return;
+      }
+
       this.getDcoDetailsRes = data;
       console.log('getDcoDetails response:', this.getDcoDetailsRes);
 
-      if(this.getDcoDetailsRes.status == 1) {
+      if (this.getDcoDetailsRes.status == 1) {
         this.driverIdPass = this.getDcoDetailsRes.personal_details.driver_id;
         this.sendDcoName(this.getDcoDetailsRes.personal_details.driver_name);
         this.getDcoDetailsBlk = true;
-        // this.displayDcoIdData = true;
-        // this.driverPerformanceMatrix = false;
-        // this.driverPerformanceForm.patchValue( {'driverPerformance':"lastTwoMonth"} );
-        // this.dcoId = this.getDcoDetailsRes.personal_details.dco_id;
-
-        // this.fetchLast10CompletedBookingDetailsOfDriverOrCustomer();
-
-        // if(this.driverIdPass){
-        //   this.getPartnerAnalyticsDashboard("lastTwoMonth");
-        // }
-
-
       } else {
         this.getDcoDetailsBlk = false;
         this.dcoError = this.getDcoDetailsRes.message || 'DCO details not found';
@@ -234,7 +242,46 @@ export class DcoInfoComponent implements OnInit, OnChanges {
       this.dcoError = this.dcoError || 'Failed to load DCO details';
       console.error('getDcoDetails error:', error);
     });
+  }
 
+  private refreshTokenAndRetry(dcoNumber: any, loginData: any) {
+    const refreshToken = loginData.refreshToken;
+    if (!refreshToken) {
+      this.dcoLoadingDetails = false;
+      this.dcoError = 'Session expired. Please login again.';
+      return;
+    }
+
+    this.http.post<any>(`${this.apiProperties.pySmartChatUrl}api/auth/refresh`, {
+      refreshToken
+    }).subscribe({
+      next: (response: any) => {
+        if (response.accessToken) {
+          // Update tokens in localStorage
+          try {
+            const userRole = localStorage.getItem('userRole');
+            if (userRole) {
+              const stored = JSON.parse(localStorage.getItem(`${userRole}-loginDetails`) || '{}');
+              stored.accessToken = response.accessToken;
+              if (response.refreshToken) stored.refreshToken = response.refreshToken;
+              localStorage.setItem(`${userRole}-loginDetails`, JSON.stringify(stored));
+            }
+          } catch (e) {
+            console.error('Failed to update tokens:', e);
+          }
+          console.log('Token refreshed, retrying getDcoDetails...');
+          this.callDcoDetailsApi(dcoNumber);
+        } else {
+          this.dcoLoadingDetails = false;
+          this.dcoError = 'Session expired. Please login again.';
+        }
+      },
+      error: (err) => {
+        this.dcoLoadingDetails = false;
+        this.dcoError = 'Session expired. Please login again.';
+        console.error('Token refresh failed:', err);
+      }
+    });
   }
 
   resendPaytmPaymentLinkRes: any = [];
