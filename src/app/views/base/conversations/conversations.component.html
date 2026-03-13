@@ -276,7 +276,7 @@
 
     <!-- Profile Tab Content -->
     <div class="right-panel-content" *ngIf="activeRightPanel === 'profile'">
-      <!-- DCO Panels (Partner chat only) -->
+      <!-- DCO Panels (Partner chat only) — shown FIRST -->
       <ng-container *ngIf="config.showDcoPanels">
         <app-dco-info *ngIf="dcoInfo" [chatNumber]="chatNumber" [selectedView]="selectedView"
           (dcoSelected)="getDcoName($event)"></app-dco-info>
@@ -286,13 +286,9 @@
           (dcoSelected)="getDcoName($event)"></app-dco-pending-view>
         <app-dco-active-approved-view *ngIf="dcoActiveApprovedView" [chatNumber]="chatNumber" [selectedView]="selectedView"
           (dcoSelected)="getDcoName($event)"></app-dco-active-approved-view>
-        <div *ngIf="!dcoInfo && !dcoSuspendView && !dcoPendingView && !dcoActiveApprovedView"
-          class="text-center py-2" style="font-size: 12px; color: #999;">
-          DCO panel loading... (chatNumber: {{ chatNumber }})
-        </div>
       </ng-container>
 
-      <!-- Profile Card (Phase 2 Step 5) -->
+      <!-- Profile Card -->
       <div class="profile-card" *ngIf="selectedChat">
         <div class="profile-avatar">{{ getInitials() }}</div>
         <div class="profile-name">{{ selectedChat.customer_name || selectedChat.customer }}</div>

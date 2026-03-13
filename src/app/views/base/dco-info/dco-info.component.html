@@ -12,6 +12,14 @@
     </div>
   </div>
 
+  <!-- Debug: show API status -->
+  <div class="col-12 py-1" *ngIf="!dcoLoadingPartner && !dcoLoadingDetails"
+    style="font-size: 11px; color: #999; border: 1px dashed #ccc; padding: 4px 8px; margin-bottom: 4px;">
+    Partner API: {{ getPartnerBlk ? 'OK' : 'FAILED' }} |
+    DCO Details API: {{ getDcoDetailsBlk ? 'OK' : 'FAILED' }} |
+    chatNumber: {{ dcoNumber }}
+  </div>
+
   <ng-container *ngIf="getPartnerBlk">
 
     <ng-container *ngIf="getDcoDetailsBlk">
