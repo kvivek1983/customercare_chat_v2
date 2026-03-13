@@ -80,6 +80,33 @@ export class LoginComponent implements OnInit {
             localStorage.setItem("userRole", usernameControl.value);
           }
 
+          // Also login to Node server for DCO/Partner APIs
+          const nodeLoginData = {
+            username: this.loginForm.get("username")!.value,
+            password: this.loginForm.get("password")!.value
+          };
+          this.ons.login(JSON.stringify(nodeLoginData)).subscribe({
+            next: (nodeRes: any) => {
+              console.log('Node login response:', nodeRes);
+              if (nodeRes && nodeRes.accessToken) {
+                // Store node token in the same loginDetails
+                const userRole = localStorage.getItem('userRole');
+                if (userRole) {
+                  try {
+                    const stored = JSON.parse(localStorage.getItem(`${userRole}-loginDetails`) || '{}');
+                    stored.nodeAccessToken = nodeRes.accessToken;
+                    localStorage.setItem(`${userRole}-loginDetails`, JSON.stringify(stored));
+                  } catch (e) {
+                    console.error('Failed to store node token:', e);
+                  }
+                }
+              }
+            },
+            error: (err) => {
+              console.warn('Node login failed (DCO features may not work):', err);
+            }
+          });
+
           // Connect WebSocket with JWT
           this.chatService.connect(this.responseData.accessToken);
 

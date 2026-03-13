@@ -201,7 +201,8 @@ export class DcoInfoComponent implements OnInit, OnChanges {
 
   private callDcoDetailsApi(dcoNumber: any) {
     const loginData = this.getLoginData();
-    if (!loginData || !loginData.accessToken) {
+    const token = loginData?.nodeAccessToken || loginData?.accessToken;
+    if (!token) {
       return;
     }
 
@@ -210,19 +211,25 @@ export class DcoInfoComponent implements OnInit, OnChanges {
     };
 
     this.dcoLoadingDetails = true;
-    this.ons.getDcoDetails(JSON.stringify(this.requestData), loginData.accessToken).subscribe((data: any) => {
+    this.ons.getDcoDetails(JSON.stringify(this.requestData), token).subscribe((data: any) => {
       this.dcoLoadingDetails = false;
       if (!data) {
         this.getDcoDetailsBlk = false;
         return;
       }
 
-      // Token expired — refresh and retry once
-      if (data.status == 1001 && !this.dcoDetailsRetried) {
-        console.warn('getDcoDetails: token expired, attempting refresh...');
-        this.dcoDetailsRetried = true;
-        this.refreshTokenAndRetry(dcoNumber, loginData);
-        return;
+      // Token expired — try refresh first, then logout
+      if (data.status == 1001) {
+        if (!this.dcoDetailsRetried) {
+          console.warn('getDcoDetails: token expired (status 1001), trying refresh token...');
+          this.dcoDetailsRetried = true;
+          this.refreshTokenAndRetry(dcoNumber);
+          return;
+        } else {
+          console.warn('getDcoDetails: token still expired after refresh, logging out...');
+          this.forceLogout();
+          return;
+        }
       }
 
       this.getDcoDetailsRes = data;
@@ -244,11 +251,13 @@ export class DcoInfoComponent implements OnInit, OnChanges {
     });
   }
 
-  private refreshTokenAndRetry(dcoNumber: any, loginData: any) {
-    const refreshToken = loginData.refreshToken;
+  private refreshTokenAndRetry(dcoNumber: any) {
+    const loginData = this.getLoginData();
+    const refreshToken = loginData?.refreshToken;
+
     if (!refreshToken) {
-      this.dcoLoadingDetails = false;
-      this.dcoError = 'Session expired. Please login again.';
+      console.warn('No refresh token available, logging out...');
+      this.forceLogout();
       return;
     }
 
@@ -269,19 +278,29 @@ export class DcoInfoComponent implements OnInit, OnChanges {
           } catch (e) {
             console.error('Failed to update tokens:', e);
           }
-          console.log('Token refreshed, retrying getDcoDetails...');
+          console.log('Token refreshed successfully, retrying getDcoDetails...');
           this.callDcoDetailsApi(dcoNumber);
         } else {
-          this.dcoLoadingDetails = false;
-          this.dcoError = 'Session expired. Please login again.';
+          console.warn('Refresh response has no accessToken, logging out...');
+          this.forceLogout();
         }
       },
       error: (err) => {
-        this.dcoLoadingDetails = false;
-        this.dcoError = 'Session expired. Please login again.';
         console.error('Token refresh failed:', err);
+        this.forceLogout();
       }
     });
+  }
+
+  private forceLogout() {
+    const userRole = localStorage.getItem('userRole');
+    if (userRole) {
+      localStorage.removeItem(`${userRole}-loginDetails`);
+    }
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('executiveStatus');
+    this.toastr.warning('Session expired. Please login again.');
+    this.router.navigate(['/login']);
   }
 
   resendPaytmPaymentLinkRes: any = [];
