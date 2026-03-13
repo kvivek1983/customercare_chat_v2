@@ -345,6 +345,46 @@
       color: #fff;
     }
   }
+
+  .sticker-image {
+    max-width: 150px;
+    max-height: 150px;
+    object-fit: contain;
+    background: transparent;
+    border: none;
+  }
+
+  .location-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--bg);
+
+    .location-icon {
+      font-size: 18px;
+    }
+  }
+
+  .contact-card {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text);
+    background: var(--bg);
+
+    .contact-icon {
+      font-size: 18px;
+    }
+  }
 }
 
 // ===== LOAD MORE =====
