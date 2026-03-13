@@ -438,6 +438,11 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
 
   onRoomUpdate() {
     this.chatService.onRoomUpdate().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((rawChat: Chats) => {
+      // Skip room updates when a search is active to avoid polluting search results
+      if (this.mobileNumber) {
+        return;
+      }
+
       // Normalize V2 fields to frontend field names
       const chat = this.normalizeChat(rawChat);
       console.log('New onRoomUpdate received:', chat);
@@ -638,6 +643,9 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
    * auto-join the socket to the customer-type room).
    */
   private handleNewMessageForChatList(message: Message): void {
+    // Skip when search is active to avoid polluting search results
+    if (this.mobileNumber) return;
+
     const chatId = (message as any).chat_id;
     console.log('[ChatList] handleNewMessage:', chatId, 'message:', message.message?.substring(0, 30), 'allChats:', this.allChats?.length);
     if (!chatId) return;
