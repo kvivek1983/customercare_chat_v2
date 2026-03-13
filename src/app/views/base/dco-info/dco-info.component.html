@@ -1,448 +1,292 @@
-<div class="row d-flex flex-wrap align-items-stretch" style="font-size: 13px;">
+<div class="dco-container">
 
   <!-- Loading State -->
-  <div class="col-12 text-center py-3" *ngIf="dcoLoadingPartner || dcoLoadingDetails">
-    <p class="text-muted mb-0">Loading DCO details...</p>
+  <div class="dco-loading" *ngIf="dcoLoadingPartner || dcoLoadingDetails">
+    Loading DCO details...
   </div>
 
   <!-- Error State -->
-  <div class="col-12 py-2" *ngIf="!dcoLoadingPartner && !dcoLoadingDetails && dcoError && !getPartnerBlk">
-    <div class="alert alert-warning mb-0 py-2" style="font-size: 12px;">
-      {{ dcoError }}
-    </div>
-  </div>
-
-  <!-- Debug: show API status -->
-  <div class="col-12 py-1" *ngIf="!dcoLoadingPartner && !dcoLoadingDetails"
-    style="font-size: 11px; color: #999; border: 1px dashed #ccc; padding: 4px 8px; margin-bottom: 4px;">
-    Partner API: {{ getPartnerBlk ? 'OK' : 'FAILED' }} |
-    DCO Details API: {{ getDcoDetailsBlk ? 'OK' : 'FAILED' }} |
-    chatNumber: {{ dcoNumber }}
+  <div class="dco-error" *ngIf="!dcoLoadingPartner && !dcoLoadingDetails && dcoError && !getPartnerBlk">
+    {{ dcoError }}
   </div>
 
   <ng-container *ngIf="getPartnerBlk">
 
     <ng-container *ngIf="getDcoDetailsBlk">
-    <div class="col-md-6 col-12 mt-2">
-
-      <div class="card h-100 bg-warning">
-        <div class="card-body">
-          <p class="font-weight-bold mb-0"> DCO Details </p>
-          <p class="mb-0">
-            DCO ID : {{getDcoDetailsRes.personal_details.dco_id}}
-          </p>
-          <p class="mb-0">
-            <img src="../../../../assets/images/Mobile.png" style="height: 24px; margin-right: 10px;">
-            {{getDcoDetailsRes.personal_details.registered_mobile_number}}
-          </p>
-          <p class="mb-0">
-            <img src="../../../../assets/images/Name.png" style="height: 24px; margin-right: 10px;">
-            {{getDcoDetailsRes.personal_details.driver_name}}
-          </p>
-          <p class="mb-0">
-            <img src="../../../../assets/images/homeCity.png" style="height: 24px; margin-right: 10px;">
-            {{getDcoDetailsRes.personal_details.home_city}}
-          </p>
-          <p class="mb-0">
-            <img src="../../../../assets/images/currentCity.png" style="height: 24px; margin-right: 10px;">
-            {{getDcoDetailsRes.personal_details.current_city}}
-          </p>
-          <p class="mb-0">
-            Status : {{getDcoDetailsRes.personal_details.driver_status}}
-          </p>
-          <p class="mb-0">
-            Dco Status : {{getDcoDetailsRes.personal_details.vendorStatus}}
-          </p>
-          <p class="mb-0">
-            Payout Limit : {{getDcoDetailsRes.personal_details.autoRefundLimit}}
-          </p>
-          <p class="mb-0">
-            Driver Availability : {{getDcoDetailsRes.personal_details.availability_status}}
-          </p>
+      <!-- DCO Details Card -->
+      <div class="dco-card">
+        <div class="dco-card-title">DCO Details</div>
+        <div class="dco-field">
+          <span class="dco-label">DCO ID</span>
+          <span class="dco-value">{{getDcoDetailsRes.personal_details.dco_id}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Mobile</span>
+          <span class="dco-value">{{getDcoDetailsRes.personal_details.registered_mobile_number}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Name</span>
+          <span class="dco-value">{{getDcoDetailsRes.personal_details.driver_name}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Home City</span>
+          <span class="dco-value">{{getDcoDetailsRes.personal_details.home_city}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Current City</span>
+          <span class="dco-value">{{getDcoDetailsRes.personal_details.current_city}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Status</span>
+          <span class="dco-value dco-badge">{{getDcoDetailsRes.personal_details.driver_status}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">DCO Status</span>
+          <span class="dco-value">{{getDcoDetailsRes.personal_details.vendorStatus}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Payout Limit</span>
+          <span class="dco-value">{{getDcoDetailsRes.personal_details.autoRefundLimit}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Availability</span>
+          <span class="dco-value">{{getDcoDetailsRes.personal_details.availability_status}}</span>
         </div>
       </div>
-    </div>
 
-    <div class="col-md-6 col-12 mt-2">
-
-      <div class="card h-100 bg-warning">
-        <div class="card-body">
-
-          <p class="font-weight-bold mb-0">Performance</p>
-
-          <p class="mb-0">
-            Driver Ner : {{getDcoDetailsRes.performance.driver_ner}}
-          </p>
-          <p class="mb-0">
-            Unassigned : {{getDcoDetailsRes.performance.unassigned}}
-          </p>
-          <p class="mb-0">
-            Ontime Arrival : {{getDcoDetailsRes.performance.ontime_arrival}}
-          </p>
-          <p class="mb-0">
-            App Non Compliance : {{getDcoDetailsRes.performance.app_non_compliance}}
-          </p>
+      <!-- Performance Card -->
+      <div class="dco-card">
+        <div class="dco-card-title">Performance</div>
+        <div class="dco-field">
+          <span class="dco-label">Driver NER</span>
+          <span class="dco-value">{{getDcoDetailsRes.performance.driver_ner}}</span>
         </div>
-
+        <div class="dco-field">
+          <span class="dco-label">Unassigned</span>
+          <span class="dco-value">{{getDcoDetailsRes.performance.unassigned}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Ontime Arrival</span>
+          <span class="dco-value">{{getDcoDetailsRes.performance.ontime_arrival}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">App Non Compliance</span>
+          <span class="dco-value">{{getDcoDetailsRes.performance.app_non_compliance}}</span>
+        </div>
       </div>
 
-    </div>
-
-    <div class="col-md-6 col-12 mb-2 mt-2">
-
-      <div class="card h-100 bg-warning">
-        <div class="card-body">
-
-          <p class="font-weight-bold mb-0">Engagement</p>
-
-          <p class="mb-0">
-            Total Trips : {{getDcoDetailsRes.engagement.total_trips}}
-          </p>
-          <p class="mb-0">
-            Last 15 Days Trips : {{getDcoDetailsRes.engagement.last_15_days_trips}}
-          </p>
-          <p class="mb-0">
-            Current Outstanding Amount : {{getDcoDetailsRes.engagement.current_outstanding_amount}}
-          </p>
-          <p class="mb-0">
-            Last Login : {{getDcoDetailsRes.engagement.last_login}}
-          </p>
+      <!-- Engagement Card -->
+      <div class="dco-card">
+        <div class="dco-card-title">Engagement</div>
+        <div class="dco-field">
+          <span class="dco-label">Total Trips</span>
+          <span class="dco-value">{{getDcoDetailsRes.engagement.total_trips}}</span>
         </div>
-
+        <div class="dco-field">
+          <span class="dco-label">Last 15 Days Trips</span>
+          <span class="dco-value">{{getDcoDetailsRes.engagement.last_15_days_trips}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Outstanding Amount</span>
+          <span class="dco-value">{{getDcoDetailsRes.engagement.current_outstanding_amount}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Last Login</span>
+          <span class="dco-value">{{getDcoDetailsRes.engagement.last_login}}</span>
+        </div>
       </div>
 
-    </div>
-
-    <div class="col-md-6 col-12 mt-2 mb-2">
-
-      <div class="card h-100 bg-warning">
-        <div class="card-body">
-
-          <p class="font-weight-bold mb-0">Cab Details</p>
-
-          <p class="mb-0">
-            Cab Type : {{getDcoDetailsRes.cab_details.cabType}}
-          </p>
-          <p class="mb-0">
-            Manufacturer : {{getDcoDetailsRes.cab_details.manufacturer}}
-          </p>
-          <p class="mb-0">
-            Model : {{getDcoDetailsRes.cab_details.model}}
-          </p>
-          <p class="mb-0">
-            Car Registration Number : {{getDcoDetailsRes.cab_details.car_registration_number}}
-          </p>
+      <!-- Cab Details Card -->
+      <div class="dco-card">
+        <div class="dco-card-title">Cab Details</div>
+        <div class="dco-field">
+          <span class="dco-label">Cab Type</span>
+          <span class="dco-value">{{getDcoDetailsRes.cab_details.cabType}}</span>
         </div>
-
+        <div class="dco-field">
+          <span class="dco-label">Manufacturer</span>
+          <span class="dco-value">{{getDcoDetailsRes.cab_details.manufacturer}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Model</span>
+          <span class="dco-value">{{getDcoDetailsRes.cab_details.model}}</span>
+        </div>
+        <div class="dco-field">
+          <span class="dco-label">Reg. Number</span>
+          <span class="dco-value">{{getDcoDetailsRes.cab_details.car_registration_number}}</span>
+        </div>
       </div>
-
-    </div>
     </ng-container>
 
-    <div class="col-md-6 col-12 text-center mb-2" *ngIf="cabDetailSection">
-
-      <div class="card h-100">
-        <div class="card-body py-1">
-          <div class="row">
-
-            <div class="col-md-12 col-12 text-left">
-              <p [ngClass]="{
-                      'text-secondary': getPartnerResponse.cabDetailSectionStatus == 0,
-                      'text-success': getPartnerResponse.cabDetailSectionStatus == 1,
-                      'text-danger': getPartnerResponse.cabDetailSectionStatus == 2,
-                      'text-warning': getPartnerResponse.cabDetailSectionStatus == 3
-                    }" class="mb-1">
-                Cab : {{ statusText(getPartnerResponse.cabDetailSectionStatus) }}
-              </p>
-              <hr class="my-1">
-
-              <p class="mb-1">
-                Cab Insurance :
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabInsuranceStatus == 1">
-                  <i class="far fa-check-circle fa-lg text-success"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabInsuranceStatus == 2">
-                  <i class="far fa-times-circle fa-lg text-danger"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabInsuranceStatus == 0">
-                  <i class="far fa-dot-circle fa-lg text-secondary"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabInsuranceStatus == 3">
-                  <i class="fas fa-exclamation-circle fa-lg text-warning"></i> 
-                </ng-container>
-              </p>
-
-              <p class="mb-1">
-                Cab Photos :
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabPhotosStatus == 1">
-                  <i class="far fa-check-circle fa-lg text-success"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabPhotosStatus == 2">
-                  <i class="far fa-times-circle fa-lg text-danger"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabPhotosStatus == 0">
-                  <i class="far fa-dot-circle fa-lg text-secondary"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabPhotosStatus == 3">
-                  <i class="fas fa-exclamation-circle fa-lg text-warning"></i> 
-                </ng-container>
-              </p>
-
-              <p class="mb-1">
-                RC Book :
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.rcBookStatus == 1">
-                  <i class="far fa-check-circle fa-lg text-success"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.rcBookStatus == 2">
-                  <i class="far fa-times-circle fa-lg text-danger"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.rcBookStatus == 0">
-                  <i class="far fa-dot-circle fa-lg text-secondary"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.rcBookStatus == 3">
-                  <i class="fas fa-exclamation-circle fa-lg text-warning"></i> 
-                </ng-container>
-              </p>
-
-              <p class="mb-1">
-                Cab Fitness :
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabFitnessStatus == 1">
-                  <i class="far fa-check-circle fa-lg text-success"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabFitnessStatus == 2">
-                  <i class="far fa-times-circle fa-lg text-danger"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabFitnessStatus == 0">
-                  <i class="far fa-dot-circle fa-lg text-secondary"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.cabDetailSectionInternalStatus.cabFitnessStatus == 3">
-                  <i class="fas fa-exclamation-circle fa-lg text-warning"></i> 
-                </ng-container>
-              </p>
-
-            </div>
-          </div>
-
-        </div>
+    <!-- Cab Verification Section -->
+    <div class="dco-card" *ngIf="cabDetailSection">
+      <div class="dco-card-title">
+        Cab
+        <span class="dco-status-pill" [ngClass]="{
+          'pill-muted': getPartnerResponse.cabDetailSectionStatus == 0,
+          'pill-success': getPartnerResponse.cabDetailSectionStatus == 1,
+          'pill-danger': getPartnerResponse.cabDetailSectionStatus == 2,
+          'pill-warning': getPartnerResponse.cabDetailSectionStatus == 3
+        }">{{ statusText(getPartnerResponse.cabDetailSectionStatus) }}</span>
       </div>
-
+      <div class="dco-check-row">
+        <span>Cab Insurance</span>
+        <span class="dco-check-icon" [ngClass]="{
+          'check-success': getPartnerResponse.cabDetailSectionInternalStatus.cabInsuranceStatus == 1,
+          'check-danger': getPartnerResponse.cabDetailSectionInternalStatus.cabInsuranceStatus == 2,
+          'check-muted': getPartnerResponse.cabDetailSectionInternalStatus.cabInsuranceStatus == 0,
+          'check-warning': getPartnerResponse.cabDetailSectionInternalStatus.cabInsuranceStatus == 3
+        }"></span>
+      </div>
+      <div class="dco-check-row">
+        <span>Cab Photos</span>
+        <span class="dco-check-icon" [ngClass]="{
+          'check-success': getPartnerResponse.cabDetailSectionInternalStatus.cabPhotosStatus == 1,
+          'check-danger': getPartnerResponse.cabDetailSectionInternalStatus.cabPhotosStatus == 2,
+          'check-muted': getPartnerResponse.cabDetailSectionInternalStatus.cabPhotosStatus == 0,
+          'check-warning': getPartnerResponse.cabDetailSectionInternalStatus.cabPhotosStatus == 3
+        }"></span>
+      </div>
+      <div class="dco-check-row">
+        <span>RC Book</span>
+        <span class="dco-check-icon" [ngClass]="{
+          'check-success': getPartnerResponse.cabDetailSectionInternalStatus.rcBookStatus == 1,
+          'check-danger': getPartnerResponse.cabDetailSectionInternalStatus.rcBookStatus == 2,
+          'check-muted': getPartnerResponse.cabDetailSectionInternalStatus.rcBookStatus == 0,
+          'check-warning': getPartnerResponse.cabDetailSectionInternalStatus.rcBookStatus == 3
+        }"></span>
+      </div>
+      <div class="dco-check-row">
+        <span>Cab Fitness</span>
+        <span class="dco-check-icon" [ngClass]="{
+          'check-success': getPartnerResponse.cabDetailSectionInternalStatus.cabFitnessStatus == 1,
+          'check-danger': getPartnerResponse.cabDetailSectionInternalStatus.cabFitnessStatus == 2,
+          'check-muted': getPartnerResponse.cabDetailSectionInternalStatus.cabFitnessStatus == 0,
+          'check-warning': getPartnerResponse.cabDetailSectionInternalStatus.cabFitnessStatus == 3
+        }"></span>
+      </div>
     </div>
 
-    <div class="col-md-6 col-12 text-center mb-2" *ngIf="driverDetailSection">
-      <div class="card h-100">
-        <div class="card-body py-1">
-
-          <div class="row">
-            <div class="col-md-12 col-12 text-left">
-
-              <p [ngClass]="{
-                          'text-secondary': getPartnerResponse.driverDetailSectionStatus == 0,
-                          'text-success': getPartnerResponse.driverDetailSectionStatus == 1,
-                          'text-danger': getPartnerResponse.driverDetailSectionStatus == 2,
-                          'text-warning': getPartnerResponse.driverDetailSectionStatus == 3
-                        }" class="mb-1">
-                Driver : {{ statusText(getPartnerResponse.driverDetailSectionStatus) }}
-              </p>
-              <hr class="my-1">
-
-              <p class="mb-1">
-                Driver Profile :
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.driverProfileStatus == 1">
-                  <i class="far fa-check-circle fa-lg text-success"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.driverProfileStatus == 2">
-                  <i class="far fa-times-circle fa-lg text-danger"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.driverProfileStatus == 0">
-                  <i class="far fa-dot-circle fa-lg text-secondary"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.driverProfileStatus == 3">
-                  <i class="fas fa-exclamation-circle fa-lg text-warning"></i> 
-                </ng-container>
-              </p>
-
-              <p class="mb-1">
-                Driving License :
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.drivingLicenseStatus == 1">
-                  <i class="far fa-check-circle fa-lg text-success"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.drivingLicenseStatus == 2">
-                  <i class="far fa-times-circle fa-lg text-danger"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.drivingLicenseStatus == 0">
-                  <i class="far fa-dot-circle fa-lg text-secondary"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.drivingLicenseStatus == 3">
-                  <i class="fas fa-exclamation-circle fa-lg text-warning"></i> 
-                </ng-container>
-              </p>
-
-              <p class="mb-1">
-                Aadhar Card :
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.aadharCardStatus == 1">
-                  <i class="far fa-check-circle fa-lg text-success"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.aadharCardStatus == 2">
-                  <i class="far fa-times-circle fa-lg text-danger"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.aadharCardStatus == 0">
-                  <i class="far fa-dot-circle fa-lg text-secondary"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse?.driverDetailSectionInternalStatus?.aadharCardStatus == 3">
-                  <i class="fas fa-exclamation-circle fa-lg text-warning"></i> 
-                </ng-container>
-              </p>
-
-            </div>
-          </div>
-
-        </div>
+    <!-- Driver Verification Section -->
+    <div class="dco-card" *ngIf="driverDetailSection">
+      <div class="dco-card-title">
+        Driver
+        <span class="dco-status-pill" [ngClass]="{
+          'pill-muted': getPartnerResponse.driverDetailSectionStatus == 0,
+          'pill-success': getPartnerResponse.driverDetailSectionStatus == 1,
+          'pill-danger': getPartnerResponse.driverDetailSectionStatus == 2,
+          'pill-warning': getPartnerResponse.driverDetailSectionStatus == 3
+        }">{{ statusText(getPartnerResponse.driverDetailSectionStatus) }}</span>
       </div>
-
+      <div class="dco-check-row">
+        <span>Driver Profile</span>
+        <span class="dco-check-icon" [ngClass]="{
+          'check-success': getPartnerResponse?.driverDetailSectionInternalStatus?.driverProfileStatus == 1,
+          'check-danger': getPartnerResponse?.driverDetailSectionInternalStatus?.driverProfileStatus == 2,
+          'check-muted': getPartnerResponse?.driverDetailSectionInternalStatus?.driverProfileStatus == 0,
+          'check-warning': getPartnerResponse?.driverDetailSectionInternalStatus?.driverProfileStatus == 3
+        }"></span>
+      </div>
+      <div class="dco-check-row">
+        <span>Driving License</span>
+        <span class="dco-check-icon" [ngClass]="{
+          'check-success': getPartnerResponse?.driverDetailSectionInternalStatus?.drivingLicenseStatus == 1,
+          'check-danger': getPartnerResponse?.driverDetailSectionInternalStatus?.drivingLicenseStatus == 2,
+          'check-muted': getPartnerResponse?.driverDetailSectionInternalStatus?.drivingLicenseStatus == 0,
+          'check-warning': getPartnerResponse?.driverDetailSectionInternalStatus?.drivingLicenseStatus == 3
+        }"></span>
+      </div>
+      <div class="dco-check-row">
+        <span>Aadhar Card</span>
+        <span class="dco-check-icon" [ngClass]="{
+          'check-success': getPartnerResponse?.driverDetailSectionInternalStatus?.aadharCardStatus == 1,
+          'check-danger': getPartnerResponse?.driverDetailSectionInternalStatus?.aadharCardStatus == 2,
+          'check-muted': getPartnerResponse?.driverDetailSectionInternalStatus?.aadharCardStatus == 0,
+          'check-warning': getPartnerResponse?.driverDetailSectionInternalStatus?.aadharCardStatus == 3
+        }"></span>
+      </div>
     </div>
 
-    <div class="col-md-6 col-12 text-center" *ngIf="bankDetailSection">
-      <div class="card h-100">
-        <div class="card-body py-1">
-
-          <div class="row">
-            <div class="col-md-12 col-12 text-left">
-
-              <p [ngClass]="{
-                      'text-secondary': getPartnerResponse.bankDetailSectionStatus == 0,
-                      'text-success': getPartnerResponse.bankDetailSectionStatus == 1,
-                      'text-danger': getPartnerResponse.bankDetailSectionStatus == 2,
-                      'text-warning': getPartnerResponse.bankDetailSectionStatus == 3
-                    }" class="mb-1">
-                Finance : {{ statusText(getPartnerResponse.bankDetailSectionStatus) }}
-              </p>
-              <hr class="my-1">
-
-              <p class="mb-1">
-                Account Detail :
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.accountStatus == 1">
-                  <i class="far fa-check-circle fa-lg text-success"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.accountStatus == 2">
-                  <i class="far fa-times-circle fa-lg text-danger"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.accountStatus == 0">
-                  <i class="far fa-dot-circle fa-lg text-secondary"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.accountStatus == 3">
-                  <i class="fas fa-exclamation-circle fa-lg text-warning"></i> 
-                </ng-container>
-              </p>
-
-              <p class="mb-1">
-                Security Deposit :
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.securityDepositStatus == 1">
-                  <i class="far fa-check-circle fa-lg text-success"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.securityDepositStatus == 2">
-                  <i class="far fa-times-circle fa-lg text-danger"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.securityDepositStatus == 0">
-                  <i class="far fa-dot-circle fa-lg text-secondary"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.securityDepositStatus == 3">
-                  <i class="fas fa-exclamation-circle fa-lg text-warning"></i> 
-                </ng-container>
-              </p>
-
-              <p class="mb-1">
-                Pan Card :
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.panCardStatus == 1">
-                  <i class="far fa-check-circle fa-lg text-success"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.panCardStatus == 2">
-                  <i class="far fa-times-circle fa-lg text-danger"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.panCardStatus == 0">
-                  <i class="far fa-dot-circle fa-lg text-secondary"></i> 
-                </ng-container>
-                <ng-container *ngIf="getPartnerResponse.bankDetailSectionInternalStatus.panCardStatus == 3">
-                  <i class="fas fa-exclamation-circle fa-lg text-warning"></i> 
-                </ng-container>
-              </p>
-
-            </div>
-          </div>
-
-        </div>
+    <!-- Finance Verification Section -->
+    <div class="dco-card" *ngIf="bankDetailSection">
+      <div class="dco-card-title">
+        Finance
+        <span class="dco-status-pill" [ngClass]="{
+          'pill-muted': getPartnerResponse.bankDetailSectionStatus == 0,
+          'pill-success': getPartnerResponse.bankDetailSectionStatus == 1,
+          'pill-danger': getPartnerResponse.bankDetailSectionStatus == 2,
+          'pill-warning': getPartnerResponse.bankDetailSectionStatus == 3
+        }">{{ statusText(getPartnerResponse.bankDetailSectionStatus) }}</span>
       </div>
-
+      <div class="dco-check-row">
+        <span>Account Detail</span>
+        <span class="dco-check-icon" [ngClass]="{
+          'check-success': getPartnerResponse.bankDetailSectionInternalStatus.accountStatus == 1,
+          'check-danger': getPartnerResponse.bankDetailSectionInternalStatus.accountStatus == 2,
+          'check-muted': getPartnerResponse.bankDetailSectionInternalStatus.accountStatus == 0,
+          'check-warning': getPartnerResponse.bankDetailSectionInternalStatus.accountStatus == 3
+        }"></span>
+      </div>
+      <div class="dco-check-row">
+        <span>Security Deposit</span>
+        <span class="dco-check-icon" [ngClass]="{
+          'check-success': getPartnerResponse.bankDetailSectionInternalStatus.securityDepositStatus == 1,
+          'check-danger': getPartnerResponse.bankDetailSectionInternalStatus.securityDepositStatus == 2,
+          'check-muted': getPartnerResponse.bankDetailSectionInternalStatus.securityDepositStatus == 0,
+          'check-warning': getPartnerResponse.bankDetailSectionInternalStatus.securityDepositStatus == 3
+        }"></span>
+      </div>
+      <div class="dco-check-row">
+        <span>Pan Card</span>
+        <span class="dco-check-icon" [ngClass]="{
+          'check-success': getPartnerResponse.bankDetailSectionInternalStatus.panCardStatus == 1,
+          'check-danger': getPartnerResponse.bankDetailSectionInternalStatus.panCardStatus == 2,
+          'check-muted': getPartnerResponse.bankDetailSectionInternalStatus.panCardStatus == 0,
+          'check-warning': getPartnerResponse.bankDetailSectionInternalStatus.panCardStatus == 3
+        }"></span>
+      </div>
     </div>
 
   </ng-container>
 
-  <div class="col-md-12 col-12 mt-2">
+  <!-- Tags Form -->
+  <div class="dco-card dco-tags-form">
     <form [formGroup]="dcoStatusForm">
-
-      <div class="row">
-        <div class="col-md-5 col-12 form-group">
-          <select class="form-control form-control-sm" formControlName="tag" (change)="fetchSubTagsForMainTags($event)"
-            [ngClass]="{ 'is-invalid': submitted && f['tag'].errors }">
-            <option value="" disabled>Choose your Tags</option>
-            <option *ngFor="let tags of tagListData" [value]="tags">{{ tags }}</option>
-          </select>
-
-          <div *ngIf="submitted && f['tag'].errors" class="invalid-feedback">
-            <div *ngIf="f['tag'].errors['required']">Tags is required</div>
-          </div>
-        </div>
-
-        <div class="col-md-5 col-12 form-group">
-          <select class="form-control form-control-sm" formControlName="subTag" (change)="subTagChangefun($event)"
-            [ngClass]="{ 'is-invalid': submitted && f['subTag'].errors }">
-            <option value="" disabled>Choose your SubTag</option>
-            <option *ngFor="let subTagdis of subTagList?.listOfSUbTags" [value]="subTagdis.tag_id">
-              {{ subTagdis.sub_tag }}
-            </option>
-          </select>
-
-          <div *ngIf="submitted && f['subTag'].errors" class="invalid-feedback">
-            <div *ngIf="f['subTag'].errors['required']">Sub Tag is required</div>
-          </div>
-        </div>
-
-        <div class="col-md-2 col-12 text-right">
-          <button type="button" class="btn btn-info btn-sm btn-block" (click)="statusUpdate()">
-            Save
-          </button>
-        </div>
+      <div class="dco-form-row">
+        <select class="dco-select" formControlName="tag" (change)="fetchSubTagsForMainTags($event)"
+          [ngClass]="{ 'is-invalid': submitted && f['tag'].errors }">
+          <option value="" disabled>Choose Tag</option>
+          <option *ngFor="let tags of tagListData" [value]="tags">{{ tags }}</option>
+        </select>
+        <select class="dco-select" formControlName="subTag" (change)="subTagChangefun($event)"
+          [ngClass]="{ 'is-invalid': submitted && f['subTag'].errors }">
+          <option value="" disabled>Choose SubTag</option>
+          <option *ngFor="let subTagdis of subTagList?.listOfSUbTags" [value]="subTagdis.tag_id">
+            {{ subTagdis.sub_tag }}
+          </option>
+        </select>
+        <button type="button" class="dco-save-btn" (click)="statusUpdate()">Save</button>
       </div>
-
+      <div class="dco-form-errors">
+        <span *ngIf="submitted && f['tag'].errors?.['required']">Tag is required</span>
+        <span *ngIf="submitted && f['subTag'].errors?.['required']">Sub Tag is required</span>
+      </div>
     </form>
   </div>
 
-  <div class="col-md-12 col-12 text-right">
-
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-bordered small-font-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Tag - Sub Tag
-                <button *ngIf="this.totalTagLength > visibleTagsFive.length" type="button"
-                  class="btn btn-primary btn-sm ml-3" data-toggle="modal" data-target="#tagsModal" (click)="loadMore()">
-                  Load More
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let data of visibleTagsFive; index as i">
-              <td>{{ data.created_date_time | date : 'd MMM Y' }}</td>
-              <td>{{ data.main_tag }} - {{ data.sub_tag }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
+  <!-- Tags History Table -->
+  <div class="dco-card dco-tags-table" *ngIf="visibleTagsFive && visibleTagsFive.length > 0">
+    <div class="dco-card-title">
+      Tag History
+      <button *ngIf="totalTagLength > visibleTagsFive.length" type="button"
+        class="dco-load-more-btn" data-toggle="modal" data-target="#tagsModal" (click)="loadMore()">
+        View All
+      </button>
     </div>
-
+    <div class="dco-tag-row" *ngFor="let data of visibleTagsFive">
+      <span class="dco-tag-date">{{ data.created_date_time | date : 'd MMM Y' }}</span>
+      <span class="dco-tag-text">{{ data.main_tag }} - {{ data.sub_tag }}</span>
+    </div>
   </div>
 
 </div>
@@ -458,7 +302,6 @@
         </button>
       </div>
       <div class="modal-body">
-        <!-- Table -->
         <div class="table-responsive">
           <table class="table table-bordered">
             <thead>
@@ -475,11 +318,6 @@
             </tbody>
           </table>
         </div>
-
-        <!-- Load More Button -->
-        <!-- <div class="text-center" *ngIf="visibleTags.length < fetchAllTagsForFreelancerRes.listOfTags?.length">
-            <button class="btn btn-primary mt-2" (click)="loadMore()">Load More</button>
-          </div> -->
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
