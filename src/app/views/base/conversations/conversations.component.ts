@@ -98,7 +98,6 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   private navigateTimeout: any;
 
   // Blob URL tracking for revocation
-  private blobUrls: string[] = [];
 
   // Single subscription for fetchChatsByUser response (prevent duplicates from shareReplay)
   private _fetchChatsSub: Subscription | null = null;
@@ -285,9 +284,6 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     if (this.loaderInterval) clearInterval(this.loaderInterval);
     if (this.typingInterval) clearInterval(this.typingInterval);
 
-    // Revoke all blob URLs to prevent memory leaks
-    this.blobUrls.forEach(url => URL.revokeObjectURL(url));
-    this.blobUrls = [];
   }
 
   // --- Mobile Search (Partner + Vendor) ---
@@ -295,6 +291,15 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   searchMobile() {
     if (this.mobileForm.valid) {
       const mobile = this.mobileForm.value.mobileNumber;
+      // Clear currently open chat when performing a new search
+      this.selectedChat = null;
+      this.chats = [];
+      if (this.config.showDcoPanels) {
+        this.dcoInfo = false;
+        this.dcoSuspendView = false;
+        this.dcoPendingView = false;
+        this.dcoActiveApprovedView = false;
+      }
       this.sharedService.setMobileNumber(mobile);
     } else {
       this.mobileForm.markAllAsTouched();
@@ -637,19 +642,33 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       this.chats = this.mergeGroupedMessages(this.chats, this.groupMessagesByDate(chatMessages));
 
       this.chats.forEach((message: any) => {
+        if (message.mediaUrl) return; // Already resolved
+
+        // V2 backend may send media_url directly — map to mediaUrl for template
+        if (message.media_url) {
+          message.mediaUrl = message.media_url;
+          return;
+        }
+
         // Use config to determine the media check field
         const mediaField = this.config.mediaCheckField;
-        if (message[mediaField] && !message.mediaUrl) {
-          this.fetchMediaFile(message.media.id)
-            .then((mediaUrl) => {
-              message.mediaUrl = mediaUrl;
-              this.blobUrls.push(mediaUrl);
-              this.cdr.markForCheck();
-              console.log(message.media.id + '::' + mediaUrl);
-            })
-            .catch((error) => {
-              console.error(`Failed to fetch media URL for message: ${message.id}`, error);
-            });
+        if (message[mediaField]) {
+          // Prefer direct WhatsApp CDN URL — no auth needed, avoids 401 redirect
+          if (message.media?.url) {
+            message.mediaUrl = message.media.url;
+            return;
+          }
+          // Fallback: fetch media via backend proxy (requires auth)
+          if (message.media?.id) {
+            this.fetchMediaFile(message.media.id)
+              .then((mediaUrl) => {
+                if (mediaUrl) {
+                  message.mediaUrl = mediaUrl;
+                }
+                this.cdr.markForCheck();
+              })
+              .catch(() => {});
+          }
         }
       });
 
@@ -725,25 +744,24 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         // Handle enriched media fields from V2 new_message broadcast (#3)
         const msg = message as any;
         if (msg.media_url) {
-          // Backend provides direct media URL — map to camelCase for template
           msg.mediaUrl = msg.media_url;
-          this.chats.push(message);
-          this.scrollToBottom();
-          this.cdr.markForCheck();
-        } else if (msg.media && msg.media.id) {
-          // Fallback: resolve media URL via REST endpoint
+        } else if (msg.media?.url) {
+          msg.mediaUrl = msg.media.url;
+        }
+
+        if (!msg.mediaUrl && msg.media?.id) {
           this.chats.push(message);
           this.fetchMediaFile(msg.media.id)
             .then((mediaUrl) => {
-              msg.mediaUrl = mediaUrl;
-              this.blobUrls.push(mediaUrl);
+              if (mediaUrl) {
+                msg.mediaUrl = mediaUrl;
+              }
               this.cdr.markForCheck();
             })
-            .catch((err) => console.error('Failed to fetch media for real-time message:', err));
+            .catch(() => {});
           this.scrollToBottom();
           this.cdr.markForCheck();
         } else {
-          // Text-only message
           this.chats.push(message);
           this.scrollToBottom();
           this.cdr.markForCheck();
@@ -884,7 +902,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         return;
       }
 
-      this.pscs.fetchMediaFile(id).pipe(takeUntil(this.destroy$)).subscribe({
+      this.pscs.fetchMediaFile(id, this.config.mediaSendType).pipe(takeUntil(this.destroy$)).subscribe({
         next: (mediaUrl) => {
           resolve(mediaUrl);
         },

@@ -393,6 +393,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
     let req = {
       sender: agentNumber,
       customer: this.mobileNumber,
+      customer_type: this.customerType || undefined,
     };
     console.log('search_chat request:', req);
 
@@ -625,7 +626,8 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       ...raw,
       chat_id: raw.chat_id || raw._id,
       // V2 sends last_incoming_message; SLA timer binds to last_incoming_message_time
-      last_incoming_message_time: raw.last_incoming_message_time || raw.last_incoming_message || null,
+      // Fallback chain: last_incoming_message_time → last_incoming_message → last_message_time
+      last_incoming_message_time: raw.last_incoming_message_time || raw.last_incoming_message || raw.last_message_time || null,
       // V2 sends last_interaction_by; some V1 code reads last_msg_by
       last_msg_by: raw.last_msg_by || raw.last_interaction_by || null,
       last_interaction_by: raw.last_interaction_by || raw.last_msg_by || null,

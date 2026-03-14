@@ -54,18 +54,14 @@ export class PySmartChatService {
     )
   }
 
-  fetchMediaFile(id : string) : Observable<string>{
-    const url = `${this.apiProperties.pySmartChatUrl}api/whatsapp/downloadmedia/${id}`;
+  fetchMediaFile(id: string, sendType?: string): Observable<string> {
+    let url = `${this.apiProperties.pySmartChatUrl}api/whatsapp/downloadmedia/${id}`;
+    if (sendType) url += `?send_type=${sendType}`;
 
-    return this.http.get(url, { headers: this.getAuthHeaders().headers, responseType: 'blob' }).pipe(
-      map((response: Blob) => {
-        // Convert the Blob response into a URL for display
-        console.log(id+"==="+response.type);
-        return URL.createObjectURL(response);
-      }),
+    return this.http.get<{ status: number; url?: string }>(url, this.getAuthHeaders()).pipe(
+      map((response) => response?.url || ''),
       catchError((error) => {
         console.error('Error fetching media file:', error);
-        // Handle errors and return an empty string
         return of('');
       })
     );

@@ -133,7 +133,8 @@
           <div *ngIf="message.chat_type === 'message' && (message.message || message.media_type)"
             [ngClass]="{'user-message': isUserMessage(message), 'agent-message': message.type === 'Agent'}">
 
-            <div class="message-bubble" *ngIf="message.message">
+            <!-- Text bubble: hide "[image]"/etc. placeholder text when media is available -->
+            <div class="message-bubble" *ngIf="message.message && !(message.mediaUrl && message.media_type)">
               <span class="message-text">{{ message.message }}</span>
               <span class="message-time">{{ formatTime(message.datetime) }}<span class="read-receipt" *ngIf="message.type === 'Agent'"> &#10003;&#10003;</span></span>
             </div>
@@ -146,7 +147,11 @@
               </audio>
 
               <!-- Image -->
-              <img *ngIf="message.media_type === 'image'" [src]="message.mediaUrl" alt="Image">
+              <img *ngIf="message.media_type === 'image' && message.mediaUrl" [src]="message.mediaUrl" alt="Image"
+                (error)="message.mediaLoadFailed = true" [hidden]="message.mediaLoadFailed">
+              <div *ngIf="message.media_type === 'image' && message.mediaLoadFailed" class="media-error">
+                Image failed to load
+              </div>
 
               <!-- Video -->
               <video *ngIf="message.media_type === 'video'" controls>
@@ -156,7 +161,7 @@
               <!-- Document -->
               <a *ngIf="message.media_type === 'document'" [href]="message.mediaUrl" target="_blank"
                 class="document-link">
-                {{ message.media.filename || 'Download Document' }}
+                {{ message.media?.filename || 'Download Document' }}
               </a>
 
               <!-- Sticker -->

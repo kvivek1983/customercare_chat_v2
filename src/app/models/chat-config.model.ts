@@ -19,6 +19,8 @@ export interface ChatTypeConfig {
   inputType: 'textarea' | 'input' | 'none';
   chatTitleField: 'customer_name' | 'customer';
   mediaCheckField: 'media' | 'media_type';
+  /** send_type to use when fetching media via /downloadmedia API */
+  mediaSendType: string;
   includeCustomerTypeInSendMessage: boolean;
   joinChatMessageType: 'agentNumber' | 'Agent';
   useLoadingDelay: boolean;
@@ -56,6 +58,7 @@ export const CHAT_TYPE_CONFIGS: Record<string, ChatTypeConfig> = {
     inputType: 'textarea',
     chatTitleField: 'customer_name',
     mediaCheckField: 'media',
+    mediaSendType: 'chat',
     includeCustomerTypeInSendMessage: false,
     joinChatMessageType: 'agentNumber',
     useLoadingDelay: true,
@@ -84,6 +87,7 @@ export const CHAT_TYPE_CONFIGS: Record<string, ChatTypeConfig> = {
     inputType: 'textarea',
     chatTitleField: 'customer',
     mediaCheckField: 'media_type',
+    mediaSendType: 'customer_chat_new',
     includeCustomerTypeInSendMessage: true,
     joinChatMessageType: 'Agent',
     useLoadingDelay: false,
@@ -112,6 +116,7 @@ export const CHAT_TYPE_CONFIGS: Record<string, ChatTypeConfig> = {
     inputType: 'textarea',
     chatTitleField: 'customer_name',
     mediaCheckField: 'media',
+    mediaSendType: 'vendor_chat',
     includeCustomerTypeInSendMessage: false,
     joinChatMessageType: 'Agent',
     useLoadingDelay: false,
@@ -140,6 +145,7 @@ export const CHAT_TYPE_CONFIGS: Record<string, ChatTypeConfig> = {
     inputType: 'input',
     chatTitleField: 'customer_name',
     mediaCheckField: 'media',
+    mediaSendType: 'srdp_chat',
     includeCustomerTypeInSendMessage: false,
     joinChatMessageType: 'Agent',
     useLoadingDelay: false,
