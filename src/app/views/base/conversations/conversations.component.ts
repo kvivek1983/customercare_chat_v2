@@ -42,6 +42,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   private destroyRef = inject(DestroyRef);
+  private blobUrls: string[] = [];
 
   /** Configuration driven by route data customerType */
   config!: ChatTypeConfig;
@@ -283,7 +284,8 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     if (this.intervalId) clearTimeout(this.intervalId);
     if (this.loaderInterval) clearInterval(this.loaderInterval);
     if (this.typingInterval) clearInterval(this.typingInterval);
-
+    this.blobUrls.forEach(url => URL.revokeObjectURL(url));
+    this.blobUrls = [];
   }
 
   // --- Mobile Search (Partner + Vendor) ---
@@ -652,23 +654,16 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
         // Use config to determine the media check field
         const mediaField = this.config.mediaCheckField;
-        if (message[mediaField]) {
-          // Prefer direct WhatsApp CDN URL — no auth needed, avoids 401 redirect
-          if (message.media?.url) {
-            message.mediaUrl = message.media.url;
-            return;
-          }
-          // Fallback: fetch media via backend proxy (requires auth)
-          if (message.media?.id) {
-            this.fetchMediaFile(message.media.id)
-              .then((mediaUrl) => {
-                if (mediaUrl) {
-                  message.mediaUrl = mediaUrl;
-                }
-                this.cdr.markForCheck();
-              })
-              .catch(() => {});
-          }
+        if (message[mediaField] && message.media?.id) {
+          this.fetchMediaFile(message.media.id)
+            .then((mediaUrl) => {
+              if (mediaUrl) {
+                message.mediaUrl = mediaUrl;
+                this.blobUrls.push(mediaUrl);
+              }
+              this.cdr.markForCheck();
+            })
+            .catch(() => {});
         }
       });
 
@@ -745,8 +740,6 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         const msg = message as any;
         if (msg.media_url) {
           msg.mediaUrl = msg.media_url;
-        } else if (msg.media?.url) {
-          msg.mediaUrl = msg.media.url;
         }
 
         if (!msg.mediaUrl && msg.media?.id) {
@@ -755,6 +748,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
             .then((mediaUrl) => {
               if (mediaUrl) {
                 msg.mediaUrl = mediaUrl;
+                this.blobUrls.push(mediaUrl);
               }
               this.cdr.markForCheck();
             })

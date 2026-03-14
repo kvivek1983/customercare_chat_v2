@@ -58,8 +58,8 @@ export class PySmartChatService {
     let url = `${this.apiProperties.pySmartChatUrl}api/whatsapp/downloadmedia/${id}`;
     if (sendType) url += `?send_type=${sendType}`;
 
-    return this.http.get<{ status: number; url?: string }>(url, this.getAuthHeaders()).pipe(
-      map((response) => response?.url || ''),
+    return this.http.get(url, { headers: this.getAuthHeaders().headers, responseType: 'blob' }).pipe(
+      map((response: Blob) => URL.createObjectURL(response)),
       catchError((error) => {
         console.error('Error fetching media file:', error);
         return of('');
