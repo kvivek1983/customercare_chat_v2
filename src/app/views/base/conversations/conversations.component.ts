@@ -84,6 +84,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
   scrollThreshold: number = 50;
   isUserScrollingUp: boolean = false;
+  private pendingScrollToBottom = false;
 
   // ChatGPT integration (Partner only)
   chatgptReply = false;
@@ -440,19 +441,18 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   // --- Scroll Management ---
 
   ngAfterViewChecked(): void {
-    if (!this.isUserScrollingUp) {
-      this.scrollToBottom();
+    if (this.pendingScrollToBottom && !this.isUserScrollingUp) {
+      this.pendingScrollToBottom = false;
+      try {
+        if (this.messageContainer?.nativeElement) {
+          this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
+        }
+      } catch (err) { }
     }
   }
 
   scrollToBottom(): void {
-    try {
-      if (this.messageContainer?.nativeElement) {
-        this.messageContainer.nativeElement.scrollTop = this.messageContainer.nativeElement.scrollHeight;
-      }
-    } catch (err) {
-      console.log('Error scrolling to bottom:', err);
-    }
+    this.pendingScrollToBottom = true;
   }
 
   onScroll(): void {
