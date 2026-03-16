@@ -35,7 +35,7 @@ export class DashboardComponent implements OnInit {
     name: 'custom',
     selectable: true,
     group: ScaleType.Ordinal,
-    domain: ['#FF4D4F', '#52C41A']
+    domain: ['#FF4D4F', '#52C41A', '#FAAD14']
   };
 
   // Grouped bar chart: Active/Resolved/Pending per customer_type
@@ -98,7 +98,8 @@ export class DashboardComponent implements OnInit {
     // Donut chart
     this.chartData = [
       { name: 'Active', value: this.totalActive },
-      { name: 'Resolved', value: this.totalResolved }
+      { name: 'Resolved', value: this.totalResolved },
+      { name: 'Pending', value: this.totalPending }
     ];
 
     // Customer type breakdown
