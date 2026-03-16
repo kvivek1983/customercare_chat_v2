@@ -115,8 +115,23 @@ export class DashboardComponent implements OnInit {
       console.log('New partnerStats received:', res);
 
       if(res.status == 1){
-        this.totalValue = res.total ?? 0;
-        this.chartData = this.sanitizeChartData(Array.isArray(res.data) ? res.data : []);
+        // V1 format: { status:1, total, data:[{name,value}], unattended:[{name,value}] }
+        // V2 format: { status:1, data:{active,resolved,pending}, active, resolved, ... }
+        if (Array.isArray(res.data)) {
+          // V1 response
+          this.totalValue = res.total ?? 0;
+          this.chartData = this.sanitizeChartData(res.data);
+        } else {
+          // V2 response — build chart data from flat fields
+          const active = res.active ?? res.data?.active ?? 0;
+          const resolved = res.resolved ?? res.data?.resolved ?? 0;
+          const pending = res.pending ?? res.data?.pending ?? 0;
+          this.totalValue = active + resolved + pending;
+          this.chartData = this.sanitizeChartData([
+            { name: 'Active', value: active },
+            { name: 'Resolved', value: resolved }
+          ]);
+        }
         const unattended = this.sanitizeSeriesData(Array.isArray(res.unattended) ? res.unattended : []);
         this.unattendedChartData = unattended.length ? [{ name: 'Unattended', series: unattended }] : [];
       }

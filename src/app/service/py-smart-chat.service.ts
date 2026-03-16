@@ -133,18 +133,9 @@ export class PySmartChatService {
     );
   }
 
-  partner_stats() : Observable<DashboardStats> {
+  partner_stats() : Observable<any> {
     return this.http.get<any>(this.apiProperties.pySmartChatUrl+'api/dashboard/stats', this.getAuthHeaders()).pipe(
       retry(1),
-      map((res: any) => {
-        // V2 wraps stats in { status: 1, data: { active, resolved, awaiting_customer_response } }
-        const raw = res.data || res;
-        return {
-          active: raw.active ?? 0,
-          resolved: raw.resolved ?? 0,
-          pending: raw.pending ?? raw.awaiting_customer_response ?? 0,
-        } as DashboardStats;
-      }),
       catchError(this.handleError)
     )
   }
