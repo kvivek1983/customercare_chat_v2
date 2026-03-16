@@ -57,14 +57,15 @@
           [yAxis]="true"
           [legend]="true"
           [legendTitle]="'Status'"
-          [showXAxisLabel]="true"
+          [showXAxisLabel]="false"
           [showYAxisLabel]="true"
-          [xAxisLabel]="'Customer Type'"
           [yAxisLabel]="'Count'"
-          [view]="[600, 300]"
-          [barPadding]="8"
-          [groupPadding]="24"
-          [animations]="true">
+          [view]="[700, 350]"
+          [barPadding]="4"
+          [groupPadding]="32"
+          [animations]="true"
+          [roundEdges]="true"
+          [showDataLabel]="true">
         </ngx-charts-bar-vertical-2d>
       </mat-card-content>
     </mat-card>
