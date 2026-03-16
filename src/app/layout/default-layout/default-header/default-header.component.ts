@@ -114,20 +114,25 @@ export class DefaultHeaderComponent extends HeaderComponent {
       } catch (_) {}
     }
 
-    // Subscribe to dashboard stats updates (Step 3)
+    // Subscribe to dashboard stats updates (WebSocket — real-time)
     this.chatService.onDashboardStats()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((stats: DashboardStats) => {
-        console.log('Dashboard stats received:', stats);
         this.dashboardStats = stats;
         this.cdr.markForCheck();
       });
 
-    // Request initial stats from server (Step 6 debug)
-    // Small delay to ensure socket is connected before emitting
-    setTimeout(() => {
-      this.chatService.fetchDashboardStats();
-    }, 1500);
+    // Fetch initial stats via HTTP API (fast, no WebSocket dependency)
+    this.pscs.partner_stats().subscribe((res: any) => {
+      if (res.status == 1) {
+        this.dashboardStats = {
+          active: res.active ?? 0,
+          resolved: res.resolved ?? 0,
+          pending: res.pending ?? 0,
+        };
+        this.cdr.markForCheck();
+      }
+    });
 
     // Subscribe to route changes to read customerType from route data
     this.router.events

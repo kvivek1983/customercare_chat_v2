@@ -2,11 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button'
+import { MatButtonModule } from '@angular/material/button';
 import { Color, NgxChartsModule, ScaleType } from '@swimlane/ngx-charts';
 import { PySmartChatService } from '../../../service/py-smart-chat.service';
 import { ChatService } from '../../../service/chat.service';
-import { curveBasis } from 'd3-shape';
 
 @Component({
   selector: 'app-dashboard',
@@ -22,137 +21,106 @@ import { curveBasis } from 'd3-shape';
 })
 export class DashboardComponent implements OnInit {
 
-  curveBasis = curveBasis;
+  constructor(private chatService: ChatService, private pySmartChatService: PySmartChatService) { }
 
-  constructor(private chatService : ChatService, private pySmartChatService : PySmartChatService) { }
+  // Overall totals
+  totalValue: number = 0;
+  totalActive: number = 0;
+  totalResolved: number = 0;
+  totalPending: number = 0;
 
-  data = [
-    {
-      name: 'Messages',
-      series: [
-        { name: 'Apr 1', value: 20 },
-        { name: 'Apr 2', value: 50 },
-        { name: 'Apr 3', value: 30 },
-        { name: 'Apr 4', value: 90 },
-        { name: 'Apr 5', value: 65 },
-        { name: 'Apr 6', value: 70 },
-        { name: 'Apr 7', value: 45 }
-      ]
-    }
-  ];
-
-  donutData = [
-    { name: 'Active', value: 18.6 },
-    //{ name: 'SA', value: 3.9 },
-    { name: 'Resolved', value: 3.2 }
-    //{ name: 'VIC', value: 0 }
-  ];
-  
+  // Donut chart: shows Active vs Resolved overall
+  chartData: any = [];
   donutColorScheme: Color = {
     name: 'custom',
     selectable: true,
     group: ScaleType.Ordinal,
     domain: ['#FF4D4F', '#52C41A']
   };
-  
-  lineChartColorScheme: Color = {
-    name: 'unattendedLine',
+
+  // Grouped bar chart: Active/Resolved/Pending per customer_type
+  groupedBarData: any = [];
+  barColorScheme: Color = {
+    name: 'statusColors',
     selectable: true,
     group: ScaleType.Ordinal,
-    domain: ['#4caf50']
+    domain: ['#FF4D4F', '#52C41A', '#FAAD14']
   };
+
+  // Customer type breakdown table
+  byTypeData: { name: string; active: number; resolved: number; pending: number; total: number }[] = [];
 
   getLegendColor(name: string): string {
     const colorMap: any = {
       'Active': '#FF4D4F',
-      'SA': '#FAAD14',
       'Resolved': '#52C41A',
-      'VIC': '#A0A0A0'
+      'Pending': '#FAAD14'
     };
     return colorMap[name] || '#ccc';
   }
 
-  chartData : any = [];
-  totalValue: number = 0;
-  unattendedChartData : any = [];
-
-  /** Ensure each chart item has valid name (string) and value (number) */
-  private sanitizeChartData(data: any[]): any[] {
-    return data
-      .filter((d: any) => d && d.name != null)
-      .map((d: any) => ({ name: String(d.name), value: Number(d.value) || 0 }));
-  }
-
-  /** Ensure each series item has valid name and numeric value */
-  private sanitizeSeriesData(data: any[]): any[] {
-    return data
-      .filter((d: any) => d && d.name != null)
-      .map((d: any) => ({ name: String(d.name), value: Number(d.value) || 0 }));
-  }
-
-  ngOnInit(){
-    this.partnerStats();
+  ngOnInit() {
+    this.loadStats();
     this.onDashboardStats();
   }
 
-  /** Listen for V2 dashboard_stats WebSocket event (replaces legacy driver-chat-stats) */
-  onDashboardStats(){
+  onDashboardStats() {
     this.chatService.onDashboardStats().subscribe((res: any) => {
-      console.log('New dashboard_stats received:', res);
-
-      // V2 dashboard_stats: { active, resolved, pending }
-      // Map to chart data format
-      this.chartData = this.sanitizeChartData([
-        { name: 'Active', value: res.active ?? 0 },
-        { name: 'Resolved', value: res.resolved ?? 0 }
-      ]);
-      this.totalValue = (res.active ?? 0) + (res.resolved ?? 0) + (res.pending ?? 0);
-    });
-  }
-
-  partnerStats(){
-    this.pySmartChatService.partner_stats().subscribe((res: any) => {
-      console.log('New partnerStats received:', res);
-
-      if(res.status == 1){
-        // V1 format: { status:1, total, data:[{name,value}], unattended:[{name,value}] }
-        // V2 format: { status:1, data:{active,resolved,pending}, active, resolved, ... }
-        if (Array.isArray(res.data)) {
-          // V1 response
-          this.totalValue = res.total ?? 0;
-          this.chartData = this.sanitizeChartData(res.data);
-        } else {
-          // V2 response — build chart data from flat fields
-          const active = res.active ?? res.data?.active ?? 0;
-          const resolved = res.resolved ?? res.data?.resolved ?? 0;
-          const pending = res.pending ?? res.data?.pending ?? 0;
-          this.totalValue = active + resolved + pending;
-          this.chartData = this.sanitizeChartData([
-            { name: 'Active', value: active },
-            { name: 'Resolved', value: resolved }
-          ]);
-        }
-        const unattended = this.sanitizeSeriesData(Array.isArray(res.unattended) ? res.unattended : []);
-        this.unattendedChartData = unattended.length ? [{ name: 'Unattended', series: unattended }] : [];
+      if (res.by_type) {
+        this.processStats(res);
+      } else {
+        this.totalActive = res.active ?? 0;
+        this.totalResolved = res.resolved ?? 0;
+        this.totalPending = res.pending ?? 0;
+        this.totalValue = this.totalActive + this.totalResolved + this.totalPending;
+        this.chartData = [
+          { name: 'Active', value: this.totalActive },
+          { name: 'Resolved', value: this.totalResolved }
+        ];
       }
-
     });
   }
 
-  formatYAxisTick(value: number): string {
-    // Only show ticks divisible by 5
-    return value % 5 === 0 ? value.toString() : '';
+  loadStats() {
+    this.pySmartChatService.partner_stats().subscribe((res: any) => {
+      if (res.status == 1) {
+        this.processStats(res);
+      }
+    });
   }
 
-  getYMaxValue(): number {
-    const allValues = this.unattendedChartData[0]?.series?.map((s : any) => s.value) || [0];
-  return Math.ceil(Math.max(...allValues, 5) / 5) * 5; // round up to next 5
-  }
+  private processStats(res: any) {
+    this.totalActive = res.active ?? 0;
+    this.totalResolved = res.resolved ?? 0;
+    this.totalPending = res.pending ?? 0;
+    this.totalValue = res.total ?? (this.totalActive + this.totalResolved + this.totalPending);
 
-  formatTimeTicks(value: string): string {
-    // Show only every hour clearly
-    const [h, m] = value.split(':');
-    return parseInt(m) === 0 ? `${h}:00` : '';
-  }
+    // Donut chart
+    this.chartData = [
+      { name: 'Active', value: this.totalActive },
+      { name: 'Resolved', value: this.totalResolved }
+    ];
 
+    // Customer type breakdown
+    if (res.by_type) {
+      const types = Object.keys(res.by_type).sort();
+      this.byTypeData = types.map(t => ({
+        name: t,
+        active: res.by_type[t].active ?? 0,
+        resolved: res.by_type[t].resolved ?? 0,
+        pending: res.by_type[t].pending ?? 0,
+        total: (res.by_type[t].active ?? 0) + (res.by_type[t].resolved ?? 0) + (res.by_type[t].pending ?? 0),
+      }));
+
+      // Grouped bar chart data
+      this.groupedBarData = types.map(t => ({
+        name: t,
+        series: [
+          { name: 'Active', value: res.by_type[t].active ?? 0 },
+          { name: 'Resolved', value: res.by_type[t].resolved ?? 0 },
+          { name: 'Pending', value: res.by_type[t].pending ?? 0 },
+        ]
+      }));
+    }
+  }
 }

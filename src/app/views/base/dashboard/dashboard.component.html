@@ -1,81 +1,107 @@
 <div class="dashboard-container">
-    <div class="dashboard-grid">
-  
-      <!-- <mat-card class="dashboard-card">
-        <mat-card-title>Messages Overview</mat-card-title>
-        <mat-card-content>
-          <h2 class="total-count">5,320</h2>
-          <p class="subtitle">Total Messages This Week</p>
-        </mat-card-content>
-      </mat-card> -->
-  
-      <mat-card class="dashboard-card borrower-widget">
-        <div class="card-header">
-          <span class="title">Driver Chat</span>
-          <!-- <div class="actions">
-            <button mat-icon-button color="primary" aria-label="Calendar">
-                <mat-icon>calendar_today</mat-icon>
-            </button>
-            <button mat-icon-button color="primary" aria-label="More options">
-                <mat-icon>more_vert</mat-icon>
-            </button>
-          </div> -->
-        </div>
-      
-        <div class="content-row">
-          <!-- Left: Circular progress -->
-          <div class="chart-circle">
-            <ngx-charts-pie-chart
-              [view]="[200, 200]"
-              [results]="chartData"
-              [scheme]="donutColorScheme"
-              [doughnut]="true"
-              [arcWidth]="0.3"
-              [labels]="false"
-              [legend]="false">
-            </ngx-charts-pie-chart>
-            <div class="centered-value">
-              <h2>{{ totalValue }}</h2>
-              <p>Total Chat</p>
-            </div>
-          </div>
-      
-          <!-- Right: Legend breakdown -->
-          <div class="legend-list">
-            <div *ngFor="let s of chartData" class="legend-item">
-              <span class="color-dot" [style.backgroundColor]="getLegendColor(s.name)"></span>
-              <span class="label">{{ s.name }}</span>
-              <span class="value">{{ s.value }}</span>
-            </div>
-          </div>
-        </div>
-      </mat-card>
+  <div class="dashboard-grid">
 
-      <mat-card class="dashboard-card unattended-card">
-        <mat-card-title class="chart-title">Unattended Chats Timeline</mat-card-title>
-        <mat-card-content style="flex: 1; display: flex; flex-direction: column;">
-          <ngx-charts-area-chart *ngIf="unattendedChartData.length"
-            [results]="unattendedChartData"
-            [xAxis]="true"
-            [yAxis]="true"
-            [yScaleMax]="getYMaxValue()"
-            [xAxisTickFormatting]="formatTimeTicks"
-            [yAxisTickFormatting]="formatYAxisTick"
-            [gradient]="false"
-            [showXAxisLabel]="true"
-            [showYAxisLabel]="true"
-            [xAxisLabel]="'Time'"
-            [yAxisLabel]="'Unattended Chats'"
-            [autoScale]="false"
-            [timeline]="true"
-            [view]="[700, 300]"
-            [scheme]="lineChartColorScheme"
-            [curve]="curveBasis"
-            [animations]="true"
-          ></ngx-charts-area-chart>
-        </mat-card-content>
-      </mat-card>
-  
-    </div>
+    <!-- Overall Stats Card (Donut) -->
+    <mat-card class="dashboard-card borrower-widget">
+      <div class="card-header">
+        <span class="title">All Chats</span>
+      </div>
+
+      <div class="content-row">
+        <div class="chart-circle">
+          <ngx-charts-pie-chart
+            [view]="[200, 200]"
+            [results]="chartData"
+            [scheme]="donutColorScheme"
+            [doughnut]="true"
+            [arcWidth]="0.3"
+            [labels]="false"
+            [legend]="false">
+          </ngx-charts-pie-chart>
+          <div class="centered-value">
+            <h2>{{ totalValue }}</h2>
+            <p>Total Chat</p>
+          </div>
+        </div>
+
+        <div class="legend-list">
+          <div class="legend-item">
+            <span class="color-dot" [style.backgroundColor]="getLegendColor('Active')"></span>
+            <span class="label">Active</span>
+            <span class="value">{{ totalActive }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-dot" [style.backgroundColor]="getLegendColor('Resolved')"></span>
+            <span class="label">Resolved</span>
+            <span class="value">{{ totalResolved }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="color-dot" [style.backgroundColor]="getLegendColor('Pending')"></span>
+            <span class="label">Pending</span>
+            <span class="value">{{ totalPending }}</span>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Customer Type Breakdown Bar Chart -->
+    <mat-card class="dashboard-card breakdown-card" *ngIf="groupedBarData.length">
+      <div class="card-header">
+        <span class="title">Status by Customer Type</span>
+      </div>
+      <mat-card-content>
+        <ngx-charts-bar-vertical-2d
+          [results]="groupedBarData"
+          [scheme]="barColorScheme"
+          [xAxis]="true"
+          [yAxis]="true"
+          [legend]="true"
+          [legendTitle]="'Status'"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="'Customer Type'"
+          [yAxisLabel]="'Count'"
+          [view]="[600, 300]"
+          [barPadding]="8"
+          [groupPadding]="24"
+          [animations]="true">
+        </ngx-charts-bar-vertical-2d>
+      </mat-card-content>
+    </mat-card>
+
   </div>
-  
+
+  <!-- Customer Type Breakdown Table -->
+  <mat-card class="dashboard-card table-card" *ngIf="byTypeData.length">
+    <div class="card-header">
+      <span class="title">Customer Type Breakdown</span>
+    </div>
+    <table class="breakdown-table">
+      <thead>
+        <tr>
+          <th>Customer Type</th>
+          <th>Active</th>
+          <th>Resolved</th>
+          <th>Pending</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of byTypeData">
+          <td class="type-name">{{ row.name }}</td>
+          <td><span class="badge active">{{ row.active }}</span></td>
+          <td><span class="badge resolved">{{ row.resolved }}</span></td>
+          <td><span class="badge pending">{{ row.pending }}</span></td>
+          <td class="total-col">{{ row.total }}</td>
+        </tr>
+        <tr class="total-row">
+          <td class="type-name">Total</td>
+          <td><span class="badge active">{{ totalActive }}</span></td>
+          <td><span class="badge resolved">{{ totalResolved }}</span></td>
+          <td><span class="badge pending">{{ totalPending }}</span></td>
+          <td class="total-col">{{ totalValue }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-card>
+</div>
