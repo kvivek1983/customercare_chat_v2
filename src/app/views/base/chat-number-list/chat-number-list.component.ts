@@ -400,7 +400,15 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
     this.currentPage = 1;
     this.totalPages = 0;
     this.isFresh = true;
+    // Reset counts — use local counts from filtered results
+    this.hasRealCounts = false;
+    this.activeCount = 0;
+    this.pendingCount = 0;
     this.fetchAllChat();
+    // When "All" is selected, re-fetch global counts
+    if (this.selectedFilter === '') {
+      this.fetchRealCounts();
+    }
   }
 
   // My Chats / All Chats tab switching (Step 6)
