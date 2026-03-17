@@ -58,10 +58,15 @@
       <div class="chat-thread-header">
         <div class="chat-header-avatar">{{ getInitials() }}</div>
         <div class="chat-header-info">
-          <span class="chat-thread-title">{{ selectedChat.customer }}</span>
-          <span class="chat-header-subtitle" *ngIf="assignedExecutiveName">
-            <span class="chat-header-exec">
-              &#128100; {{ assignedExecutiveName }}
+          <span class="chat-thread-title">{{ selectedChat.customer_name || selectedChat.customer }}</span>
+          <span class="chat-header-details" *ngIf="selectedChat.customer_details">
+            <span>{{ selectedChat.customer_details.home_city }}</span>
+            <span class="detail-sep">|</span>
+            <span>{{ selectedChat.customer_details.current_city }}</span>
+            <span class="detail-sep">|</span>
+            <span [class.status-suspend]="selectedChat.customer_details.dco_status === 'Suspend'"
+                  [class.status-active]="selectedChat.customer_details.dco_status === 'Active'">
+              {{ selectedChat.customer_details.dco_status }}
             </span>
           </span>
         </div>
