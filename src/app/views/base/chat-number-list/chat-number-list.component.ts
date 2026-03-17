@@ -311,12 +311,15 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
   filterChats(): void {
     let filtered = [...this.allChats];
 
-    // Status filter
-    if (this.statusFilter === 'pending') {
-      filtered = filtered.filter(c => c.tags && c.tags.includes('Awaiting Customer Response'));
-    } else {
-      // 'active' shows everything that is NOT explicitly resolved
-      filtered = filtered.filter(c => c.status !== 'resolved' && c.is_resolved !== true);
+    // Skip local filters when dropdown filter is active — backend already filtered
+    if (!this.selectedFilter) {
+      // Status filter
+      if (this.statusFilter === 'pending') {
+        filtered = filtered.filter(c => c.tags && c.tags.includes('Awaiting Customer Response'));
+      } else {
+        // 'active' shows everything that is NOT explicitly resolved
+        filtered = filtered.filter(c => c.status !== 'resolved' && c.is_resolved !== true);
+      }
     }
 
     // Type filter
