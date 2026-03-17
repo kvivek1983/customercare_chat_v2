@@ -639,7 +639,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       sender: agentNumber,
       page: 1,
       page_size: 20,
-      ...(this.selectedFilter !== '' && { search: this.selectedFilter }),
+      ...(this.selectedFilter !== '' && { user_status: this.selectedFilter }),
     };
 
     if (this.customerType !== '') {
