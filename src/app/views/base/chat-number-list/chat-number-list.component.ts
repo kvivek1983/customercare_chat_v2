@@ -522,13 +522,11 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
           });
         }
 
-        this.computeCounts();
         this.filterChats();
-      } else {
-        // New chat not in list — add it directly from the room_update payload
-        // instead of re-fetching (which may be blocked by isLoading/pagination)
+      } else if (!this.selectedFilter) {
+        // New chat not in list — add only when no dropdown filter is active
+        // (can't verify filter match locally, silentRefresh will pick it up)
         this.allChats = [chat, ...this.allChats];
-        this.computeCounts();
         this.filterChats();
       }
       this.cdr.markForCheck();
@@ -721,8 +719,8 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       this.computeCounts();
       this.filterChats();
       this.cdr.markForCheck();
-    } else {
-      // Chat not in list — could be a brand new chat. Reset pagination and force fresh fetch.
+    } else if (!this.selectedFilter) {
+      // Chat not in list — only re-fetch when no dropdown filter is active
       this.currentPage = 1;
       this.isFresh = true;
       this.isLoading = false;
