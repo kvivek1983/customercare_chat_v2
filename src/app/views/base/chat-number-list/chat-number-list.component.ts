@@ -104,7 +104,6 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       this.joinCustomerTypeRoom();
       // Fetch chats for the new stakeholder type
       this.fetchAllChat();
-      this.fetchRealCounts();
       this.cdr.markForCheck();
     }
   }
@@ -138,7 +137,14 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
             this.allChats = [...this.allChats, ...chats];
           }
           this.totalPages = response.pagination?.total_pages ?? 0;
-          this.computeCounts();
+          // Use counts from backend response
+          if (response.pagination?.total_active !== undefined) {
+            this.activeCount = response.pagination.total_active;
+            this.pendingCount = response.pagination.total_pending ?? 0;
+            this.hasRealCounts = true;
+          } else {
+            this.computeCounts();
+          }
           this.filterChats();
         } else {
           this.errorMessage = response.message || 'An error occurred';
@@ -199,9 +205,6 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       // Customer/Vendor/SRDP: just fetch
       this.fetchAllChat();
     }
-
-    // Fetch real counts from backend API
-    this.fetchRealCounts();
 
     // Subscribe to new_message as fallback for chat list updates
     // (in case room_update_* events are not received)
@@ -359,22 +362,6 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
     this.pendingCount = this.allChats.filter(c => c.tags && c.tags.includes('Awaiting Customer Response')).length;
   }
 
-  /** Fetch real counts from backend API for current customer_type */
-  private fetchRealCounts(): void {
-    this.pscs.partner_stats().subscribe((res: any) => {
-      if (res.status == 1 && res.by_type) {
-        const ct = this.customerType || 'Partner';
-        const stats = res.by_type[ct];
-        if (stats) {
-          this.activeCount = stats.active ?? 0;
-          this.pendingCount = stats.pending ?? 0;
-          this.hasRealCounts = true;
-          this.cdr.markForCheck();
-        }
-      }
-    });
-  }
-
   // ===== Existing Methods =====
 
   onChatListScroll(): void {
@@ -405,10 +392,6 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
     this.activeCount = 0;
     this.pendingCount = 0;
     this.fetchAllChat();
-    // When "All" is selected, re-fetch global counts
-    if (this.selectedFilter === '') {
-      this.fetchRealCounts();
-    }
   }
 
   // My Chats / All Chats tab switching (Step 6)
