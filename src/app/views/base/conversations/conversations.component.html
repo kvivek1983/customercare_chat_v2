@@ -296,17 +296,9 @@
 
       <!-- Details Grid -->
       <div class="profile-details-grid" *ngIf="config.showProfileDetails">
-        <div class="detail-item" *ngIf="selectedChat.customer_type">
-          <span class="detail-label">Type</span>
-          <span class="detail-value">{{ selectedChat.customer_type }}</span>
-        </div>
         <div class="detail-item" *ngIf="selectedChat.assigned_executive_name">
           <span class="detail-label">Assigned To</span>
           <span class="detail-value">{{ selectedChat.assigned_executive_name }}</span>
-        </div>
-        <div class="detail-item" *ngIf="selectedChat.status">
-          <span class="detail-label">Status</span>
-          <span class="detail-value">{{ selectedChat.status }}</span>
         </div>
         <div class="detail-item" *ngIf="selectedChat.rating">
           <span class="detail-label">Rating</span>
