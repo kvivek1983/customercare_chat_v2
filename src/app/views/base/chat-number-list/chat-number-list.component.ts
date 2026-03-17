@@ -314,12 +314,15 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
   filterChats(): void {
     let filtered = [...this.allChats];
 
-    // Active/Pending tab filter — always applied (dropdown filters DCO status, tabs filter chat status)
+    // Active/Pending tab filter — mutually exclusive
     if (this.statusFilter === 'pending') {
       filtered = filtered.filter(c => c.tags && c.tags.includes('Awaiting Customer Response'));
     } else {
-      // 'active' shows everything that is NOT explicitly resolved
-      filtered = filtered.filter(c => c.status !== 'resolved' && c.is_resolved !== true);
+      // 'active' = not resolved AND not awaiting customer response
+      filtered = filtered.filter(c =>
+        c.status !== 'resolved' && c.is_resolved !== true &&
+        !(c.tags && c.tags.includes('Awaiting Customer Response'))
+      );
     }
 
     // Type filter
