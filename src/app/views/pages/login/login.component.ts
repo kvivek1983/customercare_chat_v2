@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { NgStyle, CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { IconDirective } from '@coreui/icons-angular';
-import { ContainerComponent, RowComponent, ColComponent, CardGroupComponent, TextColorDirective, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, FormControlDirective, ButtonDirective } from '@coreui/angular';
 import { OnewayNodeService } from '../../../../app/service/oneway-node.service';
 import { PySmartChatService } from '../../../../app/service/py-smart-chat.service';
 import { ChatService } from '../../../../app/service/chat.service';
@@ -14,7 +13,7 @@ import { ToastrService } from 'ngx-toastr';
     templateUrl: './login.component.html',
     styleUrls: ['./login.component.scss'],
     standalone: true,
-    imports: [ReactiveFormsModule, CommonModule, ContainerComponent, RowComponent, ColComponent, CardGroupComponent, TextColorDirective, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, IconDirective, FormControlDirective, ButtonDirective, NgStyle]
+    imports: [ReactiveFormsModule, CommonModule, IconDirective]
 })
 export class LoginComponent implements OnInit {
 
