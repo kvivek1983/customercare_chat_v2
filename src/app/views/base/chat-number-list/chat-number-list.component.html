@@ -1,6 +1,6 @@
 <!-- My Chats / All Chats Tabs (Step 6) -->
 <div class="chat-tabs">
-  <button class="chat-tab" [class.active]="activeTab === 'my'" (click)="switchTab('my')">My Chats</button>
+  <button class="chat-tab" [class.active]="activeTab === 'my'" (click)="switchTab('my')" disabled>My Chats</button>
   <button class="chat-tab" [class.active]="activeTab === 'all'" (click)="switchTab('all')">All Chats</button>
 </div>
 
@@ -15,13 +15,13 @@
     [(ngModel)]="searchQuery" (input)="onSearchInput()" (keydown)="onSearchKeydown($event)">
 </div>
 
-<!-- Active / Resolved Status Tabs (Phase 2 Step 1) -->
+<!-- Active / Pending Status Tabs -->
 <div class="status-tabs">
   <button class="status-tab" [class.active]="statusFilter === 'active'" (click)="setStatusFilter('active')">
     Active ({{ activeCount }})
   </button>
-  <button class="status-tab" [class.active]="statusFilter === 'resolved'" (click)="setStatusFilter('resolved')">
-    Resolved ({{ resolvedCount }})
+  <button class="status-tab" [class.active]="statusFilter === 'pending'" (click)="setStatusFilter('pending')">
+    Pending ({{ pendingCount }})
   </button>
 </div>
 

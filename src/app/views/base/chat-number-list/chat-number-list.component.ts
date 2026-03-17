@@ -59,15 +59,15 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
   onlineExecutives: ExecutiveStatusUpdate[] = [];
 
   // My Chats / All Chats Tabs (Step 6)
-  activeTab: 'my' | 'all' = 'my';
+  activeTab: 'my' | 'all' = 'all';
   executiveId: string | null = null;
 
   // Search + Filter (Phase 2 Step 1)
   searchQuery: string = '';
-  statusFilter: 'active' | 'resolved' = 'active';
+  statusFilter: 'active' | 'pending' = 'active';
   typeFilter: string = 'All';
   activeCount: number = 0;
-  resolvedCount: number = 0;
+  pendingCount: number = 0;
 
   // Periodic refresh fallback — poll every 15s to keep list fresh in case
   // room_update events are missed due to network issues.
@@ -93,7 +93,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       this.statusFilter = 'active';
       this.typeFilter = 'All';
       this.activeCount = 0;
-      this.resolvedCount = 0;
+      this.pendingCount = 0;
 
       // Re-join the correct socket room for the new stakeholder type
       this.joinCustomerTypeRoom();
@@ -164,7 +164,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
           // Show all search results regardless of active/resolved filter
           this.chats = chats;
           this.activeCount = chats.filter(c => c.status !== 'resolved' && c.is_resolved !== true).length;
-          this.resolvedCount = chats.filter(c => c.status === 'resolved' || c.is_resolved === true).length;
+          this.pendingCount = chats.filter(c => c.status === 'resolved' || c.is_resolved === true).length;
         } else {
           this.errorMessage = response.message || 'An error occurred';
         }
@@ -303,8 +303,8 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
     let filtered = [...this.allChats];
 
     // Status filter
-    if (this.statusFilter === 'resolved') {
-      filtered = filtered.filter(c => c.status === 'resolved' || c.is_resolved === true);
+    if (this.statusFilter === 'pending') {
+      filtered = filtered.filter(c => c.tags && c.tags.includes('Awaiting Customer Response'));
     } else {
       // 'active' shows everything that is NOT explicitly resolved
       filtered = filtered.filter(c => c.status !== 'resolved' && c.is_resolved !== true);
@@ -328,7 +328,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
     this.cdr.markForCheck();
   }
 
-  setStatusFilter(status: 'active' | 'resolved'): void {
+  setStatusFilter(status: 'active' | 'pending'): void {
     this.statusFilter = status;
     this.filterChats();
   }
@@ -340,7 +340,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
 
   private computeCounts(): void {
     this.activeCount = this.allChats.filter(c => c.status !== 'resolved' && c.is_resolved !== true).length;
-    this.resolvedCount = this.allChats.filter(c => c.status === 'resolved' || c.is_resolved === true).length;
+    this.pendingCount = this.allChats.filter(c => c.tags && c.tags.includes('Awaiting Customer Response')).length;
   }
 
   // ===== Existing Methods =====

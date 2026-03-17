@@ -281,13 +281,7 @@
 
     <!-- Profile Tab Content -->
     <div class="right-panel-content" *ngIf="activeRightPanel === 'profile'">
-      <!-- Profile Card -->
-      <div class="profile-card" *ngIf="selectedChat">
-        <div class="profile-avatar">{{ getInitials() }}</div>
-        <div class="profile-name">{{ selectedChat.customer_name || selectedChat.customer }}</div>
-        <div class="profile-phone">{{ selectedChat.customer }}</div>
-        <span class="profile-type-pill">{{ selectedChat.customer_type || 'Customer' }}</span>
-      </div>
+      <!-- Profile Card removed -->
 
       <!-- Context Section (inline field→value pills) -->
       <div class="profile-context" *ngIf="config.showContextSection && selectedChat.context && selectedChat.context.length > 0">
