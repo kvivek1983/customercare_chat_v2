@@ -458,7 +458,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
     // Build request — add customer_type only when customerType input is non-empty
     let req: any = {
       sender: agentNumber, page: this.currentPage, page_size: 20,
-      ...(this.selectedFilter !== '' && { search: this.selectedFilter })
+      ...(this.selectedFilter !== '' && { user_status: this.selectedFilter })
     };
 
     if (this.customerType !== '') {

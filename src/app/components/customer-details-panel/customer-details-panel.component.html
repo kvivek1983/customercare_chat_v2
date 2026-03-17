@@ -4,9 +4,9 @@
   <div class="details-grid">
     <!-- Partner/DCO fields -->
     <ng-container *ngIf="isPartner()">
-      <div class="detail-row" *ngIf="details.driver_id">
+      <div class="detail-row" *ngIf="details.dco_id">
         <span class="detail-label">DCO ID</span>
-        <span class="detail-value">{{ details.driver_id }}</span>
+        <span class="detail-value">{{ details.dco_id }}</span>
       </div>
       <div class="detail-row">
         <span class="detail-label">Mobile</span>
@@ -41,6 +41,13 @@
         <span class="detail-value">
           <span class="journey-dot" [class.active]="details.in_journey_status"></span>
           {{ details.in_journey_status ? 'Yes' : 'No' }}
+        </span>
+      </div>
+      <div class="detail-row" *ngIf="details.availability">
+        <span class="detail-label">Availability</span>
+        <span class="detail-value">
+          <span class="journey-dot" [class.active]="details.availability === 'Online'"></span>
+          {{ details.availability }}
         </span>
       </div>
       <div class="detail-row" *ngIf="details.last_login_date">
