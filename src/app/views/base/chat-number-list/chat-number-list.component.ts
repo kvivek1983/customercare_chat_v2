@@ -98,6 +98,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       this.typeFilter = 'All';
       this.activeCount = 0;
       this.pendingCount = 0;
+      this.hasRealCounts = false;
 
       // Re-join the correct socket room for the new stakeholder type
       this.joinCustomerTypeRoom();
@@ -346,8 +347,11 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
     this.filterChats();
   }
 
+  private hasRealCounts = false;
+
   private computeCounts(): void {
-    // Local counts as fallback
+    // Skip local counts if real backend counts already loaded
+    if (this.hasRealCounts) return;
     this.activeCount = this.allChats.filter(c => c.status !== 'resolved' && c.is_resolved !== true).length;
     this.pendingCount = this.allChats.filter(c => c.tags && c.tags.includes('Awaiting Customer Response')).length;
   }
@@ -361,6 +365,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
         if (stats) {
           this.activeCount = stats.active ?? 0;
           this.pendingCount = stats.pending ?? 0;
+          this.hasRealCounts = true;
           this.cdr.markForCheck();
         }
       }

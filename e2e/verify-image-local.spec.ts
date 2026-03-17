@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = 'http://localhost:4200';
-const USERNAME = 'gaurav.tiwari.care';
-const PASSWORD = 'ZII2K6B3DAVQ47IYPN';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:4200';
+const USERNAME = process.env.TEST_USERNAME || 'gaurav.tiwari.care';
+const PASSWORD = process.env.TEST_PASSWORD || 'ZII2K6B3DAVQ47IYPN';
 
 test('Verify new WhatsApp image message in 9511556843 chat', async ({ page }) => {
   test.setTimeout(120000);
@@ -21,8 +21,8 @@ test('Verify new WhatsApp image message in 9511556843 chat', async ({ page }) =>
 
   // Login
   await page.goto(`${BASE_URL}/#/login`, { waitUntil: 'networkidle' });
-  await page.locator('input[type="text"]').first().fill(USERNAME);
-  await page.locator('input[type="password"]').first().fill(PASSWORD);
+  await page.locator('input[placeholder="Username"]').first().fill(USERNAME);
+  await page.locator('input[placeholder="Password"]').first().fill(PASSWORD);
   await page.locator('button[type="submit"]').first().click();
   await page.waitForTimeout(5000);
 
