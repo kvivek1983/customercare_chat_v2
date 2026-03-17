@@ -18,6 +18,7 @@ import { SlaTimerComponent } from '../../../../app/components/sla-timer/sla-time
 import { RightPanelTabsComponent } from '../../../../app/components/right-panel-tabs/right-panel-tabs.component';
 import { ContextHistoryPanelComponent } from '../../../../app/components/context-history-panel/context-history-panel.component';
 import { RidesPanelComponent } from '../../../../app/components/rides-panel/rides-panel.component';
+import { CustomerDetailsPanelComponent } from '../../../../app/components/customer-details-panel/customer-details-panel.component';
 import { QuickActionsPanelComponent, QuickAction } from '../../../../app/components/quick-actions-panel/quick-actions-panel.component';
 import { NotesPanelComponent } from '../../../../app/components/notes-panel/notes-panel.component';
 import { TemplatePickerComponent } from '../../../../app/components/template-picker/template-picker.component';
@@ -30,7 +31,7 @@ import { SharedService } from '../../../service/shared.service';
 @Component({
   selector: 'app-conversations',
   standalone: true,
-  imports: [NgTemplateOutlet, CommonModule, FormsModule, ReactiveFormsModule, DcoInfoComponent, ChatNumberListComponent, SlaTimerComponent, RightPanelTabsComponent, ContextHistoryPanelComponent, RidesPanelComponent, QuickActionsPanelComponent, NotesPanelComponent, TemplatePickerComponent, DcoSuspendViewComponent, DcoPendingViewComponent, DcoActiveApprovedViewComponent],
+  imports: [NgTemplateOutlet, CommonModule, FormsModule, ReactiveFormsModule, DcoInfoComponent, ChatNumberListComponent, SlaTimerComponent, RightPanelTabsComponent, ContextHistoryPanelComponent, RidesPanelComponent, QuickActionsPanelComponent, NotesPanelComponent, TemplatePickerComponent, DcoSuspendViewComponent, DcoPendingViewComponent, DcoActiveApprovedViewComponent, CustomerDetailsPanelComponent],
   templateUrl: './conversations.component.html',
   styleUrl: './conversations.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

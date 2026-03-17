@@ -1,0 +1,104 @@
+<div class="details-panel" *ngIf="details; else noDetails">
+  <h6 class="panel-title">CUSTOMER DETAILS</h6>
+
+  <div class="details-grid">
+    <!-- Partner/DCO fields -->
+    <ng-container *ngIf="isPartner()">
+      <div class="detail-row" *ngIf="details.driver_id">
+        <span class="detail-label">DCO ID</span>
+        <span class="detail-value">{{ details.driver_id }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Mobile</span>
+        <span class="detail-value">{{ chat.customer }}</span>
+      </div>
+      <div class="detail-row" *ngIf="chat.customer_name">
+        <span class="detail-label">Name</span>
+        <span class="detail-value">{{ chat.customer_name }}</span>
+      </div>
+      <div class="detail-row" *ngIf="details.home_city">
+        <span class="detail-label">Home City</span>
+        <span class="detail-value">{{ details.home_city }}</span>
+      </div>
+      <div class="detail-row" *ngIf="details.current_city">
+        <span class="detail-label">Current City</span>
+        <span class="detail-value">{{ details.current_city }}</span>
+      </div>
+      <div class="detail-row" *ngIf="details.dco_status">
+        <span class="detail-label">DCO Status</span>
+        <span class="detail-value">
+          <span class="status-badge" [ngClass]="getDcoStatusClass(details.dco_status)">
+            {{ details.dco_status }}
+          </span>
+        </span>
+      </div>
+      <div class="detail-row" *ngIf="details.documents_status">
+        <span class="detail-label">Documents</span>
+        <span class="detail-value">{{ details.documents_status }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">In Journey</span>
+        <span class="detail-value">
+          <span class="journey-dot" [class.active]="details.in_journey_status"></span>
+          {{ details.in_journey_status ? 'Yes' : 'No' }}
+        </span>
+      </div>
+      <div class="detail-row" *ngIf="details.last_login_date">
+        <span class="detail-label">Last Login</span>
+        <span class="detail-value">{{ details.last_login_date }}</span>
+      </div>
+    </ng-container>
+
+    <!-- Customer fields -->
+    <ng-container *ngIf="isCustomer()">
+      <div class="detail-row">
+        <span class="detail-label">Mobile</span>
+        <span class="detail-value">{{ chat.customer }}</span>
+      </div>
+      <div class="detail-row" *ngIf="chat.customer_name">
+        <span class="detail-label">Name</span>
+        <span class="detail-value">{{ chat.customer_name }}</span>
+      </div>
+      <div class="detail-row" *ngIf="details.in_journey_status !== undefined">
+        <span class="detail-label">In Journey</span>
+        <span class="detail-value">
+          <span class="journey-dot" [class.active]="details.in_journey_status"></span>
+          {{ details.in_journey_status ? 'Yes' : 'No' }}
+        </span>
+      </div>
+    </ng-container>
+
+    <!-- Vendor / SRDP -->
+    <ng-container *ngIf="!isPartner() && !isCustomer()">
+      <div class="detail-row">
+        <span class="detail-label">Mobile</span>
+        <span class="detail-value">{{ chat.customer }}</span>
+      </div>
+      <div class="detail-row" *ngIf="chat.customer_name">
+        <span class="detail-label">Name</span>
+        <span class="detail-value">{{ chat.customer_name }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Type</span>
+        <span class="detail-value">{{ customerType }}</span>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<ng-template #noDetails>
+  <div class="details-panel no-data">
+    <h6 class="panel-title">CUSTOMER DETAILS</h6>
+    <div class="details-grid">
+      <div class="detail-row">
+        <span class="detail-label">Mobile</span>
+        <span class="detail-value">{{ chat?.customer }}</span>
+      </div>
+      <div class="detail-row" *ngIf="chat?.customer_name">
+        <span class="detail-label">Name</span>
+        <span class="detail-value">{{ chat?.customer_name }}</span>
+      </div>
+    </div>
+    <p class="no-details-text">Details will appear after next customer message</p>
+  </div>
+</ng-template>

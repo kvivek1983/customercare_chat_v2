@@ -294,6 +294,9 @@
         </div>
       </div>
 
+      <!-- Customer Details Panel (all types) -->
+      <app-customer-details-panel *ngIf="selectedChat" [chat]="selectedChat"></app-customer-details-panel>
+
       <!-- Details Grid -->
       <div class="profile-details-grid" *ngIf="config.showProfileDetails">
         <div class="detail-item" *ngIf="selectedChat.assigned_executive_name">
