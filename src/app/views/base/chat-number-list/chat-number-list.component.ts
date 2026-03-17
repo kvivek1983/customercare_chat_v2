@@ -6,6 +6,7 @@ import { compareDesc } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { ChatAssignment, Chats, FetchAllChat, ExecutiveStatusUpdate, Message, TagUpdate } from '../../../../app/models/chat.model';
 import { ChatService } from '../../../../app/service/chat.service';
+import { PySmartChatService } from '../../../../app/service/py-smart-chat.service';
 import { SharedService } from '../../../service/shared.service';
 import { SlaTimerComponent } from '../../../../app/components/sla-timer/sla-timer.component';
 
@@ -38,6 +39,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
 
   constructor(
     private chatService: ChatService,
+    private pscs: PySmartChatService,
     private sharedService: SharedService,
     private cdr: ChangeDetectorRef
   ) {}
@@ -99,6 +101,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       this.joinCustomerTypeRoom();
       // Fetch chats for the new stakeholder type
       this.fetchAllChat();
+      this.fetchRealCounts();
       this.cdr.markForCheck();
     }
   }
@@ -193,6 +196,9 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
       // Customer/Vendor/SRDP: just fetch
       this.fetchAllChat();
     }
+
+    // Fetch real counts from backend API
+    this.fetchRealCounts();
 
     // Subscribe to new_message as fallback for chat list updates
     // (in case room_update_* events are not received)
@@ -339,8 +345,24 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private computeCounts(): void {
+    // Local counts as fallback
     this.activeCount = this.allChats.filter(c => c.status !== 'resolved' && c.is_resolved !== true).length;
     this.pendingCount = this.allChats.filter(c => c.tags && c.tags.includes('Awaiting Customer Response')).length;
+  }
+
+  /** Fetch real counts from backend API for current customer_type */
+  private fetchRealCounts(): void {
+    this.pscs.partner_stats().subscribe((res: any) => {
+      if (res.status == 1 && res.by_type) {
+        const ct = this.customerType || 'Partner';
+        const stats = res.by_type[ct];
+        if (stats) {
+          this.activeCount = stats.active ?? 0;
+          this.pendingCount = stats.pending ?? 0;
+          this.cdr.markForCheck();
+        }
+      }
+    });
   }
 
   // ===== Existing Methods =====
