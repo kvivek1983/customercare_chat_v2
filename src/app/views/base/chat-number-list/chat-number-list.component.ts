@@ -1,5 +1,5 @@
 import { CommonModule, NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, OnDestroy, OnChanges, SimpleChanges, ChangeDetectorRef, Output, EventEmitter, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, inject, OnInit, OnDestroy, OnChanges, SimpleChanges, ChangeDetectorRef, Output, EventEmitter, Input, ViewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { compareDesc } from 'date-fns';
@@ -19,6 +19,8 @@ import { SlaTimerComponent } from '../../../../app/components/sla-timer/sla-time
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
+
+  @ViewChild('chatScrollContainer') chatScrollContainer!: ElementRef;
 
   /** customer_type value sent in fetchAllChat request. '' means no filter (Partner). */
   @Input() customerType: string = '';
@@ -366,6 +368,16 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   // ===== Existing Methods =====
+
+  onChatListScroll(): void {
+    const container = this.chatScrollContainer?.nativeElement;
+    if (!container) return;
+    const scrollBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    // Trigger load when within 100px of the bottom
+    if (scrollBottom < 100 && !this.isLoading && this.currentPage < this.totalPages) {
+      this.loadFetchAllChat();
+    }
+  }
 
   loadFetchAllChat() {
     this.currentPage++;

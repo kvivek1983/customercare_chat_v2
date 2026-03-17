@@ -47,55 +47,55 @@
   </select>
 </div>
 
-<ul *ngIf="chats && chats.length > 0">
-  <li *ngFor="let chat of chats; let i = index" [style.animation-delay.ms]="i * 25" class="chat-li">
-    <div class="chat-item" [class.active]="chat.chat_id === selectedChat?.chat_id" (click)="onChatClick(chat)">
-      <div class="avatar">
-        {{ (chat.customer_name || chat.customer || '?') | slice:0:2 | uppercase }}
-        <div class="unseen-count-badge" *ngIf="chat.unseen_count && chat.unseen_count > 0">
-          {{ chat.unseen_count }}
-        </div>
-      </div>
-      <div class="chat-info">
-        <p class="chat-name">{{ chat.customer_name || chat.customer }}</p>
-        <p class="chat-preview">{{ chat.last_message && chat.last_message.length > 0 ? (chat.last_message.length >
-          35
-          ? (chat.last_message | slice: 0:35) + '...'
-          : chat.last_message) : 'No messages yet...' }}</p>
-        <!-- Compact bottom row: tags + rating + assigned exec -->
-        <div class="chat-bottom-row" *ngIf="(chat.tags && chat.tags.length > 0) || (chat.rating && chat.rating > 0) || chat.assigned_executive_name">
-          <div class="chat-tags" *ngIf="chat.tags && chat.tags.length > 0">
-            <span class="tag-pill-sm" *ngFor="let tag of chat.tags | slice:0:2">{{ tag }}</span>
-            <span class="tag-pill-sm tag-more" *ngIf="chat.tags.length > 2">+{{ chat.tags.length - 2 }}</span>
+<div class="chat-scroll-container" #chatScrollContainer (scroll)="onChatListScroll()">
+  <ul *ngIf="chats && chats.length > 0">
+    <li *ngFor="let chat of chats; let i = index" [style.animation-delay.ms]="i * 25" class="chat-li">
+      <div class="chat-item" [class.active]="chat.chat_id === selectedChat?.chat_id" (click)="onChatClick(chat)">
+        <div class="avatar">
+          {{ (chat.customer_name || chat.customer || '?') | slice:0:2 | uppercase }}
+          <div class="unseen-count-badge" *ngIf="chat.unseen_count && chat.unseen_count > 0">
+            {{ chat.unseen_count }}
           </div>
-          <span class="chat-rating" *ngIf="chat.rating && chat.rating > 0">
-            <span class="star-icon" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= chat.rating">&#9733;</span>
-          </span>
-          <span class="assigned-exec" *ngIf="chat.assigned_executive_name">
-            → {{ chat.assigned_executive_name | slice:0:8 }}
-          </span>
+        </div>
+        <div class="chat-info">
+          <p class="chat-name">{{ chat.customer_name || chat.customer }}</p>
+          <p class="chat-preview">{{ chat.last_message && chat.last_message.length > 0 ? (chat.last_message.length >
+            35
+            ? (chat.last_message | slice: 0:35) + '...'
+            : chat.last_message) : 'No messages yet...' }}</p>
+          <!-- Compact bottom row: tags + rating + assigned exec -->
+          <div class="chat-bottom-row" *ngIf="(chat.tags && chat.tags.length > 0) || (chat.rating && chat.rating > 0) || chat.assigned_executive_name">
+            <div class="chat-tags" *ngIf="chat.tags && chat.tags.length > 0">
+              <span class="tag-pill-sm" *ngFor="let tag of chat.tags | slice:0:2">{{ tag }}</span>
+              <span class="tag-pill-sm tag-more" *ngIf="chat.tags.length > 2">+{{ chat.tags.length - 2 }}</span>
+            </div>
+            <span class="chat-rating" *ngIf="chat.rating && chat.rating > 0">
+              <span class="star-icon" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= chat.rating">&#9733;</span>
+            </span>
+            <span class="assigned-exec" *ngIf="chat.assigned_executive_name">
+              → {{ chat.assigned_executive_name | slice:0:8 }}
+            </span>
+          </div>
+        </div>
+        <div class="chat-meta">
+          <div class="chat-datetime">
+            {{ formatChatTime(chat.last_message_time) }}
+          </div>
+          <!-- SLA Timer compact (Phase 3 Step 2) -->
+          <app-sla-timer *ngIf="chat.last_incoming_message_time"
+            [startTime]="chat.last_incoming_message_time"
+            [isActive]="chat.last_interaction_by === 'Customer'"
+            [compact]="true">
+          </app-sla-timer>
         </div>
       </div>
-      <div class="chat-meta">
-        <div class="chat-datetime">
-          {{ formatChatTime(chat.last_message_time) }}
-        </div>
-        <!-- SLA Timer compact (Phase 3 Step 2) -->
-        <app-sla-timer *ngIf="chat.last_incoming_message_time"
-          [startTime]="chat.last_incoming_message_time"
-          [isActive]="chat.last_interaction_by === 'Customer'"
-          [compact]="true">
-        </app-sla-timer>
-      </div>
-    </div>
-  </li>
-</ul>
+    </li>
+  </ul>
 
-<p class="status-text empty-state" *ngIf="!isLoading && chats.length === 0 && allChats.length > 0">
-  No chats match the current filters.
-</p>
+  <p class="status-text empty-state" *ngIf="!isLoading && chats.length === 0 && allChats.length > 0">
+    No chats match the current filters.
+  </p>
 
-<button class="load-more-btn" *ngIf="currentPage < totalPages && !isLoading" (click)="loadFetchAllChat()">Load
-  More</button>
-<p class="status-text" *ngIf="isLoading">Loading...</p>
-<p class="status-text" *ngIf="currentPage >= totalPages && chats.length > 0">No more chats to load.</p>
+  <p class="status-text" *ngIf="isLoading">Loading...</p>
+  <p class="status-text" *ngIf="currentPage >= totalPages && chats.length > 0 && !isLoading">No more chats to load.</p>
+</div>

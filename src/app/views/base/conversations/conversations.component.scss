@@ -10,7 +10,9 @@
   width: 320px;
   min-width: 280px;
   max-width: 360px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   padding: 10px 8px;
   border-right: 1px solid var(--border);
   background: var(--surface);

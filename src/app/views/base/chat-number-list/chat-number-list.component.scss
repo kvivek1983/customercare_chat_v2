@@ -1,3 +1,10 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
 // ===== SEARCH BAR (Phase 2 Step 1) =====
 .search-bar {
   display: flex;
@@ -420,25 +427,11 @@ ul {
   text-align: right;
 }
 
-// ===== LOAD MORE / STATUS =====
-.load-more-btn {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--text-muted);
-  font-size: 11px;
-  font-weight: 600;
-  font-family: var(--font-body);
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-  margin-top: 8px;
-
-  &:hover {
-    background: var(--surface-hover);
-    color: var(--text);
-  }
+// ===== SCROLL CONTAINER =====
+.chat-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .status-text {
