@@ -316,11 +316,15 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
 
     // Active/Pending tab filter — mutually exclusive
     if (this.statusFilter === 'pending') {
-      filtered = filtered.filter(c => c.tags && c.tags.includes('Awaiting Customer Response'));
-    } else {
-      // 'active' = not resolved AND not awaiting customer response
+      // Pending = status is 'pending' OR has 'Awaiting Customer Response' tag
       filtered = filtered.filter(c =>
-        c.status !== 'resolved' && c.is_resolved !== true &&
+        c.status === 'pending' ||
+        (c.tags && c.tags.includes('Awaiting Customer Response'))
+      );
+    } else {
+      // Active = not resolved, not pending, and not awaiting customer response
+      filtered = filtered.filter(c =>
+        c.status !== 'resolved' && c.status !== 'pending' && c.is_resolved !== true &&
         !(c.tags && c.tags.includes('Awaiting Customer Response'))
       );
     }
