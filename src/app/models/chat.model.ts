@@ -83,6 +83,8 @@ export interface Pagination{
   total_chats : number;
   total_pages : number;
   total?: number;  // V2 sends "total" instead of "total_chats"
+  total_active?: number;
+  total_pending?: number;
 }
 
 export interface ResponseData{
