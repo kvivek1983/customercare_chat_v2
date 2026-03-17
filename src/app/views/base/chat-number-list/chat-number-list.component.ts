@@ -397,6 +397,9 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
     this.dropdownSelected.emit({ status: true, value: event.target.value });
     this.allChats = [];
     this.chats = [];
+    this.currentPage = 1;
+    this.totalPages = 0;
+    this.isFresh = true;
     this.fetchAllChat();
   }
 
