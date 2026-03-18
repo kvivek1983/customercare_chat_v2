@@ -2,6 +2,7 @@ import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, 
 import { NgTemplateOutlet, CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, Validators, FormGroup, FormBuilder } from '@angular/forms';
 import { Router, ActivatedRoute, RouterModule, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { APiProperties } from '../../../../app/class/api-properties';
 import { OnewayNodeService } from '../../../../app/service/oneway-node.service';
 import { OnewayPartnerEnrolApiService } from '../../../service/oneway-partner-enrol-api.service';
@@ -26,6 +27,7 @@ export class DcoSuspendViewComponent {
   dcoStatusForm: FormGroup;
 
   constructor(private fb: FormBuilder,
+    private http: HttpClient,
     private ons: OnewayNodeService,
     private opeas: OnewayPartnerEnrolApiService,
     private owas: OnewayWebApiService,
@@ -166,41 +168,80 @@ export class DcoSuspendViewComponent {
   driverIdPass: any;
   requestData: any = {};
   getDcoDetailsRes: any = [];
+  private dcoDetailsRetried = false;
+
   driverAllDetails(dcoNumber: any) {
-    var userRole = localStorage.getItem('userRole');
-    //const data = JSON.parse(localStorage.getItem(userRole+"-loginDetails"));
-    const storedData = localStorage.getItem(userRole + "-loginDetails");
-    const data = storedData ? JSON.parse(storedData) : null;
+    this.getDcoDetailsBlk = false;
+    this.getDcoDetailsRes = [];
+    this.dcoDetailsRetried = false;
+    this.callDcoDetailsApi(dcoNumber);
+  }
 
-    if (data == null) {
-      return;
-    }
+  private getLoginData(): any {
+    try {
+      const userRole = localStorage.getItem('userRole');
+      const storedData = localStorage.getItem(userRole + "-loginDetails");
+      return storedData ? JSON.parse(storedData) : null;
+    } catch { return null; }
+  }
 
-    const token = data.nodeAccessToken || data.accessToken;
-    if (!token) {
-      return;
-    }
+  private callDcoDetailsApi(dcoNumber: any) {
+    const loginData = this.getLoginData();
+    const token = loginData?.nodeAccessToken || loginData?.accessToken;
+    if (!token) return;
 
-    this.requestData = {
-      mobileNumber: dcoNumber
-    };
+    this.requestData = { mobileNumber: dcoNumber };
 
-    this.ons.getDcoDetails(JSON.stringify(this.requestData), token).subscribe((data: {}) => {
+    this.ons.getDcoDetails(JSON.stringify(this.requestData), token).subscribe((data: any) => {
+      if (data.status == 1001) {
+        if (!this.dcoDetailsRetried) {
+          this.dcoDetailsRetried = true;
+          this.refreshTokenAndRetry(dcoNumber);
+          return;
+        } else {
+          this.getDcoDetailsBlk = false;
+          return;
+        }
+      }
+
       this.getDcoDetailsRes = data;
-
-      if(this.getDcoDetailsRes.status == 1) {
+      if (this.getDcoDetailsRes.status == 1) {
         this.driverIdPass = this.getDcoDetailsRes.personal_details.driver_id;
         this.sendDcoName(this.getDcoDetailsRes.personal_details.driver_name);
         this.getDcoDetailsBlk = true;
-
         this.dcoTransactionHistory();
-
       } else {
         this.getDcoDetailsBlk = false;
       }
-
     }, error => {
       console.error('getDcoDetails error:', error);
+    });
+  }
+
+  private refreshTokenAndRetry(dcoNumber: any) {
+    const loginData = this.getLoginData();
+    const refreshToken = loginData?.refreshToken;
+    if (!refreshToken) { this.getDcoDetailsBlk = false; return; }
+
+    this.http.post<any>(`${this.apiProperties.pySmartChatUrl}api/auth/refresh`, { refreshToken }).subscribe({
+      next: (response: any) => {
+        if (response.accessToken) {
+          try {
+            const userRole = localStorage.getItem('userRole');
+            if (userRole) {
+              const stored = JSON.parse(localStorage.getItem(`${userRole}-loginDetails`) || '{}');
+              stored.accessToken = response.accessToken;
+              if (response.refreshToken) stored.refreshToken = response.refreshToken;
+              delete stored.nodeAccessToken;
+              localStorage.setItem(`${userRole}-loginDetails`, JSON.stringify(stored));
+            }
+          } catch (e) { console.error('Failed to update tokens:', e); }
+          this.callDcoDetailsApi(dcoNumber);
+        } else {
+          this.getDcoDetailsBlk = false;
+        }
+      },
+      error: () => { this.getDcoDetailsBlk = false; }
     });
 
   }
