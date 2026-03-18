@@ -273,6 +273,8 @@ export class DcoInfoComponent implements OnInit, OnChanges {
               const stored = JSON.parse(localStorage.getItem(`${userRole}-loginDetails`) || '{}');
               stored.accessToken = response.accessToken;
               if (response.refreshToken) stored.refreshToken = response.refreshToken;
+              // Remove expired node token so retry falls back to fresh accessToken
+              delete stored.nodeAccessToken;
               localStorage.setItem(`${userRole}-loginDetails`, JSON.stringify(stored));
             }
           } catch (e) {

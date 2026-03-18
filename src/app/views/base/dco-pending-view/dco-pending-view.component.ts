@@ -177,7 +177,8 @@ export class DcoPendingViewComponent {
       return;
     }
 
-    if (data.accessToken == null) {
+    const token = data.nodeAccessToken || data.accessToken;
+    if (!token) {
       return;
     }
 
@@ -185,34 +186,22 @@ export class DcoPendingViewComponent {
       mobileNumber: dcoNumber
     };
 
-    this.ons.getDcoDetails(JSON.stringify(this.requestData), data.accessToken).subscribe((data: {}) => {
+    this.ons.getDcoDetails(JSON.stringify(this.requestData), token).subscribe((data: {}) => {
       this.getDcoDetailsRes = data;
-      //console.log(this.getDcoDetailsRes);
 
       if(this.getDcoDetailsRes.status == 1) {
         this.driverIdPass = this.getDcoDetailsRes.personal_details.driver_id;
         this.sendDcoName(this.getDcoDetailsRes.personal_details.driver_name);
         this.getDcoDetailsBlk = true;
-        // this.displayDcoIdData = true;
-        // this.driverPerformanceMatrix = false;
-        // this.driverPerformanceForm.patchValue( {'driverPerformance':"lastTwoMonth"} );
-        // this.dcoId = this.getDcoDetailsRes.personal_details.dco_id;
-
-        // this.fetchLast10CompletedBookingDetailsOfDriverOrCustomer();
-
-        // if(this.driverIdPass){
-        //   this.getPartnerAnalyticsDashboard("lastTwoMonth");
-        // }
 
         this.dcoTransactionHistory();
 
       } else {
         this.getDcoDetailsBlk = false;
-        //alert(this.getDcoDetailsRes.message);
       }
 
     }, error => {
-      //console.log("Error: "+error);
+      console.error('getDcoDetails error:', error);
     });
 
   }
