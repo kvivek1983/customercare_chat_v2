@@ -62,12 +62,12 @@
           <span class="chat-header-details" *ngIf="selectedChat.customer_details">
             <span>{{ selectedChat.customer_details.home_city }}</span>
             <span class="detail-sep">|</span>
-            <span>{{ selectedChat.customer_details.current_city }}</span>
-            <span class="detail-sep">|</span>
             <span [class.status-suspend]="selectedChat.customer_details.dco_status === 'Suspend'"
                   [class.status-active]="selectedChat.customer_details.dco_status === 'Active'">
               {{ selectedChat.customer_details.dco_status }}
             </span>
+            <span class="detail-sep">|</span>
+            <span>{{ selectedChat.customer_details.documents_status }}</span>
           </span>
         </div>
         <!-- WhatsApp Window Status Icon -->
