@@ -149,7 +149,7 @@ export const PREDEFINED_TAGS: Record<string, string[]> = {
 };
 
 // Phase 4: Right Panel
-export type RightPanelTab = 'profile' | 'rides' | 'context' | 'actions' | 'notes';
+export type RightPanelTab = 'profile' | 'rides' | 'context' | 'actions' | 'notes' | 'documents' | 'finance';
 
 // Phase 4 Step 2: Context History
 export interface ContextHistoryItem {

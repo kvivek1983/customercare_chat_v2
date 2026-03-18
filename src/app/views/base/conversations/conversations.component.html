@@ -58,7 +58,7 @@
       <div class="chat-thread-header">
         <div class="chat-header-avatar">{{ getInitials() }}</div>
         <div class="chat-header-info">
-          <span class="chat-thread-title">{{ selectedChat.customer_name || selectedChat.customer }}</span>
+          <span class="chat-thread-title">{{ selectedChat.customer_details?.dco_id || selectedChat.customer_name || selectedChat.customer }} · {{ selectedChat.customer_details?.driver_name || selectedChat.customer_name || '' }}</span>
           <span class="chat-header-details" *ngIf="selectedChat.customer_details">
             <span>{{ selectedChat.customer_details.home_city }}</span>
             <span class="detail-sep">|</span>
@@ -85,6 +85,7 @@
           [isActive]="selectedChat?.last_interaction_by === 'Customer'"
           [compact]="false">
         </app-sla-timer>
+        <button class="pending-btn" *ngIf="config.showResolvedButton && selectedChat?.status !== 'pending'" (click)="markPending()">Pending</button>
         <button class="resolved-btn" *ngIf="config.showResolvedButton" (click)="initiateResolve()">Resolved</button>
       </div>
 
@@ -313,12 +314,6 @@
       <ng-container *ngIf="config.showDcoPanels">
         <app-dco-info *ngIf="dcoInfo" [chatNumber]="chatNumber" [selectedView]="selectedView"
           (dcoSelected)="getDcoName($event)"></app-dco-info>
-        <app-dco-suspend-view *ngIf="dcoSuspendView" [chatNumber]="chatNumber" [selectedView]="selectedView"
-          (dcoSelected)="getDcoName($event)"></app-dco-suspend-view>
-        <app-dco-pending-view *ngIf="dcoPendingView" [chatNumber]="chatNumber" [selectedView]="selectedView"
-          (dcoSelected)="getDcoName($event)"></app-dco-pending-view>
-        <app-dco-active-approved-view *ngIf="dcoActiveApprovedView" [chatNumber]="chatNumber" [selectedView]="selectedView"
-          (dcoSelected)="getDcoName($event)"></app-dco-active-approved-view>
       </ng-container>
 
       <!-- Assignment Info Card -->
@@ -374,6 +369,169 @@
       <app-notes-panel
         [chatId]="selectedChat?.chat_id">
       </app-notes-panel>
+    </div>
+
+    <!-- Documents Tab -->
+    <div class="right-panel-content" *ngIf="activeRightPanel === 'documents'">
+      <div class="documents-panel">
+        <div class="doc-tabs">
+          <button class="doc-tab" [class.active]="activeDocCategory === 'cab'"
+            (click)="activeDocCategory = 'cab'">
+            <span class="doc-tab-label">Cab</span>
+            <span class="doc-tab-status" *ngIf="dcoRawConfig"
+              [class.approved]="dcoRawConfig?.cabPhotosStatus === 'Approve' && dcoRawConfig?.rcBookStatus === 'Approve' && dcoRawConfig?.cabInsuranceStatus === 'Approve'"
+              [class.pending]="dcoRawConfig?.cabPhotosStatus !== 'Approve' || dcoRawConfig?.rcBookStatus !== 'Approve' || dcoRawConfig?.cabInsuranceStatus !== 'Approve'">
+              {{ (dcoRawConfig?.cabPhotosStatus === 'Approve' && dcoRawConfig?.rcBookStatus === 'Approve' && dcoRawConfig?.cabInsuranceStatus === 'Approve') ? 'Approved' : 'Pending' }}
+            </span>
+          </button>
+          <button class="doc-tab" [class.active]="activeDocCategory === 'driver'"
+            (click)="activeDocCategory = 'driver'">
+            <span class="doc-tab-label">Driver</span>
+            <span class="doc-tab-status" *ngIf="dcoRawConfig"
+              [class.approved]="dcoRawConfig?.drivingLicenseStatus === 'Approve' && dcoRawConfig?.aadharCardStatus === 'Approve' && dcoRawConfig?.panCardStatus === 'Approve'"
+              [class.pending]="dcoRawConfig?.drivingLicenseStatus !== 'Approve' || dcoRawConfig?.aadharCardStatus !== 'Approve' || dcoRawConfig?.panCardStatus !== 'Approve'">
+              {{ (dcoRawConfig?.drivingLicenseStatus === 'Approve' && dcoRawConfig?.aadharCardStatus === 'Approve' && dcoRawConfig?.panCardStatus === 'Approve') ? 'Approved' : 'Pending' }}
+            </span>
+          </button>
+          <button class="doc-tab" [class.active]="activeDocCategory === 'finance'"
+            (click)="activeDocCategory = 'finance'">
+            <span class="doc-tab-label">Finance</span>
+            <span class="doc-tab-status" *ngIf="dcoRawConfig"
+              [class.approved]="dcoRawConfig?.outstandingAmount === '0'"
+              [class.pending]="dcoRawConfig?.outstandingAmount !== '0'">
+              {{ dcoRawConfig?.outstandingAmount === '0' ? 'Clear' : '₹' + dcoRawConfig?.outstandingAmount }}
+            </span>
+          </button>
+        </div>
+
+        <div class="doc-content" *ngIf="selectedChat?.customer_details">
+          <!-- Cab Documents -->
+          <div *ngIf="activeDocCategory === 'cab'" class="doc-list">
+            <div class="doc-item">
+              <span class="doc-label">RC Book</span>
+              <span class="doc-status" [class.approved]="dcoRawConfig?.rcBookStatus === 'Approve'"
+                [class.pending]="dcoRawConfig?.rcBookStatus !== 'Approve'">
+                {{ dcoRawConfig?.rcBookStatus || 'N/A' }}
+              </span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-label">Cab Insurance</span>
+              <span class="doc-status" [class.approved]="dcoRawConfig?.cabInsuranceStatus === 'Approve'"
+                [class.pending]="dcoRawConfig?.cabInsuranceStatus !== 'Approve'">
+                {{ dcoRawConfig?.cabInsuranceStatus || 'N/A' }}
+              </span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-label">Cab Photos</span>
+              <span class="doc-status" [class.approved]="dcoRawConfig?.cabPhotosStatus === 'Approve'"
+                [class.pending]="dcoRawConfig?.cabPhotosStatus !== 'Approve'">
+                {{ dcoRawConfig?.cabPhotosStatus || 'N/A' }}
+              </span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-label">Car Type</span>
+              <span class="doc-value">{{ dcoRawConfig?.dcoCarType || 'N/A' }}</span>
+            </div>
+          </div>
+
+          <!-- Driver Documents -->
+          <div *ngIf="activeDocCategory === 'driver'" class="doc-list">
+            <div class="doc-item">
+              <span class="doc-label">Driving License</span>
+              <span class="doc-status" [class.approved]="dcoRawConfig?.drivingLicenseStatus === 'Approve'"
+                [class.pending]="dcoRawConfig?.drivingLicenseStatus !== 'Approve'">
+                {{ dcoRawConfig?.drivingLicenseStatus || 'N/A' }}
+              </span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-label">Aadhaar Card</span>
+              <span class="doc-status" [class.approved]="dcoRawConfig?.aadharCardStatus === 'Approve'"
+                [class.pending]="dcoRawConfig?.aadharCardStatus !== 'Approve'">
+                {{ dcoRawConfig?.aadharCardStatus || 'N/A' }}
+              </span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-label">PAN Card</span>
+              <span class="doc-status" [class.approved]="dcoRawConfig?.panCardStatus === 'Approve'"
+                [class.pending]="dcoRawConfig?.panCardStatus !== 'Approve'">
+                {{ dcoRawConfig?.panCardStatus || 'N/A' }}
+              </span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-label">Profile</span>
+              <span class="doc-status" [class.approved]="dcoRawConfig?.driverProfileStatus === 'Approve'"
+                [class.pending]="dcoRawConfig?.driverProfileStatus !== 'Approve'">
+                {{ dcoRawConfig?.driverProfileStatus || 'N/A' }}
+              </span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-label">Account</span>
+              <span class="doc-status" [class.approved]="dcoRawConfig?.accountStatus === 'Approve'"
+                [class.pending]="dcoRawConfig?.accountStatus !== 'Approve'">
+                {{ dcoRawConfig?.accountStatus || 'N/A' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Finance -->
+          <div *ngIf="activeDocCategory === 'finance'" class="doc-list">
+            <div class="doc-item">
+              <span class="doc-label">Outstanding Amount</span>
+              <span class="doc-value">₹{{ dcoRawConfig?.outstandingAmount || '0' }}</span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-label">Onboarding Fee Paid</span>
+              <span class="doc-value">{{ dcoRawConfig?.isOnboardingFeePaid == 1 ? 'Yes' : 'No' }}</span>
+            </div>
+            <div class="doc-item">
+              <span class="doc-label">Payout Limit</span>
+              <span class="doc-value">{{ selectedChat.customer_details.payout_limit || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="doc-empty" *ngIf="!selectedChat?.customer_details">
+          Details will appear after next customer message
+        </div>
+      </div>
+    </div>
+
+    <!-- Finance Tab -->
+    <div class="right-panel-content" *ngIf="activeRightPanel === 'finance'">
+      <div class="finance-panel">
+        <div class="finance-loading" *ngIf="financeLoading">Loading transactions...</div>
+        <div class="finance-empty" *ngIf="!financeLoading && (!transactionHistory || transactionHistory.length === 0)">
+          No transaction history available
+        </div>
+        <div class="finance-table-wrap" *ngIf="!financeLoading && transactionHistory && transactionHistory.length > 0">
+          <table class="finance-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Booking ID</th>
+                <th>Type</th>
+                <th>Commission</th>
+                <th>Online Pay</th>
+                <th>Net Payment</th>
+                <th>Outstanding</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let txn of transactionHistory; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td class="txn-date">{{ txn.dateTime }}</td>
+                <td>{{ txn.displayBooking }}</td>
+                <td>{{ txn.bookingType }}</td>
+                <td>{{ txn.commission }}</td>
+                <td>{{ txn.onlinePayment }}</td>
+                <td class="txn-amount">{{ txn.netPayment }}</td>
+                <td class="txn-outstanding">{{ txn.outstandingAmount }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 

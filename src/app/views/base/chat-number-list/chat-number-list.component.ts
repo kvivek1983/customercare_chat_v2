@@ -314,12 +314,8 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
   filterChats(): void {
     let filtered = [...this.allChats];
 
-    // Active/Pending tab filter — based on chat status only (tags are separate)
-    if (this.statusFilter === 'pending') {
-      filtered = filtered.filter(c => c.status === 'pending');
-    } else {
-      filtered = filtered.filter(c => c.status === 'active' || (!c.status && c.is_resolved !== true));
-    }
+    // Status filter is now handled by backend via `status` param in fetchAllChat
+    // No local status filtering needed
 
     // Type filter
     if (this.typeFilter !== 'All') {
@@ -341,7 +337,12 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
 
   setStatusFilter(status: 'active' | 'pending'): void {
     this.statusFilter = status;
-    this.filterChats();
+    // Re-fetch from backend with new status filter
+    this.currentPage = 1;
+    this.totalPages = 0;
+    this.isFresh = true;
+    this.hasRealCounts = false;
+    this.fetchAllChat();
   }
 
   setTypeFilter(type: string): void {
@@ -450,7 +451,8 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
 
     // Build request — add customer_type only when customerType input is non-empty
     let req: any = {
-      sender: agentNumber, page: this.currentPage, page_size: 20,
+      sender: agentNumber, page: this.currentPage, page_size: 10,
+      status: this.statusFilter,
       ...(this.selectedFilter !== '' && { user_status: this.selectedFilter })
     };
 

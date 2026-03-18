@@ -86,6 +86,7 @@ export class DcoInfoComponent implements OnInit, OnChanges {
   cabDetailSection: boolean = false;
   bankDetailSection: boolean = false;
   driverDetailSection: boolean = false;
+  activeDocTab: 'cab' | 'driver' | 'finance' = 'cab';
   isOnboardingFeeBlk: boolean = false;
   getPartnerBlk: boolean = false;
   isOnboardingFeePaidNo: boolean = true;

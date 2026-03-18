@@ -222,6 +222,24 @@
   font-weight: 600;
 }
 
+.pending-btn {
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid #faad14;
+  background: #fffbe6;
+  color: #d48806;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    background: #faad14;
+    color: #fff;
+  }
+}
+
 .resolved-btn {
   margin-left: auto;
   padding: 4px 12px;
@@ -1070,5 +1088,176 @@
     max-height: 40vh;
     border-left: none;
     border-top: 1px solid var(--border);
+  }
+}
+
+// Documents Panel
+.documents-panel {
+  padding: 16px;
+
+  .doc-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 0 4px;
+    margin-bottom: 16px;
+  }
+
+  .doc-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 8px;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: #d0d0d0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    &.active {
+      border-color: var(--accent);
+      background: #f8f6ff;
+      box-shadow: 0 2px 8px rgba(99,71,217,0.12);
+    }
+
+    .doc-tab-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .doc-tab-status {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+
+      &.approved {
+        background: #e8f9e8;
+        color: #2e8b2e;
+      }
+
+      &.pending {
+        background: #fef3e2;
+        color: #d48806;
+      }
+    }
+  }
+
+  .doc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .doc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+
+    .doc-label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .doc-status {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 10px;
+      border-radius: 12px;
+
+      &.approved {
+        background: #f6ffed;
+        color: #52C41A;
+      }
+
+      &.pending {
+        background: #fff7e6;
+        color: #FAAD14;
+      }
+    }
+
+    .doc-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+  }
+
+  .doc-empty {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 20px 0;
+    text-align: center;
+  }
+}
+
+// Finance Panel
+.finance-panel {
+  padding: 12px;
+
+  .finance-loading, .finance-empty {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 24px 0;
+  }
+
+  .finance-table-wrap {
+    overflow-x: auto;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .finance-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f8f9fa;
+      padding: 8px 6px;
+      text-align: left;
+      font-weight: 600;
+      color: #555;
+      border-bottom: 2px solid #e8e8e8;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 6px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #333;
+    }
+
+    tr:hover td {
+      background: #f9fafb;
+    }
+
+    .txn-date {
+      white-space: nowrap;
+      font-size: 10px;
+      color: #888;
+    }
+
+    .txn-amount {
+      font-weight: 600;
+    }
+
+    .txn-outstanding {
+      font-weight: 600;
+      color: #e55353;
+    }
   }
 }

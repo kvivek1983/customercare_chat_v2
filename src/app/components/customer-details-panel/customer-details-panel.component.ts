@@ -10,9 +10,9 @@ import { CommonModule } from '@angular/common';
 })
 export class CustomerDetailsPanelComponent implements OnChanges {
   @Input() chat: any;
+  @Input() customerType: string = '';
 
   details: any = null;
-  customerType: string = '';
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['chat'] && this.chat) {

@@ -27,6 +27,8 @@ import { ToastrService } from 'ngx-toastr';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject, Subscription, takeUntil } from 'rxjs';
 import { SharedService } from '../../../service/shared.service';
+import { OnewayNodeService } from '../../../service/oneway-node.service';
+import { APiProperties } from '../../../class/api-properties';
 
 @Component({
   selector: 'app-conversations',
@@ -57,7 +59,8 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     private toastr: ToastrService,
     private fb: FormBuilder,
     private sharedService: SharedService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private ons: OnewayNodeService
   ) {
     this.mobileForm = this.fb.group({
       mobileNumber: ['', [
@@ -134,6 +137,11 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
   // Right Panel Tab State (Phase 4 Step 1)
   activeRightPanel: RightPanelTab = 'profile';
+  activeDocCategory: 'cab' | 'driver' | 'finance' = 'cab';
+  dcoRawConfig: any = null;
+  transactionHistory: any[] = [];
+  financeLoading: boolean = false;
+  private apiProperties = new APiProperties();
 
   // Template Picker State (Phase 4 Step 6)
   showTemplatePicker: boolean = false;
@@ -326,7 +334,26 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     return this.mobileForm.get('mobileNumber');
   }
 
-  // --- Resolved + Rating (Phase 3 Step 4) ---
+  // --- Pending + Resolved + Rating (Phase 3 Step 4) ---
+
+  markPending() {
+    if (!this.selectedChat) return;
+    const req = {
+      customer_number: this.selectedChat.customer,
+      update_by_number: this.agentNumber,
+      status: 'pending'
+    };
+    this.chatService.updateChatStatus(req);
+    this.chatService.onUpdateChatStatus().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((response: ResponseData) => {
+      if (response.status === 1) {
+        // Remove from active list and clear selection
+        this.chatNumberListComponent.removeResolveChat(this.selectedChat.chat_id);
+        this.selectedChat = null;
+        this.dcoInfo = false;
+        this.chatNumberListComponent.fetchAllChat();
+      }
+    });
+  }
 
   initiateResolve() {
     this.showRatingModal = true;
@@ -525,6 +552,8 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     this.selectedChat = null;
     this.assignedExecutiveName = '';
     this.showReassignDropdown = false;
+    this.dcoRawConfig = null;
+    this.transactionHistory = [];
 
     if (this.config.useLoadingDelay) {
       // Partner: uses 500ms loading delay
@@ -862,16 +891,11 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   dcoInfoShow(chatNumber: any, selectedFilter: any) {
     console.log(chatNumber.customer);
     this.chatNumber = chatNumber.customer;
-
-    if (selectedFilter == 'Suspend') {
-      this.dcoSuspendView = true;
-    } else if (selectedFilter == 'Pending') {
-      this.dcoPendingView = true;
-    } else if (selectedFilter == 'Active_Approved') {
-      this.dcoActiveApprovedView = true;
-    } else {
-      this.dcoInfo = true;
-    }
+    // Always use same view regardless of dropdown filter
+    this.dcoInfo = true;
+    this.dcoSuspendView = false;
+    this.dcoPendingView = false;
+    this.dcoActiveApprovedView = false;
   }
 
   getDcoName(data: any) {
@@ -1030,7 +1054,46 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
   switchRightPanel(tab: RightPanelTab): void {
     this.activeRightPanel = tab;
+    if (tab === 'documents' && this.selectedChat?.customer && !this.dcoRawConfig) {
+      this.fetchDcoRawConfig(this.selectedChat.customer);
+    }
+    if (tab === 'finance' && this.selectedChat && this.transactionHistory.length === 0) {
+      this.fetchTransactionHistory();
+    }
     this.cdr.markForCheck();
+  }
+
+  private fetchDcoRawConfig(customer: string): void {
+    const url = `https://driverconfig.oneway.cab/rest/V21/getDcoConfiguration?contactNo=${customer}`;
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.status == '1') {
+          this.dcoRawConfig = data;
+          this.cdr.markForCheck();
+        }
+      })
+      .catch(err => console.error('Failed to fetch DCO config:', err));
+  }
+
+  private fetchTransactionHistory(): void {
+    if (!this.selectedChat?.customer_details?.driver_id) return;
+    this.financeLoading = true;
+    const req = {
+      clientId: this.apiProperties.clientId,
+      clientSecret: this.apiProperties.clientSecret,
+      driverId: this.selectedChat.customer_details.driver_id
+    };
+    this.ons.dcoTransactionHistory(JSON.stringify(req)).subscribe((res: any) => {
+      this.financeLoading = false;
+      if (res.status == 1 && res.list) {
+        this.transactionHistory = res.list;
+      }
+      this.cdr.markForCheck();
+    }, () => {
+      this.financeLoading = false;
+      this.cdr.markForCheck();
+    });
   }
 
   // --- Context History (Phase 4 Step 2) ---

@@ -215,3 +215,51 @@
     color: #fff;
   }
 }
+
+// Document Status Tabs
+.doc-status-card {
+  padding: 0 !important;
+}
+
+.doc-tab-bar {
+  display: flex;
+  border-bottom: 1px solid #eee;
+}
+
+.doc-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 4px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+
+  &:hover { background: #fafafa; }
+
+  &.active {
+    font-weight: 600;
+    border-bottom-color: var(--accent, #6647d9);
+    color: var(--accent, #6647d9);
+  }
+
+  .tab-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+
+    &.dot-ok { background: #52C41A; }
+    &.dot-warn { background: #faad14; }
+  }
+}
+
+.doc-tab-content {
+  padding: 8px 12px;
+}
