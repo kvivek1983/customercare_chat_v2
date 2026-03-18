@@ -1,4 +1,4 @@
-<div class="details-panel" *ngIf="details; else noDetails">
+<div class="details-panel" *ngIf="details">
   <h6 class="panel-title">CUSTOMER DETAILS</h6>
 
   <div class="details-grid">
@@ -88,20 +88,3 @@
     </ng-container>
   </div>
 </div>
-
-<ng-template #noDetails>
-  <div class="details-panel no-data">
-    <h6 class="panel-title">CUSTOMER DETAILS</h6>
-    <div class="details-grid">
-      <div class="detail-row">
-        <span class="detail-label">Mobile</span>
-        <span class="detail-value">{{ chat?.customer }}</span>
-      </div>
-      <div class="detail-row" *ngIf="chat?.customer_name">
-        <span class="detail-label">Name</span>
-        <span class="detail-value">{{ chat?.customer_name }}</span>
-      </div>
-    </div>
-    <p class="no-details-text">Details will appear after next customer message</p>
-  </div>
-</ng-template>
