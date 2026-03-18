@@ -1,29 +1,5 @@
 <div class="row d-flex flex-wrap align-items-stretch mb-2" *ngIf="getPartnerBlk" style="font-size: 13px;">
     
-    <div class="col-md-12 col-12 mb-2" *ngIf="isOnboardingFeeBlk">
-
-        <div class="card  h-100">
-            <div class="card-body" style="background: #fed50138;">
-                <div class="row">
-
-                    <div class="col-md-7 col-12 text-left" *ngIf="isOnboardingFeeBlk">
-                        <p class="mb-0">
-                            Is onboarding fee paid ?
-                            <label class="mb-0"> {{getPartnerResponse.isOnboardingFeePaid}} </label>
-                        </p>
-                    </div>
-
-                    <div class="col-md-5 col-12" *ngIf="isOnboardingFeePaidNo">
-                        <button class="btn btn-success" (click)="resendPaytmPaymentLink(getPartnerResponse.dcoId)">
-                            Resend Payment Link
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="col-md-6 col-12 mt-2">
 
         <div class="card h-100 bg-warning">
@@ -43,10 +19,6 @@
                 <p class="mb-0">
                     <img src="../../../../assets/images/homeCity.png" style="height: 24px; margin-right: 10px;">
                     {{getDcoDetailsRes.personal_details.home_city}}
-                </p>
-                <p class="mb-0">
-                    <img src="../../../../assets/images/currentCity.png" style="height: 24px; margin-right: 10px;">
-                    {{getDcoDetailsRes.personal_details.current_city}}
                 </p>
                 <p class="mb-0">
                     Status : {{getDcoDetailsRes.personal_details.driver_status}}
