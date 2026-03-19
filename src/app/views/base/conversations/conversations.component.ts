@@ -339,6 +339,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   markPending() {
     if (!this.selectedChat) return;
     const req = {
+      chat_id: this.selectedChat.chat_id,
       customer_number: this.selectedChat.customer,
       update_by_number: this.agentNumber,
       status: 'pending'
@@ -356,8 +357,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   }
 
   initiateResolve() {
-    this.showRatingModal = true;
-    this.pendingRating = 0;
+    this.saveResolved();
   }
 
   setRating(star: number): void {
@@ -400,6 +400,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
   saveResolved() {
     const req = {
+      chat_id: this.selectedChat.chat_id,
       customer_number: this.selectedChat.customer,
       update_by_number: this.agentNumber,
       status: 'resolved'
