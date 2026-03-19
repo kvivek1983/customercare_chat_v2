@@ -22,6 +22,7 @@ export class DcoInfoComponent implements OnInit, OnChanges {
   apiProperties: APiProperties = new APiProperties();
   @Input() chatNumber: any;
   @Input() selectedView: any;
+  @Input() hideTagsSection: boolean = true;
   @Output() dcoSelected = new EventEmitter<any>();
 
   dcoStatusForm: FormGroup;
@@ -364,9 +365,9 @@ export class DcoInfoComponent implements OnInit, OnChanges {
 
   // Method to load more records
   loadMore() {
-    //const nextCount = this.visibleTags.length + this.displayCount;
     const nextCount = this.totalTagLength;
     this.visibleTags = this.fetchAllTagsForFreelancerRes.listOfTags.slice(0, nextCount);
+    this.visibleTagsFive = this.visibleTags;
   }
 
   get f() { return this.dcoStatusForm.controls; }

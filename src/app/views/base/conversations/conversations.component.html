@@ -286,6 +286,7 @@
     <!-- DCO Panels (Partner chat only) — outside tab *ngIf so it inits early -->
     <ng-container *ngIf="config.showDcoPanels">
       <app-dco-info *ngIf="dcoInfo" [chatNumber]="chatNumber" [selectedView]="selectedView"
+        [hideTagsSection]="true"
         (dcoSelected)="getDcoName($event)" [hidden]="activeRightPanel !== 'profile'"></app-dco-info>
     </ng-container>
 
@@ -494,6 +495,93 @@
 
         <div class="doc-empty" *ngIf="!selectedChat?.customer_details">
           Details will appear after next customer message
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Tab -->
+    <div class="right-panel-content" *ngIf="activeRightPanel === 'performance'">
+      <div class="dco-container" *ngIf="dcoInfoComponent?.getDcoDetailsRes">
+        <div class="dco-card">
+          <div class="dco-card-title">Performance</div>
+          <div class="dco-field">
+            <span class="dco-label">Driver NER</span>
+            <span class="dco-value">{{dcoInfoComponent.getDcoDetailsRes.performance?.driver_ner}}</span>
+          </div>
+          <div class="dco-field">
+            <span class="dco-label">Unassigned</span>
+            <span class="dco-value">{{dcoInfoComponent.getDcoDetailsRes.performance?.unassigned}}</span>
+          </div>
+          <div class="dco-field">
+            <span class="dco-label">Ontime Arrival</span>
+            <span class="dco-value">{{dcoInfoComponent.getDcoDetailsRes.performance?.ontime_arrival}}</span>
+          </div>
+          <div class="dco-field">
+            <span class="dco-label">App Non Compliance</span>
+            <span class="dco-value">{{dcoInfoComponent.getDcoDetailsRes.performance?.app_non_compliance}}</span>
+          </div>
+        </div>
+        <div class="dco-card">
+          <div class="dco-card-title">Engagement</div>
+          <div class="dco-field">
+            <span class="dco-label">Total Trips</span>
+            <span class="dco-value">{{dcoInfoComponent.getDcoDetailsRes.engagement?.total_trips}}</span>
+          </div>
+          <div class="dco-field">
+            <span class="dco-label">Last 15 Days Trips</span>
+            <span class="dco-value">{{dcoInfoComponent.getDcoDetailsRes.engagement?.last_15_days_trips}}</span>
+          </div>
+          <div class="dco-field">
+            <span class="dco-label">Outstanding Amount</span>
+            <span class="dco-value">{{dcoInfoComponent.getDcoDetailsRes.engagement?.current_outstanding_amount}}</span>
+          </div>
+          <div class="dco-field">
+            <span class="dco-label">Last Login</span>
+            <span class="dco-value">{{dcoInfoComponent.getDcoDetailsRes.engagement?.last_login}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="dco-loading" *ngIf="!dcoInfoComponent?.getDcoDetailsRes">
+        <div class="spinner"></div>
+        <span>Loading performance data...</span>
+      </div>
+    </div>
+
+    <!-- History Tab -->
+    <div class="right-panel-content" *ngIf="activeRightPanel === 'history'">
+      <!-- Tags Form -->
+      <div class="dco-container" *ngIf="dcoInfo && dcoInfoComponent">
+        <div class="dco-card">
+          <form [formGroup]="dcoInfoComponent.dcoStatusForm">
+            <div class="dco-form-row">
+              <select class="dco-select" formControlName="tag" (change)="dcoInfoComponent.fetchSubTagsForMainTags($event)">
+                <option value="" disabled>Choose Tag</option>
+                <option *ngFor="let tags of dcoInfoComponent.tagListData" [value]="tags">{{ tags }}</option>
+              </select>
+              <select class="dco-select" formControlName="subTag" (change)="dcoInfoComponent.subTagChangefun($event)">
+                <option value="" disabled>Choose SubTag</option>
+                <option *ngFor="let subTagdis of dcoInfoComponent.subTagList?.listOfSUbTags" [value]="subTagdis.tag_id">
+                  {{ subTagdis.sub_tag }}
+                </option>
+              </select>
+              <button type="button" class="dco-save-btn" (click)="dcoInfoComponent.statusUpdate()">Save</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tag History -->
+        <div class="dco-card" *ngIf="dcoInfoComponent.visibleTagsFive?.length > 0">
+          <div class="dco-card-title">
+            Tag History
+            <button *ngIf="dcoInfoComponent.totalTagLength > dcoInfoComponent.visibleTagsFive.length"
+              type="button" class="dco-load-more-btn" (click)="dcoInfoComponent.loadMore()">
+              View All
+            </button>
+          </div>
+          <div class="dco-field" *ngFor="let data of dcoInfoComponent.visibleTagsFive">
+            <span class="dco-label">{{ data.created_date_time | date : 'd MMM Y' }}</span>
+            <span class="dco-value">{{ data.main_tag }} - {{ data.sub_tag }}</span>
+          </div>
         </div>
       </div>
     </div>

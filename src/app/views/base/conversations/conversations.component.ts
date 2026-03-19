@@ -42,6 +42,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   @ViewChild('messageContainer') messageContainer!: ElementRef;
   @ViewChild('chatInput') chatInputRef!: ElementRef;
   @ViewChild(ChatNumberListComponent, { static: true }) chatNumberListComponent!: ChatNumberListComponent;
+  @ViewChild(DcoInfoComponent) dcoInfoComponent!: DcoInfoComponent;
 
   private destroy$ = new Subject<void>();
   private destroyRef = inject(DestroyRef);
@@ -1076,6 +1077,9 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     }
     if (tab === 'finance' && this.selectedChat && this.transactionHistory.length === 0) {
       this.fetchTransactionHistory();
+    }
+    if (tab === 'history') {
+      console.log('History tab - dcoInfoComponent:', this.dcoInfoComponent, 'tagListData:', this.dcoInfoComponent?.tagListData, 'visibleTagsFive:', this.dcoInfoComponent?.visibleTagsFive);
     }
     this.cdr.markForCheck();
   }

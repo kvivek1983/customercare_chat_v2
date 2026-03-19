@@ -2,7 +2,8 @@
 
   <!-- Loading State -->
   <div class="dco-loading" *ngIf="dcoLoadingPartner || dcoLoadingDetails">
-    Loading DCO details...
+    <div class="spinner"></div>
+    <span>Loading details...</span>
   </div>
 
   <!-- Error State -->
@@ -50,48 +51,6 @@
         </div>
       </div>
 
-      <!-- Performance Card -->
-      <div class="dco-card">
-        <div class="dco-card-title">Performance</div>
-        <div class="dco-field">
-          <span class="dco-label">Driver NER</span>
-          <span class="dco-value">{{getDcoDetailsRes.performance.driver_ner}}</span>
-        </div>
-        <div class="dco-field">
-          <span class="dco-label">Unassigned</span>
-          <span class="dco-value">{{getDcoDetailsRes.performance.unassigned}}</span>
-        </div>
-        <div class="dco-field">
-          <span class="dco-label">Ontime Arrival</span>
-          <span class="dco-value">{{getDcoDetailsRes.performance.ontime_arrival}}</span>
-        </div>
-        <div class="dco-field">
-          <span class="dco-label">App Non Compliance</span>
-          <span class="dco-value">{{getDcoDetailsRes.performance.app_non_compliance}}</span>
-        </div>
-      </div>
-
-      <!-- Engagement Card -->
-      <div class="dco-card">
-        <div class="dco-card-title">Engagement</div>
-        <div class="dco-field">
-          <span class="dco-label">Total Trips</span>
-          <span class="dco-value">{{getDcoDetailsRes.engagement.total_trips}}</span>
-        </div>
-        <div class="dco-field">
-          <span class="dco-label">Last 15 Days Trips</span>
-          <span class="dco-value">{{getDcoDetailsRes.engagement.last_15_days_trips}}</span>
-        </div>
-        <div class="dco-field">
-          <span class="dco-label">Outstanding Amount</span>
-          <span class="dco-value">{{getDcoDetailsRes.engagement.current_outstanding_amount}}</span>
-        </div>
-        <div class="dco-field">
-          <span class="dco-label">Last Login</span>
-          <span class="dco-value">{{getDcoDetailsRes.engagement.last_login}}</span>
-        </div>
-      </div>
-
       <!-- Cab Details Card -->
       <div class="dco-card">
         <div class="dco-card-title">Cab Details</div>
@@ -118,8 +77,8 @@
 
   </ng-container>
 
-  <!-- Tags Form -->
-  <div class="dco-card dco-tags-form">
+  <!-- Tags Form — shown only in History tab -->
+  <div class="dco-card dco-tags-form" [hidden]="hideTagsSection">
     <form [formGroup]="dcoStatusForm">
       <div class="dco-form-row">
         <select class="dco-select" formControlName="tag" (change)="fetchSubTagsForMainTags($event)"
@@ -144,7 +103,7 @@
   </div>
 
   <!-- Tags History Table -->
-  <div class="dco-card dco-tags-table" *ngIf="visibleTagsFive && visibleTagsFive.length > 0">
+  <div class="dco-card dco-tags-table" *ngIf="visibleTagsFive && visibleTagsFive.length > 0" [hidden]="hideTagsSection">
     <div class="dco-card-title">
       Tag History
       <button *ngIf="totalTagLength > visibleTagsFive.length" type="button"

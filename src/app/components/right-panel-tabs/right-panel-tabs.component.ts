@@ -92,6 +92,8 @@ export class RightPanelTabsComponent {
     { key: 'notes',    label: 'Notes',    icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8' },
     { key: 'documents', label: 'Documents', icon: 'M9 12h6 M9 16h6 M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9l-5-7z M13 2v7h7' },
     { key: 'finance', label: 'Finance', icon: 'M12 1v22 M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6' },
+    { key: 'performance', label: 'Performance', icon: 'M3 3v18h18 M7 16l4-4 4 4 4-8' },
+    { key: 'history', label: 'History', icon: 'M12 8v4l3 3 M3.05 11a9 9 0 1118 2 M3 17v4h4' },
   ];
 
   get tabs(): TabDef[] {

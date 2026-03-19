@@ -1,7 +1,7 @@
 import { QuickAction } from '../components/quick-actions-panel/quick-actions-panel.component';
 
 /** Right panel tab keys */
-export type RightPanelTabKey = 'profile' | 'rides' | 'context' | 'actions' | 'notes' | 'documents' | 'finance';
+export type RightPanelTabKey = 'profile' | 'rides' | 'context' | 'actions' | 'notes' | 'documents' | 'finance' | 'performance' | 'history';
 
 /**
  * Configuration interface for the unified conversation component.
@@ -69,7 +69,7 @@ export const CHAT_TYPE_CONFIGS: Record<string, ChatTypeConfig> = {
     chatListDateFormat: 'HH:mm',
     showChatListCustomerName: true,
     // Right Panel — Partner gets all tabs & actions
-    rightPanelTabs: ['profile', 'rides', 'context', 'actions', 'notes', 'documents', 'finance'],
+    rightPanelTabs: ['profile', 'rides', 'documents', 'performance', 'finance', 'history'],
     defaultRightPanelTab: 'profile',
     enabledQuickActions: ['send_template', 'reassign', 'resolve', 'send_resolved_template', 'manage_tags', 'pickup_drop_city'],
     showProfileDetails: true,
