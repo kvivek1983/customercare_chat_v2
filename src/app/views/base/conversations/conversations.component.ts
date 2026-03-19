@@ -563,6 +563,14 @@ export class ConversationsComponent implements OnInit, OnDestroy {
         this.loadingNewData = false;
         this.selectedChat = chat.selectedChatData;
         this.assignedExecutiveName = this.selectedChat?.assigned_executive_name || '';
+        // Auto-select documents tab if documents pending
+        const docStatus1 = this.selectedChat?.customer_details?.documents_status;
+        if (docStatus1 && docStatus1 !== 'Approved') {
+          this.activeRightPanel = 'documents';
+          this.fetchDcoRawConfig(this.selectedChat.customer);
+        } else {
+          this.activeRightPanel = 'profile';
+        }
         // Reset pagination & loading state for fresh chat load
         this.currentPage = 1;
         this.totalPages = 1;
@@ -589,6 +597,14 @@ export class ConversationsComponent implements OnInit, OnDestroy {
       // For other chat lists that emit the plain chat object, use it directly
       this.selectedChat = chat.selectedChatData ? chat.selectedChatData : chat;
       this.assignedExecutiveName = this.selectedChat?.assigned_executive_name || '';
+      // Auto-select documents tab if documents pending
+      const docStatus2 = this.selectedChat?.customer_details?.documents_status;
+      if (docStatus2 && docStatus2 !== 'Approved') {
+        this.activeRightPanel = 'documents';
+        this.fetchDcoRawConfig(this.selectedChat.customer);
+      } else {
+        this.activeRightPanel = 'profile';
+      }
       // Reset pagination & loading state for fresh chat load
       this.currentPage = 1;
       this.totalPages = 1;
