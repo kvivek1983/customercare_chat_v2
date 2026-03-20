@@ -131,6 +131,11 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
         if (response.status === 1) {
           const chats = (Array.isArray(response.chats) ? response.chats : [])
             .map((c: any) => this.normalizeChat(c));
+          // Skip stale responses from a different customer_type
+          if (chats.length > 0 && this.customerType && chats[0].customer_type && chats[0].customer_type !== this.customerType) {
+            console.log('[ChatList] Ignoring stale response for:', chats[0].customer_type, 'expected:', this.customerType);
+            return;
+          }
           if (this.isFresh) {
             this.allChats = chats;
           } else {
