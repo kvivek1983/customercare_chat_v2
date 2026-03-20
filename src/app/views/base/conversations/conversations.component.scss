@@ -1455,3 +1455,76 @@
     transform-origin: center center;
   }
 }
+
+// Attachment button
+.attach-btn {
+  background: none;
+  border: none;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: #f0f0f0;
+    color: #5b21b6;
+  }
+}
+
+// Media Preview
+.media-preview {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px 8px 0 0;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  img {
+    max-height: 120px;
+    max-width: 200px;
+    border-radius: 6px;
+    object-fit: cover;
+  }
+
+  .doc-preview {
+    font-size: 13px;
+    color: #333;
+    padding: 8px 12px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+  }
+
+  .preview-close {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #999;
+
+    &:hover { color: #e55353; }
+  }
+
+  .preview-sending {
+    font-size: 12px;
+    color: #5b21b6;
+    font-weight: 500;
+  }
+}
+
+.chat-input-wrapper {
+  position: relative;
+}

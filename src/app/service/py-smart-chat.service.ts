@@ -22,6 +22,18 @@ export class PySmartChatService {
     })
   };
 
+  /** Get JWT token from localStorage */
+  getToken(): string {
+    const userRole = localStorage.getItem('userRole');
+    if (userRole) {
+      try {
+        const loginDetails = JSON.parse(localStorage.getItem(userRole + '-loginDetails') || '{}');
+        return loginDetails.accessToken || '';
+      } catch (e) { }
+    }
+    return '';
+  }
+
   /** Build headers with JWT Authorization token from localStorage */
   private getAuthHeaders(): { headers: HttpHeaders } {
     const userRole = localStorage.getItem('userRole');

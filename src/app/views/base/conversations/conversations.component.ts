@@ -514,6 +514,88 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     this.viewerZoom = 1;
   }
 
+  // Media Send
+  selectedFile: File | null = null;
+  selectedFilePreview: string | null = null;
+  selectedFileType: 'image' | 'document' = 'image';
+  isSendingMedia = false;
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    const file = input.files[0];
+    this.selectedFile = file;
+    this.selectedFileType = file.type.startsWith('image/') ? 'image' : 'document';
+    if (this.selectedFileType === 'image') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.selectedFilePreview = e.target?.result as string;
+        this.cdr.markForCheck();
+      };
+      reader.readAsDataURL(file);
+    } else {
+      this.selectedFilePreview = null;
+    }
+    input.value = '';
+  }
+
+  clearSelectedFile(): void {
+    this.selectedFile = null;
+    this.selectedFilePreview = null;
+    this.isSendingMedia = false;
+  }
+
+  async sendMediaMessage(): Promise<void> {
+    if (!this.selectedFile || !this.selectedChat || this.isSendingMedia) return;
+    this.isSendingMedia = true;
+
+    try {
+      // Step 1: Upload file
+      const formData = new FormData();
+      formData.append('file', this.selectedFile);
+      const uploadRes = await fetch(`${this.pscs.apiProperties.pySmartChatUrl}api/media/upload`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${this.pscs.getToken()}` },
+        body: formData,
+      });
+      const uploadData = await uploadRes.json();
+      if (uploadData.status !== 1) {
+        this.toastr.error('File upload failed');
+        this.isSendingMedia = false;
+        return;
+      }
+
+      // Step 2: Send media
+      const sendForm = new FormData();
+      sendForm.append('chat_id', this.selectedChat.chat_id);
+      sendForm.append('customer', this.selectedChat.customer);
+      sendForm.append('sender', this.agentNumber);
+      sendForm.append('media_url', uploadData.url);
+      sendForm.append('media_type', this.selectedFileType);
+      sendForm.append('caption', this.newMessage || '');
+      sendForm.append('customer_type', this.config.chatListCustomerType);
+      sendForm.append('chat_number', this.selectedChat.chat_number || this.config.mediaSendType || '9099039188');
+
+      const sendRes = await fetch(`${this.pscs.apiProperties.pySmartChatUrl}api/media/send`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${this.pscs.getToken()}` },
+        body: sendForm,
+      });
+      const sendData = await sendRes.json();
+      if (sendData.status === 1) {
+        this.newMessage = '';
+        this.clearSelectedFile();
+        this.toastr.success('Media sent');
+      } else {
+        this.toastr.error('Send failed: ' + (sendData.message || ''));
+      }
+    } catch (e) {
+      this.toastr.error('Error sending media');
+    }
+    this.isSendingMedia = false;
+    this.cdr.markForCheck();
+  }
+
   onScroll(): void {
     const container = this.messageContainer?.nativeElement;
     if (container) {
@@ -769,6 +851,11 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   }
 
   sendMessage() {
+    // If file is selected, send media instead
+    if (this.selectedFile) {
+      this.sendMediaMessage();
+      return;
+    }
     if (this.newMessage.trim() && this.selectedChat) {
 
       const message: any = {
