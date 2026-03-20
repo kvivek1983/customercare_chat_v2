@@ -279,8 +279,7 @@ export class ChatNumberListComponent implements OnInit, OnDestroy, OnChanges {
         }
       });
 
-    // Start periodic refresh as fallback for missed room_update events.
-    this.startPeriodicRefresh();
+    // Periodic refresh disabled — room_update handles real-time updates
 
     this.initialized = true;
   }
