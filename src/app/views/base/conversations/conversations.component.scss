@@ -1439,16 +1439,19 @@
 }
 
 .image-viewer-container {
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow: auto;
-  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 
   img {
-    max-width: 90vw;
-    max-height: 90vh;
+    max-width: 85vw;
+    max-height: 85vh;
     object-fit: contain;
     transition: transform 0.2s ease;
     user-select: none;
+    transform-origin: center center;
   }
 }
