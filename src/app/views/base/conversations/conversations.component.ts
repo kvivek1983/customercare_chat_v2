@@ -485,6 +485,35 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     this.pendingScrollToBottom = true;
   }
 
+  // Image Viewer
+  viewerImageUrl: string | null = null;
+  viewerZoom = 1;
+
+  openImageViewer(url: string): void {
+    this.viewerImageUrl = url;
+    this.viewerZoom = 1;
+  }
+
+  closeImageViewer(): void {
+    this.viewerImageUrl = null;
+    this.viewerZoom = 1;
+  }
+
+  zoomIn(e: Event): void {
+    e.stopPropagation();
+    this.viewerZoom = Math.min(this.viewerZoom + 0.25, 5);
+  }
+
+  zoomOut(e: Event): void {
+    e.stopPropagation();
+    this.viewerZoom = Math.max(this.viewerZoom - 0.25, 0.25);
+  }
+
+  resetZoom(e: Event): void {
+    e.stopPropagation();
+    this.viewerZoom = 1;
+  }
+
   onScroll(): void {
     const container = this.messageContainer?.nativeElement;
     if (container) {

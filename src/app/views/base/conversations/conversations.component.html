@@ -152,7 +152,8 @@
 
               <!-- Image -->
               <img *ngIf="message.media_type === 'image' && message.mediaUrl" [src]="message.mediaUrl" alt="Image"
-                (error)="message.mediaLoadFailed = true" [hidden]="message.mediaLoadFailed">
+                (error)="message.mediaLoadFailed = true" [hidden]="message.mediaLoadFailed"
+                (click)="openImageViewer(message.mediaUrl)" style="cursor: zoom-in;">
               <div *ngIf="message.media_type === 'image' && message.mediaLoadFailed" class="media-error">
                 Image failed to load
               </div>
@@ -625,4 +626,17 @@
     </div>
   </div>
 
+</div>
+
+<!-- Image Viewer Lightbox -->
+<div class="image-viewer-overlay" *ngIf="viewerImageUrl" (click)="closeImageViewer()">
+  <div class="image-viewer-controls">
+    <button (click)="zoomIn($event)">+</button>
+    <button (click)="zoomOut($event)">−</button>
+    <button (click)="resetZoom($event)">↺</button>
+    <button (click)="closeImageViewer()">✕</button>
+  </div>
+  <div class="image-viewer-container" (click)="$event.stopPropagation()">
+    <img [src]="viewerImageUrl" [style.transform]="'scale(' + viewerZoom + ')'" draggable="false">
+  </div>
 </div>
