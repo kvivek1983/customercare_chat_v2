@@ -1068,6 +1068,26 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     });
   }
 
+  retryMediaLoad(message: any): void {
+    if (!message.media?.id) return;
+    message.mediaLoadFailed = false;
+    message.mediaUrl = null;
+    this.fetchMediaFile(message.media.id)
+      .then((mediaUrl) => {
+        if (mediaUrl) {
+          message.mediaUrl = mediaUrl;
+          this.blobUrls.push(mediaUrl);
+        } else {
+          message.mediaLoadFailed = true;
+        }
+        this.cdr.markForCheck();
+      })
+      .catch(() => {
+        message.mediaLoadFailed = true;
+        this.cdr.markForCheck();
+      });
+  }
+
   // --- Utilities ---
 
   getFormattedCurrentDateByZone() {

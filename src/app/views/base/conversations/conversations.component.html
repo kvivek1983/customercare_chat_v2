@@ -144,7 +144,7 @@
               <span class="message-time">{{ formatTime(message.datetime) }}<span class="read-receipt" *ngIf="message.type === 'Agent'"> &#10003;&#10003;</span></span>
             </div>
 
-            <div class="media-container" *ngIf="message.mediaUrl || message.media_type === 'location' || message.media_type === 'contacts'">
+            <div class="media-container" *ngIf="message.mediaUrl || message.media_type">
 
               <!-- Audio -->
               <audio *ngIf="message.media_type === 'audio'" controls>
@@ -152,11 +152,13 @@
               </audio>
 
               <!-- Image -->
-              <img *ngIf="message.media_type === 'image' && message.mediaUrl" [src]="message.mediaUrl" alt="Image"
-                (error)="message.mediaLoadFailed = true" [hidden]="message.mediaLoadFailed"
+              <img *ngIf="message.media_type === 'image' && message.mediaUrl && !message.mediaLoadFailed" [src]="message.mediaUrl" alt="Image"
+                (error)="message.mediaLoadFailed = true"
                 (click)="openImageViewer(message.mediaUrl)" style="cursor: zoom-in;">
-              <div *ngIf="message.media_type === 'image' && message.mediaLoadFailed" class="media-error">
-                Image failed to load
+              <div *ngIf="message.media_type === 'image' && (!message.mediaUrl || message.mediaLoadFailed)" class="media-error">
+                <span class="media-error-icon">🖼️</span>
+                <span>Image unavailable</span>
+                <button *ngIf="message.media?.id" class="media-retry-btn" (click)="retryMediaLoad(message); $event.stopPropagation()">Retry</button>
               </div>
 
               <!-- Video -->

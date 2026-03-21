@@ -429,6 +429,25 @@
     background: var(--bg);
     border-radius: 8px;
     border: 1px dashed var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .media-error-icon {
+    font-size: 24px;
+  }
+
+  .media-retry-btn {
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    &:hover { background: var(--accent); color: #fff; }
   }
 
   .location-container {
