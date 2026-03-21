@@ -1125,21 +1125,6 @@ export class ConversationsComponent implements OnInit, OnDestroy {
     return s.replace(/^[+-]/, '');
   }
 
-  /** Get payment icon label */
-  getPaymentIcon(txn: any): string {
-    const pt = txn.paymentType || '';
-    if (pt.includes('Paytm')) return '📱';
-    if (pt.includes('Received')) return '⬇';
-    if (pt === 'Payment Made') {
-      const pm = txn.paymentMode || '';
-      if (pm === 'Cash') return '💵';
-      if (pm === 'System') return '⚙';
-      return '⬆';
-    }
-    if (txn.bookingType && txn.bookingType !== '-') return '🚗';
-    return '';
-  }
-
   clearChatGptInterval(): void {
     if (this.intervalId) {
       clearTimeout(this.intervalId);

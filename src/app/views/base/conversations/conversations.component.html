@@ -637,9 +637,6 @@
                [class.finance-txn-card--paid]="!isPaymentReceived(txn.netPayment)"
                (click)="txn._expanded = !txn._expanded">
             <div class="finance-txn-row">
-              <div class="finance-txn-icon">
-                <span class="finance-txn-emoji">{{ getPaymentIcon(txn) }}</span>
-              </div>
               <div class="finance-txn-left">
                 <span class="finance-txn-date">{{ formatTxnDate(txn.dateTime) }}</span>
                 <span class="finance-txn-time">{{ formatTxnTime(txn.dateTime) }}</span>
