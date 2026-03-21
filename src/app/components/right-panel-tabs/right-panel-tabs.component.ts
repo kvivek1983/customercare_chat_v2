@@ -6,6 +6,7 @@ interface TabDef {
   key: RightPanelTab;
   label: string;
   icon: string | string[];
+  circle?: { cx: string; cy: string; r: string };
 }
 
 @Component({
@@ -28,6 +29,7 @@ interface TabDef {
           <ng-template #singlePath>
             <path [attr.d]="tab.icon"></path>
           </ng-template>
+          <circle *ngIf="tab.circle" [attr.cx]="tab.circle.cx" [attr.cy]="tab.circle.cy" [attr.r]="tab.circle.r" fill="currentColor"></circle>
         </svg>
       </button>
     </div>
@@ -98,7 +100,7 @@ export class RightPanelTabsComponent {
     { key: 'documents', label: 'Documents', icon: 'M9 12h6 M9 16h6 M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9l-5-7z M13 2v7h7' },
     { key: 'finance', label: 'Finance', icon: ['M6 3h12', 'M6 8h12', 'm6 13 8.5 8', 'M6 13h3', 'M9 13c6.667 0 6.667-10 0-10'] },
     { key: 'performance', label: 'Performance', icon: 'M3 3v18h18 M7 16l4-4 4 4 4-8' },
-    { key: 'history', label: 'History', icon: 'M12 8v4l3 3 M3.05 11a9 9 0 1118 2 M3 17v4h4' },
+    { key: 'history', label: 'Tags', icon: 'M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z', circle: { cx: '7.5', cy: '7.5', r: '.5' } },
   ];
 
   get tabs(): TabDef[] {
