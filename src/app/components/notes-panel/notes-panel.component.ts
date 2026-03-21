@@ -33,7 +33,10 @@ import { ChatService } from '../../service/chat.service';
         </button>
       </div>
 
-      <div *ngIf="isLoading" class="notes-loading">Loading...</div>
+      <div *ngIf="isLoading" class="notes-loading">
+        <div class="panel-spinner"></div>
+        <span>Loading notes...</span>
+      </div>
 
       <div *ngIf="!isLoading && notes.length === 0" class="notes-empty">
         No notes yet. Add one above.
@@ -94,9 +97,16 @@ import { ChatService } from '../../service/chat.service';
       background: var(--border); color: var(--text-muted); cursor: not-allowed;
     }
     .notes-loading, .notes-empty {
-      text-align: center; color: var(--text-muted);
-      font-size: 12px; padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 10px; color: var(--text-muted);
+      font-size: 12px; padding: 32px 0;
     }
+    .panel-spinner {
+      width: 28px; height: 28px;
+      border: 3px solid #e9ecef; border-top-color: #6366f1;
+      border-radius: 50%; animation: panelSpin 0.7s linear infinite;
+    }
+    @keyframes panelSpin { to { transform: rotate(360deg); } }
     .notes-list {
       display: flex; flex-direction: column; gap: 10px;
     }

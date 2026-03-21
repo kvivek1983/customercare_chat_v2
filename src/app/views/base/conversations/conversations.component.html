@@ -32,7 +32,8 @@
 
   <!-- Loading indicator (Partner only) -->
   <div *ngIf="loadingNewData" class="conversation-panel loading-spinner">
-    Loading Data...
+    <div class="panel-spinner-lg"></div>
+    <span>Loading Data...</span>
   </div>
 
   <div class="conversation-panel">
@@ -423,7 +424,13 @@
           </button>
         </div>
 
-        <div class="doc-content" *ngIf="selectedChat?.customer_details">
+        <!-- Documents Loading -->
+        <div class="dco-loading" *ngIf="documentsLoading">
+          <div class="spinner"></div>
+          <span>Loading documents...</span>
+        </div>
+
+        <div class="doc-content" *ngIf="!documentsLoading && selectedChat?.customer_details">
           <!-- Cab Documents -->
           <div *ngIf="activeDocCategory === 'cab'" class="doc-list">
             <div class="doc-item">
@@ -605,37 +612,75 @@
     <!-- Finance Tab -->
     <div class="right-panel-content" *ngIf="activeRightPanel === 'finance'">
       <div class="finance-panel">
-        <div class="finance-loading" *ngIf="financeLoading">Loading transactions...</div>
+        <div class="finance-loading" *ngIf="financeLoading">
+          <div class="spinner"></div>
+          <span>Loading transactions...</span>
+        </div>
         <div class="finance-empty" *ngIf="!financeLoading && (!transactionHistory || transactionHistory.length === 0)">
           No transaction history available
         </div>
-        <div class="finance-table-wrap" *ngIf="!financeLoading && transactionHistory && transactionHistory.length > 0">
-          <table class="finance-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Date</th>
-                <th>Booking ID</th>
-                <th>Type</th>
-                <th>Commission</th>
-                <th>Online Pay</th>
-                <th>Net Payment</th>
-                <th>Outstanding</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let txn of transactionHistory; let i = index">
-                <td>{{ i + 1 }}</td>
-                <td class="txn-date">{{ txn.dateTime }}</td>
-                <td>{{ txn.displayBooking }}</td>
-                <td>{{ txn.bookingType }}</td>
-                <td>{{ txn.commission }}</td>
-                <td>{{ txn.onlinePayment }}</td>
-                <td class="txn-amount">{{ txn.netPayment }}</td>
-                <td class="txn-outstanding">{{ txn.outstandingAmount }}</td>
-              </tr>
-            </tbody>
-          </table>
+
+        <!-- Summary Card -->
+        <div class="finance-summary" *ngIf="!financeLoading && transactionHistory && transactionHistory.length > 0">
+          <div class="finance-summary-item">
+            <span class="finance-summary-label">Outstanding</span>
+            <span class="finance-summary-value"
+              [class.text-danger]="transactionHistory[0]?.outstandingAmount > 0"
+              [class.text-success]="transactionHistory[0]?.outstandingAmount <= 0">
+              &#8377;{{ transactionHistory[0]?.outstandingAmount || '0' }}
+            </span>
+          </div>
+          <div class="finance-summary-item">
+            <span class="finance-summary-label">Transactions</span>
+            <span class="finance-summary-value">{{ transactionHistory.length }}</span>
+          </div>
+        </div>
+
+        <!-- Transaction Cards -->
+        <div class="finance-txn-list" *ngIf="!financeLoading && transactionHistory && transactionHistory.length > 0">
+          <div class="finance-txn-card" *ngFor="let txn of transactionHistory; let i = index"
+               (click)="txn._expanded = !txn._expanded">
+            <div class="finance-txn-row">
+              <div class="finance-txn-left">
+                <span class="finance-txn-date">{{ txn.dateTime | slice:0:10 }}</span>
+                <span class="finance-txn-time">{{ txn.dateTime | slice:11:16 }}</span>
+              </div>
+              <div class="finance-txn-center">
+                <span class="finance-txn-booking" *ngIf="txn.displayBooking !== '-'">#{{ txn.displayBooking }}</span>
+                <span class="finance-txn-type-badge" *ngIf="txn.bookingType !== '-'">{{ txn.bookingType }}</span>
+                <span class="finance-txn-payment-type" *ngIf="txn.paymentType && txn.paymentType !== '-'">{{ txn.paymentType }}</span>
+              </div>
+              <div class="finance-txn-right">
+                <span class="finance-txn-net"
+                  [class.text-success]="txn.netPayment?.toString().startsWith('-')"
+                  [class.text-danger]="txn.netPayment?.toString().startsWith('+')">
+                  &#8377;{{ txn.netPayment }}
+                </span>
+                <span class="finance-txn-outstanding">Bal: &#8377;{{ txn.outstandingAmount }}</span>
+              </div>
+            </div>
+            <!-- Expanded Details -->
+            <div class="finance-txn-details" *ngIf="txn._expanded">
+              <div class="finance-detail-row" *ngIf="txn.baseFare !== '-'">
+                <span>Base Fare</span><span>&#8377;{{ txn.baseFare }}</span>
+              </div>
+              <div class="finance-detail-row" *ngIf="txn.commission !== '-'">
+                <span>Commission</span><span>&#8377;{{ txn.commission }}</span>
+              </div>
+              <div class="finance-detail-row" *ngIf="txn.onlinePayment !== '-' && txn.onlinePayment !== '0'">
+                <span>Online Payment</span><span>&#8377;{{ txn.onlinePayment }}</span>
+              </div>
+              <div class="finance-detail-row" *ngIf="txn.serviceTax !== '-' && txn.serviceTax !== 0">
+                <span>Service Tax</span><span>&#8377;{{ txn.serviceTax }}</span>
+              </div>
+              <div class="finance-detail-row" *ngIf="txn.discountAmount !== '-' && txn.discountAmount !== 0">
+                <span>Discount</span><span>&#8377;{{ txn.discountAmount }}</span>
+              </div>
+              <div class="finance-detail-row" *ngIf="txn.paymentMode !== '-'">
+                <span>Payment Mode</span><span>{{ txn.paymentMode }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

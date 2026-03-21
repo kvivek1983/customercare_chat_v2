@@ -140,6 +140,7 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   activeRightPanel: RightPanelTab = 'profile';
   activeDocCategory: 'cab' | 'driver' | 'finance' = 'cab';
   dcoRawConfig: any = null;
+  documentsLoading: boolean = false;
   transactionHistory: any[] = [];
   financeLoading: boolean = false;
   private apiProperties = new APiProperties();
@@ -1201,16 +1202,23 @@ export class ConversationsComponent implements OnInit, OnDestroy {
   }
 
   private fetchDcoRawConfig(customer: string): void {
+    this.documentsLoading = true;
+    this.cdr.markForCheck();
     const url = `https://driverconfig.oneway.cab/rest/V21/getDcoConfiguration?contactNo=${customer}`;
     fetch(url)
       .then(res => res.json())
       .then(data => {
+        this.documentsLoading = false;
         if (data && data.status == '1') {
           this.dcoRawConfig = data;
-          this.cdr.markForCheck();
         }
+        this.cdr.markForCheck();
       })
-      .catch(err => console.error('Failed to fetch DCO config:', err));
+      .catch(err => {
+        this.documentsLoading = false;
+        this.cdr.markForCheck();
+        console.error('Failed to fetch DCO config:', err);
+      });
   }
 
   private fetchTransactionHistory(): void {

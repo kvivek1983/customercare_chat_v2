@@ -16,7 +16,10 @@ import { PySmartChatService } from '../../service/py-smart-chat.service';
       <h5 class="ctx-title">Context History</h5>
       <p class="ctx-subtitle">Each context change creates a new chat. Click to view conversation history.</p>
 
-      <div *ngIf="isLoading" class="ctx-loading">Loading...</div>
+      <div *ngIf="isLoading" class="ctx-loading">
+        <div class="panel-spinner"></div>
+        <span>Loading context history...</span>
+      </div>
 
       <div *ngIf="!isLoading && items.length === 0" class="ctx-empty">
         No context history found.
@@ -67,9 +70,16 @@ import { PySmartChatService } from '../../service/py-smart-chat.service';
       margin-bottom: 12px; line-height: 1.4;
     }
     .ctx-loading, .ctx-empty {
-      text-align: center; color: var(--text-muted);
-      font-size: 12px; padding: 20px 0;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 10px; color: var(--text-muted);
+      font-size: 12px; padding: 32px 0;
     }
+    .panel-spinner {
+      width: 28px; height: 28px;
+      border: 3px solid #e9ecef; border-top-color: #6366f1;
+      border-radius: 50%; animation: panelSpin 0.7s linear infinite;
+    }
+    @keyframes panelSpin { to { transform: rotate(360deg); } }
     .ctx-timeline {
       display: flex; flex-direction: column; gap: 10px;
     }

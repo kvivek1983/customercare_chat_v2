@@ -13,7 +13,10 @@ import { PySmartChatService } from '../../service/py-smart-chat.service';
   imports: [CommonModule],
   template: `
     <div class="rides-panel">
-      <div *ngIf="isLoading" class="rides-loading">Loading...</div>
+      <div *ngIf="isLoading" class="rides-loading">
+        <div class="panel-spinner"></div>
+        <span>Loading rides...</span>
+      </div>
 
       <div *ngIf="!isLoading">
         <!-- Upcoming Rides Section -->
@@ -51,9 +54,16 @@ import { PySmartChatService } from '../../service/py-smart-chat.service';
   styles: [`
     .rides-panel { padding: 4px 0; }
     .rides-loading, .rides-empty {
-      text-align: center; color: var(--text-muted);
-      font-size: 12px; padding: 16px 0;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 10px; color: var(--text-muted);
+      font-size: 12px; padding: 32px 0;
     }
+    .panel-spinner {
+      width: 28px; height: 28px;
+      border: 3px solid #e9ecef; border-top-color: #6366f1;
+      border-radius: 50%; animation: panelSpin 0.7s linear infinite;
+    }
+    @keyframes panelSpin { to { transform: rotate(360deg); } }
     .rides-section { margin-bottom: 16px; }
     .rides-section-title {
       font-size: 10px; font-weight: 700; color: var(--text-muted);
