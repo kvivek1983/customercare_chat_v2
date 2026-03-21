@@ -1093,6 +1093,53 @@ export class ConversationsComponent implements OnInit, OnDestroy {
 
   // --- ChatGPT Integration (Partner only) ---
 
+  // --- Finance Helpers ---
+
+  /** Format "2026-03-21 11:46:00" → "21 Mar" */
+  formatTxnDate(dateTime: string): string {
+    if (!dateTime) return '';
+    try {
+      const d = new Date(dateTime.replace(' ', 'T'));
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      return `${d.getDate()} ${months[d.getMonth()]}`;
+    } catch { return dateTime.slice(0, 10); }
+  }
+
+  /** Format "2026-03-21 11:46:00" → "11:46" */
+  formatTxnTime(dateTime: string): string {
+    if (!dateTime) return '';
+    return dateTime.slice(11, 16);
+  }
+
+  /** From DCO perspective: negative = received (green), positive = owed (red) */
+  isPaymentReceived(netPayment: string): boolean {
+    if (!netPayment) return false;
+    const s = netPayment.toString().trim();
+    return s.startsWith('-');
+  }
+
+  /** Get clean display amount without +/- prefix */
+  displayAmount(netPayment: string): string {
+    if (!netPayment) return '0';
+    const s = netPayment.toString().trim();
+    return s.replace(/^[+-]/, '');
+  }
+
+  /** Get payment icon label */
+  getPaymentIcon(txn: any): string {
+    const pt = txn.paymentType || '';
+    if (pt.includes('Paytm')) return '📱';
+    if (pt.includes('Received')) return '⬇';
+    if (pt === 'Payment Made') {
+      const pm = txn.paymentMode || '';
+      if (pm === 'Cash') return '💵';
+      if (pm === 'System') return '⚙';
+      return '⬆';
+    }
+    if (txn.bookingType && txn.bookingType !== '-') return '🚗';
+    return '';
+  }
+
   clearChatGptInterval(): void {
     if (this.intervalId) {
       clearTimeout(this.intervalId);

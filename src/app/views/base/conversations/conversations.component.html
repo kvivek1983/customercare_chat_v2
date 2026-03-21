@@ -620,41 +620,41 @@
           No transaction history available
         </div>
 
-        <!-- Summary Card -->
-        <div class="finance-summary" *ngIf="!financeLoading && transactionHistory && transactionHistory.length > 0">
-          <div class="finance-summary-item">
-            <span class="finance-summary-label">Outstanding</span>
-            <span class="finance-summary-value"
-              [class.text-danger]="transactionHistory[0]?.outstandingAmount > 0"
-              [class.text-success]="transactionHistory[0]?.outstandingAmount <= 0">
-              &#8377;{{ transactionHistory[0]?.outstandingAmount || '0' }}
-            </span>
-          </div>
-          <div class="finance-summary-item">
-            <span class="finance-summary-label">Transactions</span>
-            <span class="finance-summary-value">{{ transactionHistory.length }}</span>
-          </div>
+        <!-- Outstanding Banner -->
+        <div class="finance-outstanding-bar" *ngIf="!financeLoading && transactionHistory && transactionHistory.length > 0">
+          <span class="finance-outstanding-label">Outstanding Balance</span>
+          <span class="finance-outstanding-value"
+            [class.text-danger]="transactionHistory[0]?.outstandingAmount > 0"
+            [class.text-success]="transactionHistory[0]?.outstandingAmount <= 0">
+            &#8377;{{ transactionHistory[0]?.outstandingAmount || '0' }}
+          </span>
         </div>
 
         <!-- Transaction Cards -->
         <div class="finance-txn-list" *ngIf="!financeLoading && transactionHistory && transactionHistory.length > 0">
           <div class="finance-txn-card" *ngFor="let txn of transactionHistory; let i = index"
+               [class.finance-txn-card--received]="isPaymentReceived(txn.netPayment)"
+               [class.finance-txn-card--paid]="!isPaymentReceived(txn.netPayment)"
                (click)="txn._expanded = !txn._expanded">
             <div class="finance-txn-row">
+              <div class="finance-txn-icon">
+                <span class="finance-txn-emoji">{{ getPaymentIcon(txn) }}</span>
+              </div>
               <div class="finance-txn-left">
-                <span class="finance-txn-date">{{ txn.dateTime | slice:0:10 }}</span>
-                <span class="finance-txn-time">{{ txn.dateTime | slice:11:16 }}</span>
+                <span class="finance-txn-date">{{ formatTxnDate(txn.dateTime) }}</span>
+                <span class="finance-txn-time">{{ formatTxnTime(txn.dateTime) }}</span>
               </div>
               <div class="finance-txn-center">
-                <span class="finance-txn-booking" *ngIf="txn.displayBooking !== '-'">#{{ txn.displayBooking }}</span>
-                <span class="finance-txn-type-badge" *ngIf="txn.bookingType !== '-'">{{ txn.bookingType }}</span>
+                <span class="finance-txn-booking" *ngIf="txn.displayBooking && txn.displayBooking.trim() !== '-'">#{{ txn.displayBooking.trim() }}</span>
+                <span class="finance-txn-type-badge" *ngIf="txn.bookingType && txn.bookingType !== '-'">{{ txn.bookingType }}</span>
                 <span class="finance-txn-payment-type" *ngIf="txn.paymentType && txn.paymentType !== '-'">{{ txn.paymentType }}</span>
+                <span class="finance-txn-payment-type" *ngIf="txn.paymentMode && txn.paymentMode !== '-'">via {{ txn.paymentMode }}</span>
               </div>
               <div class="finance-txn-right">
                 <span class="finance-txn-net"
-                  [class.text-success]="txn.netPayment?.toString().startsWith('-')"
-                  [class.text-danger]="txn.netPayment?.toString().startsWith('+')">
-                  &#8377;{{ txn.netPayment }}
+                  [class.text-success]="isPaymentReceived(txn.netPayment)"
+                  [class.text-danger]="!isPaymentReceived(txn.netPayment)">
+                  {{ isPaymentReceived(txn.netPayment) ? '-' : '+' }}&#8377;{{ displayAmount(txn.netPayment) }}
                 </span>
                 <span class="finance-txn-outstanding">Bal: &#8377;{{ txn.outstandingAmount }}</span>
               </div>
@@ -671,13 +671,13 @@
                 <span>Online Payment</span><span>&#8377;{{ txn.onlinePayment }}</span>
               </div>
               <div class="finance-detail-row" *ngIf="txn.serviceTax !== '-' && txn.serviceTax !== 0">
-                <span>Service Tax</span><span>&#8377;{{ txn.serviceTax }}</span>
+                <span>GST</span><span>&#8377;{{ txn.serviceTax }}</span>
               </div>
               <div class="finance-detail-row" *ngIf="txn.discountAmount !== '-' && txn.discountAmount !== 0">
                 <span>Discount</span><span>&#8377;{{ txn.discountAmount }}</span>
               </div>
-              <div class="finance-detail-row" *ngIf="txn.paymentMode !== '-'">
-                <span>Payment Mode</span><span>{{ txn.paymentMode }}</span>
+              <div class="finance-detail-row" *ngIf="txn.driverGst && txn.driverGst !== 0">
+                <span>Driver GST</span><span>&#8377;{{ txn.driverGst }}</span>
               </div>
             </div>
           </div>
